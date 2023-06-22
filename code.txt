@@ -1,0 +1,19 @@
+
+AGENT person {
+    VARIABLE x: RANDOM(0, WIDTH) = x + RANDOM(0, 1) - 0.5;
+    VARIABLE y: RANDOM(0, HEIGHT) = y + RANDOM(0, 1) - 0.5;
+
+    CONST inf_probability = 0.1;
+    CONST inf_distance = 3;
+    CONST inf_timespan = 14;
+
+    DYNAMIC days_remaining = IF infected THEN days_remaining - 1 ELSE inf_timespan;
+
+    DYNAMIC neighbours = FILTER(AGENTS(person) AS p, SQRT(x * p.x + y * p.y) < inf_distance);
+    DYNAMIC infected_neighbours = FILTER(AGENTS(neighbours) AS p, p.infected == TRUE);
+    DYNAMIC should_infect = RANDOM(0, 1) < inf_probability;
+    
+    DYNAMIC infected = (infected AND days_remaining > 0) OR (COUNT(in_proximity) > 0 AND should_infect);
+}
+
+GENERATE(person, 100);
