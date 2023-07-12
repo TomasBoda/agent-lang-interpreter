@@ -1,14 +1,14 @@
 {
   "name": "agent-lang-interpreter",
   "version": "1.0.0",
-  "description": "",
+  "author": "Tomáš Boďa",
+  "license": "ISC",
+  "description": "Interpreter for the AgentLang programming language",
+  "keywords": ["interpreter", "agentlang"],
   "main": "src/index.ts",
   "scripts": {
     "start": "npx ts-node src/index.ts"
   },
-  "keywords": [],
-  "author": "Tomáš Boďa",
-  "license": "ISC",
   "devDependencies": {
     "@types/node": "^18.14.2",
     "typescript": "^4.9.5"
