@@ -2,7 +2,7 @@ import { exit } from "process";
 import { Position } from "../lexer/lexer.types";
 
 enum ErrorType {
-    BUILD = "Lex Error",
+    LEX = "Lex Error",
     PARSE = "Parse Error",
     RUNTIME = "Runtime Error"
 }
@@ -10,7 +10,7 @@ enum ErrorType {
 export class Error {
 
     static lex(position: Position, message: string): void {
-        Error.raise(ErrorType.BUILD, position, message);
+        Error.raise(ErrorType.LEX, position, message);
     }
 
     static parse(position: Position, message: string): void {

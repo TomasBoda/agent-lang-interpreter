@@ -86,8 +86,6 @@ export class Parser {
         }
     }
 
-    // private interface
-
     private at(): Token {
         return this.tokens[0];
     }
