@@ -1,7 +1,5 @@
 
-AGENT person {
-    VARIABLE x: RANDOM(0, 100) = x + RANDOM(0, 1) - 0.5;
-    VARIABLE y: RANDOM(0, 100) = y + RANDOM(0, 1) - 0.5;
-}
+5 + (2 - 1 + (4.5 * 9))
+3 * 2
 
-GENERATE(person, 100);
+9 * 2

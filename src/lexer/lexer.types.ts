@@ -1,36 +1,49 @@
 
+export interface Position {
+    line: number;
+    character: number;
+}
+
+export interface Symbol {
+    value: string;
+    position: Position;
+}
+
 export enum TokenType {
-    Agent,
+    Agent = "Agent",
 
-    Variable,
-    Const,
-    Dynamic,
+    Variable = "Variable",
+    Const = "Const",
+    Dynamic = "Dynamic",
 
-    If,
-    Then,
-    Else,
-    And,
-    Or,
-    As,
+    If = "If",
+    Then = "Then",
+    Else = "Else",
+    And = "And",
+    Or = "Or",
+    As = "As",
 
-    Identifier,
-    Number,
+    Identifier = "Identifier",
+    Number = "Number",
 
-    Equals,
-    BinaryOperator,
+    Equals = "Equals",
+    BinaryOperator = "BinaryOperator",
 
-    OpenParen,
-    CloseParen,
-    OpenBrace,
-    CloseBrace,
+    OpenParen = "OpenParen",
+    CloseParen = "CloseParen",
+    OpenBrace = "OpenBrace",
+    CloseBrace = "CloseBrace",
 
-    Comma,
-    Dot,
-    Colon,
-    Semicolon,
+    Comma = "Comma",
+    Dot = "Dot",
+    Colon = "Colon",
+    Semicolon = "Semicolon",
+
+    EOF = "EOF"
 }
 
 export interface Token {
     value: string;
     type: TokenType;
+    position: Position;
 }

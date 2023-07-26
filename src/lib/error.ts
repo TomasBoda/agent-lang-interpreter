@@ -1,27 +1,28 @@
 import { exit } from "process";
+import { Position } from "../lexer/lexer.types";
 
 enum ErrorType {
-    BUILD = "Build Error",
+    BUILD = "Lex Error",
     PARSE = "Parse Error",
     RUNTIME = "Runtime Error"
 }
 
 export class Error {
 
-    static lex(message: string): void {
-        Error.raise(ErrorType.BUILD, message);
+    static lex(position: Position, message: string): void {
+        Error.raise(ErrorType.BUILD, position, message);
     }
 
-    static parse(message: string): void {
-        Error.raise(ErrorType.PARSE, message);
+    static parse(position: Position, message: string): void {
+        Error.raise(ErrorType.PARSE, position, message);
     }
 
-    static runtime(message: string): void {
-        Error.raise(ErrorType.RUNTIME, message);
+    static runtime(position: Position, message: string): void {
+        Error.raise(ErrorType.RUNTIME, position, message);
     }
 
-    private static raise(type: ErrorType, message: string): void {
-        console.log(`${type}: ${message}`);
+    private static raise(type: ErrorType, position: Position, message: string): void {
+        console.log(`${type} (line ${position.line}, character ${position.character}): ${message}`);
         exit(0);
     }
 }
