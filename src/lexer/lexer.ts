@@ -121,7 +121,7 @@ export class Lexer {
 
     private getIdentifierTokenType(identifier: string): TokenType {
         const keyword = ReservedKeywords[identifier];
-        return typeof keyword === "number" ? keyword : TokenType.Identifier;
+        return keyword ? keyword : TokenType.Identifier;
     }
 
     private hasNext(): boolean {

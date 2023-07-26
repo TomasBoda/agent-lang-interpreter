@@ -4,7 +4,8 @@ import { Token, TokenType } from "./lexer/lexer.types";
 import { Parser } from "./parser/parser";
 import { Program } from "./parser/ast.types";
 import { Interpreter } from "./runtime/interpreter";
-import { RuntimeValue } from "./runtime/values";
+import { NumberValue, RuntimeValue } from "./runtime/values";
+import { Environment } from "./runtime/environment";
 
 console.log("Welcome to the AgentLang interpreter");
 console.log("------------------------------------");
@@ -29,7 +30,11 @@ console.log("------------------------------------");
 console.log(ast);
 
 const interpreter = new Interpreter(ast);
-const result: RuntimeValue = interpreter.interpret();
+
+const env: Environment = new Environment();
+env.declareVariable("x", { type: "number", value: 100 } as NumberValue);
+
+const result: RuntimeValue = interpreter.interpret(env);
 
 console.log("Result");
 console.log("------------------------------------");
