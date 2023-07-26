@@ -3,6 +3,8 @@ import { Lexer } from "./lexer/lexer";
 import { Token, TokenType } from "./lexer/lexer.types";
 import { Parser } from "./parser/parser";
 import { Program } from "./parser/ast.types";
+import { Interpreter } from "./runtime/interpreter";
+import { RuntimeValue } from "./runtime/values";
 
 console.log("Welcome to the AgentLang interpreter");
 console.log("------------------------------------");
@@ -25,3 +27,10 @@ const astFile = writeFileSync("ast.json", JSON.stringify(ast), "utf-8");
 console.log("Abstract Syntax Tree");
 console.log("------------------------------------");
 console.log(ast);
+
+const interpreter = new Interpreter(ast);
+const result: RuntimeValue = interpreter.interpret();
+
+console.log("Result");
+console.log("------------------------------------");
+console.log(result);

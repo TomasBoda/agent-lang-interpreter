@@ -2,6 +2,7 @@ import { Error } from "../lib/error";
 import { Position, Symbol, Token, TokenType } from "./lexer.types";
 
 export const ReservedKeywords: Record<string, TokenType> = {
+    "NULL": TokenType.Null,
     "AGENT": TokenType.Agent,
     "VARIABLE": TokenType.Variable,
     "CONST": TokenType.Const,
@@ -120,7 +121,7 @@ export class Lexer {
 
     private getIdentifierTokenType(identifier: string): TokenType {
         const keyword = ReservedKeywords[identifier];
-        return keyword !== undefined ? keyword : TokenType.Identifier;
+        return typeof keyword === "number" ? keyword : TokenType.Identifier;
     }
 
     private hasNext(): boolean {
@@ -148,6 +149,11 @@ export class Lexer {
     }
 
     private generateEOFToken(): void {
+        if (this.tokens.length === 0) {
+            this.token(TokenType.EOF, { value: "EOF", position: { line: 1, character: 1 } });
+            return;
+        }
+
         const lastPosition: Position = this.tokens[this.tokens.length - 1].position;
         const eofPosition: Position = { ...lastPosition, character: lastPosition.character + 1 };
 

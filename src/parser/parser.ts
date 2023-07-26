@@ -1,5 +1,5 @@
 import { Token, TokenType } from "../lexer/lexer.types";
-import {BinaryExpression, Expression, Identifier, NodeType, NumericLiteral, Program, Statement } from "./ast.types";
+import {BinaryExpression, Expression, Identifier, NodeType, NullLiteral, NumericLiteral, Program, Statement } from "./ast.types";
 import { Error } from "../lib/error";
 
 export class Parser {
@@ -71,8 +71,14 @@ export class Parser {
         switch (token.type) {
             case TokenType.Identifier:
                 return { type: NodeType.Identifier, identifier: this.next().value } as Identifier;
+            
+            case TokenType.Null:
+                this.next();
+                return { type: NodeType.NullLiteral, value: "null" } as NullLiteral;
+            
             case TokenType.Number:
                 return { type: NodeType.NumericLiteral, value: parseFloat(this.next().value) } as NumericLiteral;
+            
             case TokenType.OpenParen:
                 // skip the open parenthesis
                 this.next();
@@ -80,6 +86,7 @@ export class Parser {
                 // skip the close parenthesis
                 this.expect(TokenType.CloseParen, "Expected a closing parenthesis, not found!");
                 return value;
+            
             default:
                 Error.parse(this.at().position, "Unexpected token found during parsing: " + this.at().value)
                 return {} as Statement;
