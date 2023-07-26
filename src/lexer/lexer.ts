@@ -2,11 +2,12 @@ import { Error } from "../lib/error";
 import { Position, Symbol, Token, TokenType } from "./lexer.types";
 
 export const ReservedKeywords: Record<string, TokenType> = {
-    "NULL": TokenType.Null,
     "AGENT": TokenType.Agent,
+
     "VARIABLE": TokenType.Variable,
     "CONST": TokenType.Const,
     "DYNAMIC": TokenType.Dynamic,
+    
     "IF": TokenType.If,
     "THEN": TokenType.Then,
     "ELSE": TokenType.Else,

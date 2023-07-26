@@ -2,7 +2,6 @@
 export enum NodeType {
     Program = "Program",
     NumericLiteral = "NumericLiteral",
-    NullLiteral = "NullLiteral",
     Identifier = "Identifier",
     BinaryExpression = "BinaryExpression"
 }
@@ -35,9 +34,4 @@ export interface Identifier extends Expression {
 export interface NumericLiteral extends Expression {
     type: NodeType.NumericLiteral;
     value: number;
-}
-
-export interface NullLiteral extends Expression {
-    type: NodeType.NullLiteral;
-    value: "null";
 }

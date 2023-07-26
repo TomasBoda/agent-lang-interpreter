@@ -1,1 +1,1 @@
-{"type":"Program","body":[{"type":"BinaryExpression","left":{"type":"Identifier","identifier":"x"},"right":{"type":"NumericLiteral","value":2},"operator":"/"}]}
+{"type":"Program","body":[{"type":"BinaryExpression","left":{"type":"Identifier","identifier":"x"},"right":{"type":"NumericLiteral","value":45},"operator":"-"}]}

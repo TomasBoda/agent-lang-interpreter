@@ -10,8 +10,6 @@ export interface Symbol {
 }
 
 export enum TokenType {
-    Null = "Null",
-
     Agent = "Agent",
 
     Variable = "Variable",

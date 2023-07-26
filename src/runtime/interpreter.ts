@@ -21,9 +21,6 @@ export class Interpreter {
             case NodeType.NumericLiteral:
                 return { type: "number", value: (node as NumericLiteral).value } as NumberValue;
             
-            case NodeType.NullLiteral:
-                return { type: "null", value: "null" } as NullValue;
-            
             case NodeType.Identifier:
                 return this.evaluateIdentifier(node as Identifier, env);
     
@@ -40,7 +37,7 @@ export class Interpreter {
     }
 
     private evaluateProgram(program: Program, env: Environment): RuntimeValue {
-        let lastEvaluated: RuntimeValue = { type: "null", value: "null" } as NullValue;
+        let lastEvaluated: RuntimeValue = { type: "null", value: null } as NullValue;
     
         for (const statement of program.body) {
             lastEvaluated = this.evaluate(statement, env);
@@ -57,7 +54,7 @@ export class Interpreter {
             return this.evaluateNumericBinaryExpression(leftHandSide as NumberValue, rightHandSide as NumberValue, binop.operator);
         }
     
-        return { type: "null", value: "null" } as NullValue;
+        return { type: "null", value: null } as NullValue;
     }
     
     private evaluateNumericBinaryExpression(leftHandSide: NumberValue, rightHandSide: NumberValue, operator: string): NumberValue {
