@@ -18,20 +18,20 @@ export class Interpreter {
     private evaluate(node: Statement, env: Environment): RuntimeValue {
         
         switch (node.type) {
-            case NodeType.NumericLiteral:
-                return { type: "number", value: (node as NumericLiteral).value } as NumberValue;
-            
+            case NodeType.Program:
+                return this.evaluateProgram(node as Program, env);
+
             case NodeType.Identifier:
                 return this.evaluateIdentifier(node as Identifier, env);
+
+            case NodeType.NumericLiteral:
+                return this.evaluateNumericLiteral(node as NumericLiteral, env);
     
             case NodeType.BinaryExpression:
                 return this.evaluateBinaryExpression(node as BinaryExpression, env);
 
             case NodeType.LogicalExpression:
                 return this.evaluateLogicalExpression(node as LogicalExpression, env);
-    
-            case NodeType.Program:
-                return this.evaluateProgram(node as Program, env);
             
             case NodeType.VariableDeclaration:
                 return this.evaluateVariableDeclaration(node as VariableDeclaration, env);
@@ -52,34 +52,14 @@ export class Interpreter {
         return lastEvaluated;
     }
 
-    private evaluateVariableDeclaration(declaration: VariableDeclaration, env: Environment): RuntimeValue {
-        const value = this.evaluate(declaration.value, env);
-        return env.declareVariable(declaration.identifier, value);
+    private evaluateIdentifier(identifier: Identifier, env: Environment): RuntimeValue {
+        return env.lookupVariable(identifier.identifier);
     }
 
-    private evaluateLogicalExpression(logic: LogicalExpression, env: Environment): RuntimeValue {
-        const leftHandSide = this.evaluate(logic.left, env);
-        const rightHandSide = this.evaluate(logic.right, env);
-
-        if (leftHandSide.type === "boolean" && rightHandSide.type === "boolean") {
-            if (logic.operator === "AND") {
-                const leftValue = (leftHandSide as BooleanValue).value;
-                const rightValue = (rightHandSide as BooleanValue).value;
-                const result = leftValue && rightValue;
-
-                return { type: "boolean", value: result } as BooleanValue;
-            } else if (logic.operator === "OR") {
-                const leftValue = (leftHandSide as BooleanValue).value;
-                const rightValue = (rightHandSide as BooleanValue).value;
-                const result = leftValue || rightValue;
-
-                return { type: "boolean", value: result } as BooleanValue;
-            }
-        }
-
-        return { type: "null", value: null } as NullValue;
+    private evaluateNumericLiteral(numericLiteral: NumericLiteral, env: Environment): RuntimeValue {
+        return { type: "number", value: (numericLiteral as NumericLiteral).value } as NumberValue;
     }
-    
+
     private evaluateBinaryExpression(binop: BinaryExpression, env: Environment): RuntimeValue {
         const leftHandSide = this.evaluate(binop.left, env);
         const rightHandSide = this.evaluate(binop.right, env);
@@ -132,7 +112,31 @@ export class Interpreter {
         return { type: "number", value: result } as NumberValue;
     }
 
-    private evaluateIdentifier(identifier: Identifier, env: Environment): RuntimeValue {
-        return env.lookupVariable(identifier.identifier);
+    private evaluateLogicalExpression(logic: LogicalExpression, env: Environment): RuntimeValue {
+        const leftHandSide = this.evaluate(logic.left, env);
+        const rightHandSide = this.evaluate(logic.right, env);
+
+        if (leftHandSide.type === "boolean" && rightHandSide.type === "boolean") {
+            if (logic.operator === "AND") {
+                const leftValue = (leftHandSide as BooleanValue).value;
+                const rightValue = (rightHandSide as BooleanValue).value;
+                const result = leftValue && rightValue;
+
+                return { type: "boolean", value: result } as BooleanValue;
+            } else if (logic.operator === "OR") {
+                const leftValue = (leftHandSide as BooleanValue).value;
+                const rightValue = (rightHandSide as BooleanValue).value;
+                const result = leftValue || rightValue;
+
+                return { type: "boolean", value: result } as BooleanValue;
+            }
+        }
+
+        return { type: "null", value: null } as NullValue;
+    }
+
+    private evaluateVariableDeclaration(declaration: VariableDeclaration, env: Environment): RuntimeValue {
+        const value = this.evaluate(declaration.value, env);
+        return env.declareVariable(declaration.identifier, value);
     }
 }
