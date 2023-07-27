@@ -1,4 +1,4 @@
-import { BinaryExpression, Identifier, NodeType, NumericLiteral, Program, Statement, VariableDeclaration } from "../parser/ast.types";
+import { BinaryExpression, Identifier, LogicalExpression, NodeType, NumericLiteral, Program, Statement, VariableDeclaration } from "../parser/ast.types";
 import { RuntimeValue, NumberValue, NullValue, BooleanValue } from "./values";
 import { Error } from "../lib/error";
 import { Environment } from "./environment";
@@ -26,6 +26,9 @@ export class Interpreter {
     
             case NodeType.BinaryExpression:
                 return this.evaluateBinaryExpression(node as BinaryExpression, env);
+
+            case NodeType.LogicalExpression:
+                return this.evaluateLogicalExpression(node as LogicalExpression, env);
     
             case NodeType.Program:
                 return this.evaluateProgram(node as Program, env);
@@ -52,6 +55,29 @@ export class Interpreter {
     private evaluateVariableDeclaration(declaration: VariableDeclaration, env: Environment): RuntimeValue {
         const value = this.evaluate(declaration.value, env);
         return env.declareVariable(declaration.identifier, value);
+    }
+
+    private evaluateLogicalExpression(logic: LogicalExpression, env: Environment): RuntimeValue {
+        const leftHandSide = this.evaluate(logic.left, env);
+        const rightHandSide = this.evaluate(logic.right, env);
+
+        if (leftHandSide.type === "boolean" && rightHandSide.type === "boolean") {
+            if (logic.operator === "AND") {
+                const leftValue = (leftHandSide as BooleanValue).value;
+                const rightValue = (rightHandSide as BooleanValue).value;
+                const result = leftValue && rightValue;
+
+                return { type: "boolean", value: result } as BooleanValue;
+            } else if (logic.operator === "OR") {
+                const leftValue = (leftHandSide as BooleanValue).value;
+                const rightValue = (rightHandSide as BooleanValue).value;
+                const result = leftValue || rightValue;
+
+                return { type: "boolean", value: result } as BooleanValue;
+            }
+        }
+
+        return { type: "null", value: null } as NullValue;
     }
     
     private evaluateBinaryExpression(binop: BinaryExpression, env: Environment): RuntimeValue {

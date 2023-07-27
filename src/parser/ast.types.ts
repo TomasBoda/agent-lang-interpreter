@@ -8,7 +8,8 @@ export enum NodeType {
     // Expressions
     NumericLiteral = "NumericLiteral",
     Identifier = "Identifier",
-    BinaryExpression = "BinaryExpression"
+    BinaryExpression = "BinaryExpression",
+    LogicalExpression = "LogicalExpression"
 }
 
 export enum VariableType {
@@ -45,6 +46,13 @@ export interface ObjectDeclaration extends Statement {
 
 export interface BinaryExpression extends Expression {
     type: NodeType.BinaryExpression;
+    left: Expression;
+    right: Expression;
+    operator: string;
+}
+
+export interface LogicalExpression extends Expression {
+    type: NodeType.LogicalExpression;
     left: Expression;
     right: Expression;
     operator: string;

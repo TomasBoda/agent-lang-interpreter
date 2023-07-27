@@ -1,5 +1,5 @@
 import { Position, Token, TokenType } from "../lexer/lexer.types";
-import {BinaryExpression, Expression, Identifier, NodeType, NumericLiteral, ObjectDeclaration, Program, Statement, VariableDeclaration, VariableType } from "./ast.types";
+import {BinaryExpression, Expression, Identifier, LogicalExpression, NodeType, NumericLiteral, ObjectDeclaration, Program, Statement, VariableDeclaration, VariableType } from "./ast.types";
 import { Error } from "../lib/error";
 
 export class Parser {
@@ -99,13 +99,32 @@ export class Parser {
     }
 
     private parseExpression(): Expression {
-        return this.parseComparisonExpression();
+        return this.parseLogicalExpression();
+    }
+
+    private parseLogicalExpression(): Expression {
+        let left: Expression = this.parseComparisonExpression();
+
+        while (this.at().type === TokenType.And || this.at().type === TokenType.Or) {
+            const position: Position = this.at().position;
+            const operator = this.next().value;
+            const right = this.parseComparisonExpression();
+            left = {
+                type: NodeType.LogicalExpression,
+                left,
+                right,
+                operator,
+                position
+            } as LogicalExpression;
+        }
+
+        return left;
     }
 
     private parseComparisonExpression(): Expression {
         let left: Expression = this.parseAdditiveExpression();
 
-        while (this.at().value === ">" || this.at().value === ">=" || this.at().value === "<" || this.at().value === "<=" || this.at().value === "==") {
+        while (this.at().value === "==" || this.at().value === ">" || this.at().value === ">=" || this.at().value === "<" || this.at().value === "<=") {
             const position: Position = this.at().position;
             const operator = this.next().value;
             const right = this.parseAdditiveExpression();
