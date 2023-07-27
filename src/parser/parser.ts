@@ -1,5 +1,5 @@
 import { Position, Token, TokenType } from "../lexer/lexer.types";
-import {BinaryExpression, Expression, Identifier, NodeType, NumericLiteral, Program, Statement, VariableDeclaration, VariableType } from "./ast.types";
+import {BinaryExpression, Expression, Identifier, NodeType, NumericLiteral, ObjectDeclaration, Program, Statement, VariableDeclaration, VariableType } from "./ast.types";
 import { Error } from "../lib/error";
 
 export class Parser {
@@ -22,13 +22,42 @@ export class Parser {
 
     private parseStatement(): Statement {
         switch (this.at().type) {
-            case TokenType.Variable:
-            case TokenType.Const:
-            case TokenType.Dynamic:
-                return this.parseVariableDeclaration();
+            case TokenType.Agent:
+                return this.parseObjectDeclaration();
             default:
                 return this.parseExpression();
         }
+    }
+
+    private parseObjectDeclaration(): Statement {
+        const position = this.next().position;
+        const identifier = this.expect(TokenType.Identifier, "Expected identifier after AGENT declaration").value;
+        this.expect(TokenType.OpenBrace, "Expected open brace after AGENT declaration");
+        const body: VariableDeclaration[] = [];
+
+        while (this.at().type !== TokenType.CloseBrace) {
+            switch (this.at().type) {
+                case TokenType.Variable:
+                case TokenType.Const:
+                case TokenType.Dynamic:
+                    const declaration: Statement = this.parseVariableDeclaration();
+                    body.push(declaration as VariableDeclaration);
+                    break;
+                default:
+                    Error.parse(this.at().position, "Expected VARIABLE, CONST or DYNAMIC keywords");
+            }
+        }
+
+        this.expect(TokenType.CloseBrace, "Expected a close brace after AGENT declaration");
+
+        const objectDeclaration: ObjectDeclaration = {
+            type: NodeType.ObjectDeclaration,
+            identifier,
+            body,
+            position
+        };
+
+        return objectDeclaration;
     }
 
     private parseVariableDeclaration(): Statement {
@@ -70,7 +99,26 @@ export class Parser {
     }
 
     private parseExpression(): Expression {
-        return this.parseAdditiveExpression();
+        return this.parseComparisonExpression();
+    }
+
+    private parseComparisonExpression(): Expression {
+        let left: Expression = this.parseAdditiveExpression();
+
+        while (this.at().value === ">" || this.at().value === ">=" || this.at().value === "<" || this.at().value === "<=" || this.at().value === "==") {
+            const position: Position = this.at().position;
+            const operator = this.next().value;
+            const right = this.parseAdditiveExpression();
+            left = {
+                type: NodeType.BinaryExpression,
+                left,
+                right,
+                operator,
+                position
+            } as BinaryExpression;
+        }
+
+        return left;
     }
 
     private parseAdditiveExpression(): Expression {
@@ -122,10 +170,8 @@ export class Parser {
                 return { type: NodeType.NumericLiteral, position: this.at().position, value: parseFloat(this.next().value) } as NumericLiteral;
             
             case TokenType.OpenParen:
-                // skip the open parenthesis
                 this.next();
                 const value: Expression = this.parseExpression();
-                // skip the close parenthesis
                 this.expect(TokenType.CloseParen, "Expected a closing parenthesis, not found!");
                 return value;
             

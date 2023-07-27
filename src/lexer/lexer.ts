@@ -52,8 +52,15 @@ export class Lexer {
                 this.token(TokenType.BinaryOperator);
             } else if (this.isNext("%")) {
                 this.token(TokenType.BinaryOperator);
-            } else if (this.isNext("=")) {
-                this.token(TokenType.Equals);
+            } else if (this.isNext(">") || this.isNext("<") || this.isNext("=")) {
+                const position = this.getNext().position;
+                let operator = this.next().value;
+
+                if (this.getNext().value === "=") {
+                    operator += this.next().value;
+                }
+
+                this.token(TokenType.BinaryOperator, { value: operator, position });
             } else if (this.isNext(",")) {
                 this.token(TokenType.Comma);
             } else if (this.isNext(".")) {

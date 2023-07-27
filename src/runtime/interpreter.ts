@@ -1,5 +1,5 @@
 import { BinaryExpression, Identifier, NodeType, NumericLiteral, Program, Statement, VariableDeclaration } from "../parser/ast.types";
-import { RuntimeValue, NumberValue, NullValue } from "./values";
+import { RuntimeValue, NumberValue, NullValue, BooleanValue } from "./values";
 import { Error } from "../lib/error";
 import { Environment } from "./environment";
 
@@ -34,7 +34,7 @@ export class Interpreter {
                 return this.evaluateVariableDeclaration(node as VariableDeclaration, env);
     
             default:
-                Error.runtime(null, "Unsupported AST node type in evaluate()");
+                Error.runtime(null, "Unsupported AST node type in evaluate() - " + node.type);
                 return {} as RuntimeValue;
         }
     }
@@ -59,10 +59,32 @@ export class Interpreter {
         const rightHandSide = this.evaluate(binop.right, env);
     
         if (leftHandSide.type === "number" && rightHandSide.type === "number") {
-            return this.evaluateNumericBinaryExpression(leftHandSide as NumberValue, rightHandSide as NumberValue, binop.operator);
+            if (binop.operator === ">" || binop.operator === ">=" || binop.operator === "<" || binop.operator === "<=" || binop.operator === "==") {
+                return this.evaluateComparisonBinaryExpression(leftHandSide as NumberValue, rightHandSide as NumberValue, binop.operator);
+            } else {
+                return this.evaluateNumericBinaryExpression(leftHandSide as NumberValue, rightHandSide as NumberValue, binop.operator);
+            }
         }
     
         return { type: "null", value: null } as NullValue;
+    }
+
+    private evaluateComparisonBinaryExpression(leftHandSide: NumberValue, rightHandSide: NumberValue, operator: string): BooleanValue {
+        let result: boolean = false;
+
+        if (operator === ">") {
+            result = leftHandSide.value > rightHandSide.value;
+        } else if (operator === ">=") {
+            result = leftHandSide.value >= rightHandSide.value;
+        } else if (operator === "<") {
+            result = leftHandSide.value < rightHandSide.value;
+        } else if (operator === "<=") {
+            result = leftHandSide.value <= rightHandSide.value;
+        } else if (operator === "==") {
+            result = leftHandSide.value == rightHandSide.value;
+        }
+
+        return { type: "boolean", value: result } as BooleanValue;
     }
     
     private evaluateNumericBinaryExpression(leftHandSide: NumberValue, rightHandSide: NumberValue, operator: string): NumberValue {
@@ -85,7 +107,6 @@ export class Interpreter {
     }
 
     private evaluateIdentifier(identifier: Identifier, env: Environment): RuntimeValue {
-        const value = env.lookupVariable(identifier.identifier);
-        return value;
+        return env.lookupVariable(identifier.identifier);
     }
 }

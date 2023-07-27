@@ -4,6 +4,7 @@ export enum NodeType {
     // Statements
     Program = "Program",
     VariableDeclaration = "VariableDeclaration",
+    ObjectDeclaration = "ObjectDeclaration",
     // Expressions
     NumericLiteral = "NumericLiteral",
     Identifier = "Identifier",
@@ -34,6 +35,12 @@ export interface VariableDeclaration extends Statement {
     identifier: string;
     default?: Expression;
     value: Expression;
+}
+
+export interface ObjectDeclaration extends Statement {
+    type: NodeType.ObjectDeclaration;
+    identifier: string;
+    body: VariableDeclaration[];
 }
 
 export interface BinaryExpression extends Expression {
