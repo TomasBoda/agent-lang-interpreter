@@ -1,3 +1,4 @@
+import { Position } from "../lexer/lexer.types";
 
 export enum NodeType {
     // Statements
@@ -17,11 +18,10 @@ export enum VariableType {
 
 export interface Statement {
     type: NodeType;
+    position: Position;
 }
 
-export interface Expression extends Statement {
-
-}
+export interface Expression extends Statement {}
 
 export interface Program extends Statement {
     type: NodeType.Program;

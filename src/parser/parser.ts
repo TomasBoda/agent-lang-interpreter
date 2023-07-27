@@ -1,4 +1,4 @@
-import { Token, TokenType } from "../lexer/lexer.types";
+import { Position, Token, TokenType } from "../lexer/lexer.types";
 import {BinaryExpression, Expression, Identifier, NodeType, NumericLiteral, Program, Statement, VariableDeclaration, VariableType } from "./ast.types";
 import { Error } from "../lib/error";
 
@@ -10,7 +10,6 @@ export class Parser {
         this.tokens = tokens;
     }
 
-    // generates AST from tokens
     public parse(): Program {
         const program: Program = this.createEmptyProgram();
 
@@ -20,8 +19,6 @@ export class Parser {
 
         return program;
     }
-
-    // parsing methods
 
     private parseStatement(): Statement {
         switch (this.at().type) {
@@ -34,10 +31,9 @@ export class Parser {
         }
     }
 
-    // VARIABLE x: 10 = x + 5;
-    // CONST infected = FALSE;
-    // DYNAMIC shouldInfect = x > 20;
     private parseVariableDeclaration(): Statement {
+        const position = this.at().position;
+
         const variableType = this.next().type;
         const identifier: string = this.expect(TokenType.Identifier, "Expected identifier in variable declaration").value;
         let defaultValue: Expression | undefined;
@@ -61,13 +57,16 @@ export class Parser {
             }
         }
 
-        return {
+        const variableDeclaration: VariableDeclaration = {
             type: NodeType.VariableDeclaration,
             variableType: getVariableType(),
-            identifier: identifier,
+            identifier,
             default: defaultValue,
-            value: value,
-        } as VariableDeclaration;
+            value,
+            position
+        };
+
+        return variableDeclaration;
     }
 
     private parseExpression(): Expression {
@@ -78,13 +77,15 @@ export class Parser {
         let left = this.parseMultiplicativeExpression();
 
         while (this.at().value === "+" || this.at().value === "-") {
+            const position: Position = this.at().position;
             const operator = this.next().value;
             const right = this.parseMultiplicativeExpression();
             left = {
                 type: NodeType.BinaryExpression,
                 left,
                 right,
-                operator
+                operator,
+                position
             } as BinaryExpression;
         }
 
@@ -92,16 +93,18 @@ export class Parser {
     }
 
     private parseMultiplicativeExpression(): Expression {
-        let left = this.parsePrimaryExpression();
+        let left: Expression = this.parsePrimaryExpression();
 
         while (this.at().value === "*" || this.at().value === "/" || this.at().value === "%") {
+            const position: Position = this.at().position;
             const operator = this.next().value;
             const right = this.parsePrimaryExpression();
             left = {
                 type: NodeType.BinaryExpression,
                 left,
                 right,
-                operator
+                operator,
+                position
             } as BinaryExpression;
         }
 
@@ -113,15 +116,15 @@ export class Parser {
 
         switch (token.type) {
             case TokenType.Identifier:
-                return { type: NodeType.Identifier, identifier: this.next().value } as Identifier;
+                return { type: NodeType.Identifier, position: this.at().position, identifier: this.next().value } as Identifier;
             
             case TokenType.Number:
-                return { type: NodeType.NumericLiteral, value: parseFloat(this.next().value) } as NumericLiteral;
+                return { type: NodeType.NumericLiteral, position: this.at().position, value: parseFloat(this.next().value) } as NumericLiteral;
             
             case TokenType.OpenParen:
                 // skip the open parenthesis
                 this.next();
-                const value = this.parseExpression();
+                const value: Expression = this.parseExpression();
                 // skip the close parenthesis
                 this.expect(TokenType.CloseParen, "Expected a closing parenthesis, not found!");
                 return value;
@@ -156,6 +159,6 @@ export class Parser {
     }
 
     private createEmptyProgram(): Program {
-        return { type: NodeType.Program, body: [] };
+        return { type: NodeType.Program, body: [], position: { line: 1, character: 1 } };
     }
 }
