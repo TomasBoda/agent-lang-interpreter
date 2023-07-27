@@ -1,1 +1,3 @@
-x - 45
+CONST x = 10 * 4;
+CONST y = 5 + 2 * 2;
+x - y

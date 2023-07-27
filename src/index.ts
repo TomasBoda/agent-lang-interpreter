@@ -1,10 +1,10 @@
 import { readFileSync, writeFileSync } from "fs";
 import { Lexer } from "./lexer/lexer";
-import { Token, TokenType } from "./lexer/lexer.types";
+import { Token } from "./lexer/lexer.types";
 import { Parser } from "./parser/parser";
 import { Program } from "./parser/ast.types";
 import { Interpreter } from "./runtime/interpreter";
-import { BooleanValue, NullValue, NumberValue, RuntimeValue } from "./runtime/values";
+import { BooleanValue, NullValue, RuntimeValue } from "./runtime/values";
 import { Environment } from "./runtime/environment";
 
 console.log("Welcome to the AgentLang interpreter");
@@ -23,14 +23,13 @@ console.log(tokens);
 const parser = new Parser(tokens);
 const ast: Program = parser.parse();
 
-const astFile = writeFileSync("ast.json", JSON.stringify(ast), "utf-8");
+writeFileSync("ast.json", JSON.stringify(ast), "utf-8");
 
 console.log("Abstract Syntax Tree");
 console.log("------------------------------------");
 console.log(ast);
 
 const env: Environment = new Environment();
-env.declareVariable("x", { type: "number", value: 100 } as NumberValue);
 env.declareVariable("NULL", { type: "null", value: null } as NullValue);
 env.declareVariable("TRUE", { type: "boolean", value: true } as BooleanValue);
 env.declareVariable("FALSE", { type: "boolean", value: false } as BooleanValue);

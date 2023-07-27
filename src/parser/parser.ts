@@ -1,5 +1,5 @@
 import { Token, TokenType } from "../lexer/lexer.types";
-import {BinaryExpression, Expression, Identifier, NodeType, NumericLiteral, Program, Statement } from "./ast.types";
+import {BinaryExpression, Expression, Identifier, NodeType, NumericLiteral, Program, Statement, VariableDeclaration, VariableType } from "./ast.types";
 import { Error } from "../lib/error";
 
 export class Parser {
@@ -24,7 +24,50 @@ export class Parser {
     // parsing methods
 
     private parseStatement(): Statement {
-        return this.parseExpression();
+        switch (this.at().type) {
+            case TokenType.Variable:
+            case TokenType.Const:
+            case TokenType.Dynamic:
+                return this.parseVariableDeclaration();
+            default:
+                return this.parseExpression();
+        }
+    }
+
+    // VARIABLE x: 10 = x + 5;
+    // CONST infected = FALSE;
+    // DYNAMIC shouldInfect = x > 20;
+    private parseVariableDeclaration(): Statement {
+        const variableType = this.next().type;
+        const identifier: string = this.expect(TokenType.Identifier, "Expected identifier in variable declaration").value;
+        let defaultValue: Expression | undefined;
+
+        if (variableType === TokenType.Variable) {
+            this.expect(TokenType.Colon, "Expected a colon for default value in VARIABLE declaration");
+            defaultValue = this.parseExpression();
+        }
+
+        this.expect(TokenType.Equals, "Expected equals sign after default value expression in VARIABLE declaration");
+        const value: Expression = this.parseExpression();
+        this.expect(TokenType.Semicolon, "Expected semicolon after variable declaration");
+
+        function getVariableType() {
+            if (variableType === TokenType.Variable) {
+                return VariableType.Variable;
+            } else if (variableType === TokenType.Const) {
+                return VariableType.Const;
+            } else {
+                return VariableType.Dynamic;
+            }
+        }
+
+        return {
+            type: NodeType.VariableDeclaration,
+            variableType: getVariableType(),
+            identifier: identifier,
+            default: defaultValue,
+            value: value,
+        } as VariableDeclaration;
     }
 
     private parseExpression(): Expression {

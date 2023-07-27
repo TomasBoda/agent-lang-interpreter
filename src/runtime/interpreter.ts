@@ -1,4 +1,4 @@
-import { BinaryExpression, Identifier, NodeType, NumericLiteral, Program, Statement } from "../parser/ast.types";
+import { BinaryExpression, Identifier, NodeType, NumericLiteral, Program, Statement, VariableDeclaration } from "../parser/ast.types";
 import { RuntimeValue, NumberValue, NullValue } from "./values";
 import { Error } from "../lib/error";
 import { Environment } from "./environment";
@@ -29,6 +29,9 @@ export class Interpreter {
     
             case NodeType.Program:
                 return this.evaluateProgram(node as Program, env);
+            
+            case NodeType.VariableDeclaration:
+                return this.evaluateVariableDeclaration(node as VariableDeclaration, env);
     
             default:
                 Error.runtime(null, "Unsupported AST node type in evaluate()");
@@ -44,6 +47,11 @@ export class Interpreter {
         }
     
         return lastEvaluated;
+    }
+
+    private evaluateVariableDeclaration(declaration: VariableDeclaration, env: Environment): RuntimeValue {
+        const value = this.evaluate(declaration.value, env);
+        return env.declareVariable(declaration.identifier, value);
     }
     
     private evaluateBinaryExpression(binop: BinaryExpression, env: Environment): RuntimeValue {
