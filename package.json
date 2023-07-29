@@ -4,7 +4,10 @@
   "author": "Tomáš Boďa",
   "license": "ISC",
   "description": "Interpreter for the AgentLang programming language",
-  "keywords": ["interpreter", "agentlang"],
+  "keywords": [
+    "interpreter",
+    "agentlang"
+  ],
   "main": "src/index.ts",
   "scripts": {
     "start": "npx ts-node src/index.ts"
@@ -12,5 +15,8 @@
   "devDependencies": {
     "@types/node": "^18.14.2",
     "typescript": "^4.9.5"
+  },
+  "dependencies": {
+    "rxjs": "^7.8.1"
   }
 }

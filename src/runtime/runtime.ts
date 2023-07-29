@@ -3,7 +3,7 @@ import { RuntimeValue, NumberValue, NullValue, BooleanValue } from "./values";
 import { Error } from "../lib/error";
 import { Environment } from "./environment";
 
-export class Interpreter {
+export class Runtime {
 
     private program: Program;
 
@@ -11,7 +11,7 @@ export class Interpreter {
         this.program = program;
     }
 
-    public interpret(env: Environment): RuntimeValue {
+    public interpret(env: Environment, step: number = 0): RuntimeValue {
         return this.evaluate(this.program, env);
     }
 
