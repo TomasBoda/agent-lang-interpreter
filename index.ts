@@ -1,7 +1,6 @@
 import { readFileSync } from "fs";
 import { RuntimeValue } from "./src/runtime/values";
-import { Interpreter, InterpreterConfiguration } from "./src/interpreter";
-import { Logger } from "./src/lib/logger";
+import { Interpreter, InterpreterConfiguration, Logger } from "./src";
 
 Logger.log("Welcome to the AgentLang interpreter");
 Logger.log("------------------------------------");

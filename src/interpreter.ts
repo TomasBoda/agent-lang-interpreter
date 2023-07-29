@@ -9,12 +9,12 @@ import { BooleanValue, NullValue, RuntimeValue } from "./runtime/values";
 
 type AgentVariableValue = number | boolean;
 
-export interface Agent {
+interface Agent {
     identifier: string;
     variables: Map<string, AgentVariableValue>;
 }
 
-export interface Output {
+interface Output {
     step: number;
     agents: Agent[];
 }
