@@ -60,7 +60,11 @@ export class Lexer {
                     operator += this.next().value;
                 }
 
-                this.token(TokenType.BinaryOperator, { value: operator, position });
+                if (operator === "=") {
+                    this.token(TokenType.Equals, { value: operator, position });
+                } else {
+                    this.token(TokenType.BinaryOperator, { value: operator, position });
+                }
             } else if (this.isNext(",")) {
                 this.token(TokenType.Comma);
             } else if (this.isNext(".")) {

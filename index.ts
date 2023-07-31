@@ -11,6 +11,10 @@ const sourceCode = readFileSync(filename, "utf-8");
 const interpreter: Interpreter = new Interpreter(sourceCode);
 const config: InterpreterConfiguration = { agents: 10, steps: 10, delay: 500 };
 
+/*
 interpreter.run(config).subscribe((result: RuntimeValue) => {
     Logger.log(result);
 });
+*/
+
+interpreter.run(config);

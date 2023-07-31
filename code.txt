@@ -1,2 +1,6 @@
 
-FALSE OR TRUE
+AGENT person 100 {
+
+    VARIABLE x: RANDOM(1, 5) = 3 < (2 + 4);
+    VARIABLE y: 10 = y + 5;
+}
