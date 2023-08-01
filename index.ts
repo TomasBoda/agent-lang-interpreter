@@ -1,6 +1,6 @@
 import { readFileSync } from "fs";
 import { Interpreter, InterpreterConfiguration, Logger } from "./src";
-import { InterpreterOutput, RuntimeOutput } from "./src/interpreter/interpreter.types";
+import { InterpreterOutput } from "./src/interpreter/interpreter.types";
 
 // TODO: check for agent and variable name repetition during parsing
 // TODO: add built-in functions (RANDOM, FILTER, AGENTS, ...)
