@@ -1,5 +1,5 @@
 import { Position, Token, TokenType } from "../lexer/lexer.types";
-import {BinaryExpression, Expression, Identifier, LogicalExpression, NodeType, NumericLiteral, ObjectDeclaration, Program, Statement, VariableDeclaration, VariableType } from "./ast.types";
+import { BinaryExpression, BooleanLiteral, Expression, Identifier, LogicalExpression, NodeType, NumericLiteral, ObjectDeclaration, Program, Statement, VariableDeclaration, VariableType } from "./parser.types";
 import { Error } from "../lib/error";
 
 export class Parser {
@@ -25,7 +25,8 @@ export class Parser {
             case TokenType.Agent:
                 return this.parseObjectDeclaration();
             default:
-                return this.parseExpression();
+                Error.parse(this.at().position, "Only object declarations are allowed in program scope, " + this.at().type + " was provided");
+                return {} as Statement;
         }
     }
 
@@ -44,35 +45,28 @@ export class Parser {
                     body.push(declaration as VariableDeclaration);
                     break;
                 default:
-                    Error.parse(this.at().position, "Expected VARIABLE, CONST or DYNAMIC keywords");
+                    Error.parse(this.at().position, "Only variable declarations are allowed in agent scope, " + this.at().type + " was provided");
             }
         }
 
         this.expect(TokenType.CloseBrace, "Expected a close brace after AGENT declaration");
 
-        const objectDeclaration: ObjectDeclaration = {
-            type: NodeType.ObjectDeclaration,
-            identifier,
-            body,
-            position
-        };
-
-        return objectDeclaration;
+        return { type: NodeType.ObjectDeclaration, identifier, body, position } as ObjectDeclaration;
     }
 
     private parseVariableDeclaration(): Statement {
         const position = this.at().position;
 
         const variableType = this.next().type;
-        const identifier: string = this.expect(TokenType.Identifier, "Expected identifier in variable declaration").value;
+        const identifier: string = this.expect(TokenType.Identifier, "Expected an identifier in variable declaration").value;
         let defaultValue: Expression | undefined;
 
         if (variableType === TokenType.Variable) {
-            this.expect(TokenType.Colon, "Expected a colon for default value in VARIABLE declaration");
+            this.expect(TokenType.Colon, "Expected a colon for default value in variable declaration");
             defaultValue = this.parseExpression();
         }
 
-        this.expect(TokenType.Equals, "Expected equals sign after default value expression in VARIABLE declaration");
+        this.expect(TokenType.Equals, "Expected equals sign after default value expression in variable declaration");
         const value: Expression = this.parseExpression();
         this.expect(TokenType.Semicolon, "Expected semicolon after variable declaration");
 
@@ -86,16 +80,7 @@ export class Parser {
             }
         }
 
-        const variableDeclaration: VariableDeclaration = {
-            type: NodeType.VariableDeclaration,
-            variableType: getVariableType(),
-            identifier,
-            default: defaultValue,
-            value,
-            position
-        };
-
-        return variableDeclaration;
+        return { type: NodeType.VariableDeclaration, variableType: getVariableType(), identifier, default: defaultValue, value, position } as VariableDeclaration;
     }
 
     private parseExpression(): Expression {
@@ -188,10 +173,13 @@ export class Parser {
             case TokenType.Number:
                 return { type: NodeType.NumericLiteral, position: this.at().position, value: parseFloat(this.next().value) } as NumericLiteral;
             
+            case TokenType.Boolean:
+                return { type: NodeType.BooleanLiteral, position: this.at().position, value: this.next().value === "TRUE" ? true : false } as BooleanLiteral;
+
             case TokenType.OpenParen:
                 this.next();
                 const value: Expression = this.parseExpression();
-                this.expect(TokenType.CloseParen, "Expected a closing parenthesis, not found!");
+                this.expect(TokenType.CloseParen, "Expected a closing parenthesis");
                 return value;
             
             default:

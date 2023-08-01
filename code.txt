@@ -1,6 +1,8 @@
 
-AGENT person 100 {
+AGENT person {
 
-    VARIABLE x: RANDOM(1, 5) = 3 < (2 + 4);
-    VARIABLE y: 10 = y + 5;
+    VARIABLE x: 10 = 20;
+    
+    CONST a = TRUE;
+    CONST b = 2 + 3 * 7;
 }

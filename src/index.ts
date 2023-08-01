@@ -1,2 +1,2 @@
-export { Interpreter, InterpreterConfiguration } from "./interpreter";
+export { Interpreter, InterpreterConfiguration } from "./interpreter/interpreter";
 export { Logger } from "./lib/logger";

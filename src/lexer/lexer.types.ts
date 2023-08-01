@@ -15,6 +15,7 @@ export enum TokenType {
 
     Identifier = "Identifier",
     Number = "Number",
+    Boolean = "Boolean",
 
     Equals = "Equals",
     BinaryOperator = "BinaryOperator",

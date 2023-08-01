@@ -13,7 +13,10 @@ export const ReservedKeywords: Record<string, TokenType> = {
     "ELSE": TokenType.Else,
     "AND": TokenType.And,
     "OR": TokenType.Or,
-    "AS": TokenType.As
+    "AS": TokenType.As,
+
+    "TRUE": TokenType.Boolean,
+    "FALSE": TokenType.Boolean,
 }
 
 export class Lexer {

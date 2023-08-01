@@ -10,6 +10,12 @@ export interface Agent {
     variables: AgentVariables;
 }
 
+export interface InterpreterConfiguration {
+    agents: number;
+    steps: number;
+    delay: number;
+}
+
 export interface InterpreterOutput {
     step: number;
     agents: Agent[];

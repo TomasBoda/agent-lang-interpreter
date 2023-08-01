@@ -1,19 +1,137 @@
-import { BinaryExpression, Identifier, LogicalExpression, NodeType, NumericLiteral, ObjectDeclaration, Program, Statement, VariableDeclaration } from "../parser/ast.types";
-import { RuntimeValue, NumberValue, NullValue, BooleanValue } from "./values";
+import { BinaryExpression, BooleanLiteral, Expression, Identifier, LogicalExpression, NodeType, NumericLiteral, ObjectDeclaration, Program, Statement, VariableDeclaration, VariableType } from "../parser/parser.types";
+import { RuntimeValue, NumberValue, BooleanValue, RuntimeVariable } from "./runtime.types";
 import { Error } from "../lib/error";
-import { Environment } from "./environment";
-import { Position } from "../lexer/lexer.types";
-import { InterpreterConfiguration } from "../interpreter";
-import { InterpreterOutput } from "../output";
+import { InterpreterConfiguration } from "../interpreter/interpreter.types";
+import { Agent, AgentVariableIdentifier, AgentVariableValue, AgentVariables, InterpreterOutput } from "../interpreter/interpreter.types";
 
 export class Runtime {
 
     private program: Program;
+    private output: InterpreterOutput = { step: 0, agents: [] };
 
     constructor(program: Program) {
         this.program = program;
     }
 
+    public run(config: InterpreterConfiguration, step: number): InterpreterOutput {
+        this.output.step = step;
+        this.output.agents = [];
+
+        return this.evaluateProgram(this.program, config);
+    }
+
+    private evaluateProgram(program: Program, config: InterpreterConfiguration): InterpreterOutput {
+        for (const statement of program.body) {
+            if (statement.type !== NodeType.ObjectDeclaration) {
+                Error.runtime(statement.position, "Only object declarations allowed in program body");
+            }
+
+            const agent: Agent = this.evaluateObjectDeclaration(statement as ObjectDeclaration);
+            this.output.agents.push(agent);
+        }
+
+        return this.output;
+    }
+
+    private evaluateObjectDeclaration(declaration: ObjectDeclaration): Agent {
+        const identifier: string = declaration.identifier;
+        const variables: AgentVariables = new Map<AgentVariableIdentifier, AgentVariableValue>();
+
+        for (const statement of declaration.body) {
+            if (statement.type !== NodeType.VariableDeclaration) {
+                Error.runtime(statement.position, "Only variable declarations allowed in object body");
+            }
+
+            const variable: RuntimeVariable = this.evaluateVariableDeclaration(statement as VariableDeclaration);
+            variables.set(variable.identifier, variable.value);
+        }
+
+        return { id: 0, identifier, variables } as Agent;
+    }
+
+    private evaluateVariableDeclaration(declaration: VariableDeclaration): RuntimeVariable {
+        const identifier: string = declaration.identifier;
+        let value: RuntimeValue;
+
+        // evaluate VARIABLE in step 0
+        if (declaration.variableType === VariableType.Variable && declaration.default && this.output.step === 0) {
+            value = this.evaluateRuntimeValue(declaration.default);
+        } else {
+            value = this.evaluateRuntimeValue(declaration.value);
+        }
+
+        return { identifier, value: this.getRawRuntimeValue(value) } as RuntimeVariable;
+    }
+
+    private getRawRuntimeValue(value: RuntimeValue): AgentVariableValue {
+        if (value.type === "number") {
+            return (value as NumberValue).value;
+        }
+
+        return (value as BooleanValue).value;
+    }
+
+    private evaluateRuntimeValue(node: Expression): RuntimeValue {
+        switch (node.type) {
+            case NodeType.NumericLiteral:
+                return this.evaluateNumericLiteral(node as NumericLiteral);
+            case NodeType.BooleanLiteral:
+                return this.evaluateBooleanLiteral(node as BooleanLiteral);
+            case NodeType.BinaryExpression:
+                return this.evaluateBinaryExpression(node as BinaryExpression);
+            default:
+                Error.runtime(node.position, "Only numeric literals and binary expressions allowed");
+                return {} as RuntimeValue;
+        }
+    }
+
+    private evaluateNumericLiteral(numericLiteral: NumericLiteral): RuntimeValue {
+        return { type: "number", value: (numericLiteral as NumericLiteral).value } as NumberValue;
+    }
+
+    private evaluateBooleanLiteral(booleanLiteral: BooleanLiteral): RuntimeValue {
+        return { type: "boolean", value: (booleanLiteral as BooleanLiteral).value } as BooleanValue;
+    }
+
+    private evaluateBinaryExpression(expression: BinaryExpression): RuntimeValue {
+        const leftHandSide = this.evaluateRuntimeValue(expression.left);
+        const rightHandSide = this.evaluateRuntimeValue(expression.right);
+    
+        if (leftHandSide.type === "number" && rightHandSide.type === "number") {
+            return this.evaluateNumericBinaryExpression(leftHandSide as NumberValue, rightHandSide as NumberValue, expression.operator);
+        }
+    
+        Error.runtime(expression.position, "Only numbers allowed in binary expression");
+        return {} as RuntimeValue;
+    }
+
+    private evaluateNumericBinaryExpression(leftHandSide: NumberValue, rightHandSide: NumberValue, operator: string): NumberValue {
+        let result = 0;
+    
+        if (operator === "+") {
+            result = leftHandSide.value + rightHandSide.value;
+        } else if (operator === "-") {
+            result = leftHandSide.value - rightHandSide.value;
+        } else if (operator === "*") {
+            result = leftHandSide.value * rightHandSide.value;
+        } else if (operator === "/") {
+            if (rightHandSide.value === 0) {
+                Error.runtime(null, "Division by zero not allowed");
+            }
+
+            result = leftHandSide.value / rightHandSide.value;
+        } else {
+            if (rightHandSide.value === 0) {
+                Error.runtime(null, "Modulo by zero not allowed");
+            }
+
+            result = leftHandSide.value % rightHandSide.value;
+        }
+    
+        return { type: "number", value: result } as NumberValue;
+    }
+
+    /*
     public interpret(env: Environment, config: InterpreterConfiguration, step: number): RuntimeValue {
         return this.evaluate(this.program, env, config);
     }
@@ -156,13 +274,24 @@ export class Runtime {
     private evaluateObjectDeclaration(declaration: ObjectDeclaration, env: Environment, config: InterpreterConfiguration): RuntimeValue {
 
         for (let id = 0; id < config.agents; id++) {
-            // TODO: evaluateAgent(...)
+            if (!this.previousOutput) {
+                const value: RuntimeValue = this.evaluateDefaultObjectDeclaration(declaration, env, config, id);
+            } else {
+                const value: RuntimeValue = this.evaluateNextObjectDeclaration(declaration, env, config, id);
+            }
         }
 
         return { type: "null", value: null } as NullValue;
     }
 
-    private evaluateAgent(object: ObjectDeclaration, env: Environment, id: number): void {
+    private evaluateDefaultObjectDeclaration(declaration: ObjectDeclaration, env: Environment, config: InterpreterConfiguration, id: number): RuntimeValue {
 
+        return { type: "null", value: null } as NullValue;
     }
+
+    private evaluateNextObjectDeclaration(declaration: ObjectDeclaration, env: Environment, config: InterpreterConfiguration, id: number): RuntimeValue {
+
+        return { type: "null", value: null } as NullValue;
+    }
+    */
 }

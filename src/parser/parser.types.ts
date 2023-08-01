@@ -7,6 +7,7 @@ export enum NodeType {
     ObjectDeclaration = "ObjectDeclaration",
     // Expressions
     NumericLiteral = "NumericLiteral",
+    BooleanLiteral = "BooleanLiteral",
     Identifier = "Identifier",
     BinaryExpression = "BinaryExpression",
     LogicalExpression = "LogicalExpression"
@@ -66,4 +67,9 @@ export interface Identifier extends Expression {
 export interface NumericLiteral extends Expression {
     type: NodeType.NumericLiteral;
     value: number;
+}
+
+export interface BooleanLiteral extends Expression {
+    type: NodeType.BooleanLiteral;
+    value: boolean;
 }
