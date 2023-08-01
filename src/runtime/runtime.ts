@@ -1,4 +1,4 @@
-import { BinaryExpression, BooleanLiteral, Expression, Identifier, LogicalExpression, NodeType, NumericLiteral, ObjectDeclaration, Program, Statement, VariableDeclaration, VariableType } from "../parser/parser.types";
+import { BinaryExpression, BooleanLiteral, ConditionalExpression, Expression, Identifier, LogicalExpression, NodeType, NumericLiteral, ObjectDeclaration, Program, Statement, VariableDeclaration, VariableType } from "../parser/parser.types";
 import { RuntimeValue, NumberValue, BooleanValue, RuntimeVariable } from "./runtime.types";
 import { Error } from "../lib/error";
 import { InterpreterConfiguration } from "../interpreter/interpreter.types";
@@ -90,6 +90,8 @@ export class Runtime {
                 return this.evaluateBinaryExpression(node as BinaryExpression, id);
             case NodeType.LogicalExpression:
                 return this.evaluateLogicalExpression(node as LogicalExpression, id);
+            case NodeType.ConditionalExpression:
+                return this.evaluateConditionalExpression(node as ConditionalExpression, id);
             default:
                 Error.runtime(node.position, "Only numeric literals and binary expressions allowed");
                 return {} as RuntimeValue;
@@ -225,6 +227,20 @@ export class Runtime {
 
         Error.runtime(expression.position, "Only booleans allowed in logical expression");
         return {} as RuntimeValue;
+    }
+
+    private evaluateConditionalExpression(expression: ConditionalExpression, id: string): RuntimeValue {
+        const condition = this.evaluateRuntimeValue(expression.condition, id);
+
+        if (condition.type !== "boolean") {
+            Error.runtime(expression.position, "Conditional expression requires a boolean value as a condition");
+            return {} as RuntimeValue;
+        }
+
+        const option = (condition as BooleanValue).value ? expression.consequent : expression.alternate;
+        const value = this.evaluateRuntimeValue(option, id);
+
+        return value as RuntimeValue;
     }
 
     private deepCopyOutput(output: InterpreterOutput): InterpreterOutput {

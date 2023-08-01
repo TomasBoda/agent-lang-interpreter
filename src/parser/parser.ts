@@ -1,5 +1,5 @@
 import { Position, Token, TokenType } from "../lexer/lexer.types";
-import { BinaryExpression, BooleanLiteral, Expression, Identifier, LogicalExpression, NodeType, NumericLiteral, ObjectDeclaration, Program, Statement, VariableDeclaration, VariableType } from "./parser.types";
+import { BinaryExpression, BooleanLiteral, ConditionalExpression, Expression, Identifier, LogicalExpression, NodeType, NumericLiteral, ObjectDeclaration, Program, Statement, VariableDeclaration, VariableType } from "./parser.types";
 import { Error } from "../lib/error";
 
 export class Parser {
@@ -85,6 +85,21 @@ export class Parser {
     }
 
     private parseExpression(): Expression {
+        return this.parseConditionalExpression();
+    }
+
+    private parseConditionalExpression(): Expression {
+        if (this.at().type === TokenType.If) {
+            const position = this.next().position;
+            const condition = this.parseExpression();
+            this.expect(TokenType.Then, "Expected THEN keyword after IF");
+            const consequent = this.parseExpression();
+            this.expect(TokenType.Else, "Expected ELSE keyword after THEN");
+            const alternate = this.parseExpression();
+
+            return { type: NodeType.ConditionalExpression, condition, consequent, alternate, position } as ConditionalExpression;
+        }
+
         return this.parseLogicalExpression();
     }
 

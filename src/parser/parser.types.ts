@@ -10,7 +10,8 @@ export enum NodeType {
     BooleanLiteral = "BooleanLiteral",
     Identifier = "Identifier",
     BinaryExpression = "BinaryExpression",
-    LogicalExpression = "LogicalExpression"
+    LogicalExpression = "LogicalExpression",
+    ConditionalExpression = "ConditionalExpression",
 }
 
 export enum VariableType {
@@ -58,6 +59,13 @@ export interface LogicalExpression extends Expression {
     left: Expression;
     right: Expression;
     operator: string;
+}
+
+export interface ConditionalExpression extends Expression {
+    type: NodeType.ConditionalExpression;
+    condition: Expression;
+    consequent: Expression;
+    alternate: Expression;
 }
 
 export interface Identifier extends Expression {

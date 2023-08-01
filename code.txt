@@ -1,7 +1,11 @@
 
-AGENT person 3 {
+AGENT person 1 {
 
-    VARIABLE distance: 0 = distance + 1;
+    VARIABLE distance: 0 = IF infected THEN distance ELSE distance + 1;
 
-    CONST isFarAway = distance > 10 AND distance < 30;
+    CONST infDistance = 5;
+    CONST infTimespan = 7;
+
+    DYNAMIC infected = distance >= infDistance;
+    DYNAMIC remainingDays = IF infected THEN remainingDays - 1 ELSE infTimespan;
 }
