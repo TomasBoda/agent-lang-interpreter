@@ -2,7 +2,6 @@ import { readFileSync } from "fs";
 import { Interpreter, InterpreterConfiguration, Logger } from "./src";
 import { InterpreterOutput } from "./src/interpreter/interpreter.types";
 
-// TODO: add IF THEN ELSE conditional expression parsing
 // TODO: check for agent and variable name repetition during parsing
 // TODO: add built-in functions (RANDOM, FILTER, AGENTS, ...)
 
