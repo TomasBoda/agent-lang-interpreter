@@ -33,6 +33,7 @@ export class Parser {
     private parseObjectDeclaration(): Statement {
         const position = this.next().position;
         const identifier = this.expect(TokenType.Identifier, "Expected identifier after AGENT declaration").value;
+        const count = this.expect(TokenType.Number, "Expected number of agents after identifier").value;
         this.expect(TokenType.OpenBrace, "Expected open brace after AGENT declaration");
         const body: VariableDeclaration[] = [];
 
@@ -51,7 +52,7 @@ export class Parser {
 
         this.expect(TokenType.CloseBrace, "Expected a close brace after AGENT declaration");
 
-        return { type: NodeType.ObjectDeclaration, identifier, body, position } as ObjectDeclaration;
+        return { type: NodeType.ObjectDeclaration, identifier, count: parseFloat(count), body, position } as ObjectDeclaration;
     }
 
     private parseVariableDeclaration(): Statement {

@@ -42,6 +42,7 @@ export interface VariableDeclaration extends Statement {
 export interface ObjectDeclaration extends Statement {
     type: NodeType.ObjectDeclaration;
     identifier: string;
+    count: number;
     body: VariableDeclaration[];
 }
 

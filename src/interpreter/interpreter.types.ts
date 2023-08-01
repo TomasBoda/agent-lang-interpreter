@@ -5,13 +5,12 @@ export type AgentVariableValue = number | boolean;
 export type AgentVariables = Map<AgentVariableIdentifier, AgentVariableValue>;
 
 export interface Agent {
-    id: number;
+    id: string;
     identifier: string;
     variables: AgentVariables;
 }
 
 export interface InterpreterConfiguration {
-    agents: number;
     steps: number;
     delay: number;
 }
