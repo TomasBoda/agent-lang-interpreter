@@ -1,8 +1,8 @@
-import { BinaryExpression, BooleanLiteral, ConditionalExpression, Expression, Identifier, LogicalExpression, NodeType, NumericLiteral, ObjectDeclaration, Program, Statement, VariableDeclaration, VariableType } from "../parser/parser.types";
+import { BinaryExpression, BooleanLiteral, ConditionalExpression, Expression, Identifier, LogicalExpression, NodeType, NumericLiteral, ObjectDeclaration, Program, VariableDeclaration, VariableType } from "../parser/parser.types";
 import { RuntimeValue, NumberValue, BooleanValue, RuntimeVariable } from "./runtime.types";
-import { Error } from "../lib/error";
+import { Error } from "../utils/error";
 import { InterpreterConfiguration } from "../interpreter/interpreter.types";
-import { RuntimeAgent, AgentVariableIdentifier, AgentVariableValue, AgentVariables, RuntimeOutput } from "../interpreter/interpreter.types";
+import { RuntimeAgent, AgentVariableIdentifier, AgentVariableValue, AgentVariables, RuntimeOutput } from "./runtime.types";
 
 export class Runtime {
 

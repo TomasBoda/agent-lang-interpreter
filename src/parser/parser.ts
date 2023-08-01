@@ -1,6 +1,6 @@
 import { Position, Token, TokenType } from "../lexer/lexer.types";
 import { BinaryExpression, BooleanLiteral, ConditionalExpression, Expression, Identifier, LogicalExpression, NodeType, NumericLiteral, ObjectDeclaration, Program, Statement, VariableDeclaration, VariableType } from "./parser.types";
-import { Error } from "../lib/error";
+import { Error } from "../utils/error";
 
 export class Parser {
 

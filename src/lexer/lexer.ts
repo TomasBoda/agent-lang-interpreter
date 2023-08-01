@@ -1,4 +1,4 @@
-import { Error } from "../lib/error";
+import { Error } from "../utils/error";
 import { Position, Symbol, Token, TokenType } from "./lexer.types";
 
 export const ReservedKeywords: Record<string, TokenType> = {

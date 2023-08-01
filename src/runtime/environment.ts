@@ -1,5 +1,5 @@
 import { RuntimeValue } from "./runtime.types";
-import { Error } from "../lib/error";
+import { Error } from "../utils/error";
 
 export class Environment {
 

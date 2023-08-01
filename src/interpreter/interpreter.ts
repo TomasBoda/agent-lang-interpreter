@@ -5,7 +5,8 @@ import { Program } from "../parser/parser.types";
 import { Parser } from "../parser/parser";
 import { Runtime } from "../runtime/runtime";
 import { writeFileSync } from "fs";
-import { Agent, InterpreterConfiguration, InterpreterOutput, RuntimeAgent, RuntimeOutput } from "./interpreter.types";
+import { Agent, InterpreterConfiguration, InterpreterOutput } from "./interpreter.types";
+import { RuntimeAgent, RuntimeOutput } from "../runtime/runtime.types";
 
 export class Interpreter {
 

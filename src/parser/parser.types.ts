@@ -3,8 +3,8 @@ import { Position } from "../lexer/lexer.types";
 export enum NodeType {
     // Statements
     Program = "Program",
-    VariableDeclaration = "VariableDeclaration",
     ObjectDeclaration = "ObjectDeclaration",
+    VariableDeclaration = "VariableDeclaration",
     // Expressions
     NumericLiteral = "NumericLiteral",
     BooleanLiteral = "BooleanLiteral",
