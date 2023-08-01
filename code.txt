@@ -1,26 +1,6 @@
 
 AGENT person 1 {
 
-    CONST randomOne = RANDOM(1, 5);
-    CONST randomTwo = RANDOM(-10, -5);
-
-    CONST sqrtOne = SQRT(16);
-    CONST sqrtTwo = SQRT(5);
-
-    CONST absOne = ABS(-20);
-    CONST absTwo = ABS(40);
-
-    CONST floorOne = FLOOR(1.2);
-    CONST floorTwo = FLOOR(1.9);
-
-    CONST ceilOne = CEIL(1.2);
-    CONST ceilTwo = CEIL(1.9);
-
-    CONST roundOne = ROUND(1.2);
-    CONST roundTwo = ROUND(1.5);
-    CONST roundThree = ROUND(1.6);
-
-    CONST sinOne = SIN(90);
-    CONST cosOne = COS(90);
-    CONST tanOne = TAN(90);
+    VARIABLE x: 10 = (x + CHOICE(-1, 2)) % 20;
+    VARIABLE y: 10 = (y + CHOICE(-2, 1)) % 20;
 }

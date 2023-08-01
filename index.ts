@@ -13,7 +13,7 @@ const filename = "code.txt";
 const sourceCode = readFileSync(filename, "utf-8");
 
 const interpreter: Interpreter = new Interpreter(sourceCode);
-const config: InterpreterConfiguration = { steps: 5, delay: 200 };
+const config: InterpreterConfiguration = { steps: 100, delay: 500 };
 
 interpreter.interpret(config).subscribe((output: InterpreterOutput) => {
     Logger.log(output.agents[0].variables);

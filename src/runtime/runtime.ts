@@ -4,6 +4,7 @@ import { Error } from "../utils/error";
 import { InterpreterConfiguration } from "../interpreter/interpreter.types";
 import { RuntimeAgent, AgentVariableIdentifier, AgentVariableValue, AgentVariables, RuntimeOutput } from "./runtime.types";
 import { Environment } from "./environment";
+import { normalizeNumber } from "../utils/functions";
 
 export class Runtime {
 
@@ -104,11 +105,17 @@ export class Runtime {
     }
 
     private evaluateNumericLiteral(numericLiteral: NumericLiteral): RuntimeValue {
-        return { type: "number", value: (numericLiteral as NumericLiteral).value } as NumberValue;
+        return {
+            type: "number",
+            value: normalizeNumber((numericLiteral as NumericLiteral).value)
+        } as NumberValue;
     }
 
     private evaluateBooleanLiteral(booleanLiteral: BooleanLiteral): RuntimeValue {
-        return { type: "boolean", value: (booleanLiteral as BooleanLiteral).value } as BooleanValue;
+        return {
+            type: "boolean",
+            value: (booleanLiteral as BooleanLiteral).value
+        } as BooleanValue;
     }
 
     private evaluateIdentifier(identifier: Identifier, id: string): RuntimeValue {
@@ -207,7 +214,7 @@ export class Runtime {
             result = leftHandSide.value % rightHandSide.value;
         }
     
-        return { type: "number", value: result } as NumberValue;
+        return { type: "number", value: normalizeNumber(result) } as NumberValue;
     }
 
     private evaluateLogicalExpression(expression: LogicalExpression, id: string): RuntimeValue {
