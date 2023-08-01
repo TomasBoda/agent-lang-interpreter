@@ -1,18 +1,21 @@
-import { BinaryExpression, BooleanLiteral, ConditionalExpression, Expression, Identifier, LogicalExpression, NodeType, NumericLiteral, ObjectDeclaration, Program, VariableDeclaration, VariableType } from "../parser/parser.types";
-import { RuntimeValue, NumberValue, BooleanValue, RuntimeVariable } from "./runtime.types";
+import { BinaryExpression, BooleanLiteral, CallExpression, ConditionalExpression, Expression, Identifier, LogicalExpression, NodeType, NumericLiteral, ObjectDeclaration, Program, VariableDeclaration, VariableType } from "../parser/parser.types";
+import { RuntimeValue, NumberValue, BooleanValue, RuntimeVariable, FunctionValue } from "./runtime.types";
 import { Error } from "../utils/error";
 import { InterpreterConfiguration } from "../interpreter/interpreter.types";
 import { RuntimeAgent, AgentVariableIdentifier, AgentVariableValue, AgentVariables, RuntimeOutput } from "./runtime.types";
+import { Environment } from "./environment";
 
 export class Runtime {
 
     private program: Program;
+    private environment: Environment;
 
     private previousOutput: RuntimeOutput = { step: 0, agents: [] };
     private currentOutput: RuntimeOutput = { step: 0, agents: [] };
 
-    constructor(program: Program) {
+    constructor(program: Program, environment: Environment) {
         this.program = program;
+        this.environment = environment;
     }
 
     public run(config: InterpreterConfiguration, step: number): RuntimeOutput {
@@ -92,6 +95,8 @@ export class Runtime {
                 return this.evaluateLogicalExpression(node as LogicalExpression, id);
             case NodeType.ConditionalExpression:
                 return this.evaluateConditionalExpression(node as ConditionalExpression, id);
+            case NodeType.CallExpression:
+                return this.evaluateCallExpression(node as CallExpression, id);
             default:
                 Error.runtime(node.position, "Only numeric literals and binary expressions allowed");
                 return {} as RuntimeValue;
@@ -241,6 +246,27 @@ export class Runtime {
         const value = this.evaluateRuntimeValue(option, id);
 
         return value as RuntimeValue;
+    }
+
+    private evaluateCallExpression(expression: CallExpression, id: string): RuntimeValue {
+        if (expression.caller.type !== NodeType.Identifier) {
+            Error.runtime(expression.position, "Function call must start with an identifier");
+        }
+
+        const identifier = this.environment.lookupVariable((expression.caller as Identifier).identifier);
+
+        if (!identifier) {
+            Error.runtime(expression.position, "Function with the provided identifier does not exist");
+        }
+
+        const args: RuntimeValue[] = expression.args.map((arg: Expression) => this.evaluateRuntimeValue(arg, id));
+    
+        if (identifier.type !== "function") {
+            Error.runtime(expression.position, "Cannot call a non-function identifier");
+        }
+
+        const result = (identifier as FunctionValue).call(args);
+        return result;
     }
 
     private deepCopyOutput(output: RuntimeOutput): RuntimeOutput {

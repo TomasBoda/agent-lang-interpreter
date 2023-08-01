@@ -6,12 +6,15 @@ import { Parser } from "../parser/parser";
 import { Runtime } from "../runtime/runtime";
 import { writeFileSync } from "fs";
 import { Agent, InterpreterConfiguration, InterpreterOutput } from "./interpreter.types";
-import { RuntimeAgent, RuntimeOutput } from "../runtime/runtime.types";
+import { NumberValue, RuntimeAgent, RuntimeOutput } from "../runtime/runtime.types";
+import { Environment } from "../runtime/environment";
 
 export class Interpreter {
 
     private tokens: Token[];
     private program: Program;
+
+    private environment: Environment = Environment.createGlobalEnvironment();
 
     constructor(sourceCode: string) {
         const lexer: Lexer = new Lexer(sourceCode);
@@ -24,7 +27,7 @@ export class Interpreter {
     }
 
     public interpret(config: InterpreterConfiguration): Observable<InterpreterOutput> {
-        const runtime: Runtime = new Runtime(this.program);
+        const runtime: Runtime = new Runtime(this.program, this.environment);
 
         return interval(config.delay).pipe(
             take(config.steps),

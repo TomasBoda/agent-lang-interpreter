@@ -1,5 +1,5 @@
 import { Position, Token, TokenType } from "../lexer/lexer.types";
-import { BinaryExpression, BooleanLiteral, ConditionalExpression, Expression, Identifier, LogicalExpression, NodeType, NumericLiteral, ObjectDeclaration, Program, Statement, VariableDeclaration, VariableType } from "./parser.types";
+import { BinaryExpression, BooleanLiteral, CallExpression, ConditionalExpression, Expression, Identifier, LogicalExpression, NodeType, NumericLiteral, ObjectDeclaration, Program, Statement, VariableDeclaration, VariableType } from "./parser.types";
 import { Error } from "../utils/error";
 
 export class Parser {
@@ -161,12 +161,12 @@ export class Parser {
     }
 
     private parseMultiplicativeExpression(): Expression {
-        let left: Expression = this.parsePrimaryExpression();
+        let left: Expression = this.parseCallExpression();
 
         while (this.at().value === "*" || this.at().value === "/" || this.at().value === "%") {
             const position: Position = this.at().position;
             const operator = this.next().value;
-            const right = this.parsePrimaryExpression();
+            const right = this.parseCallExpression();
             left = {
                 type: NodeType.BinaryExpression,
                 left,
@@ -177,6 +177,37 @@ export class Parser {
         }
 
         return left;
+    }
+
+    private parseCallExpression(): Expression {
+        const caller = this.parsePrimaryExpression();
+
+        if (this.at().type === TokenType.OpenParen) {
+            return {
+                type: NodeType.CallExpression,
+                caller,
+                args: this.parseArguments()
+            } as CallExpression;
+        }
+
+        return caller;
+    }
+
+    private parseArguments(): Expression[] {
+        this.expect(TokenType.OpenParen, "Expected an open parenthesis before function arguments");
+        const args: Expression[] = this.at().type === TokenType.CloseParen ? [] : this.parseArgumentsList();
+        this.expect(TokenType.CloseParen, "Expected a closing parenthesis after function arguments");
+        return args;
+    }
+
+    private parseArgumentsList(): Expression[] {
+        const args = [ this.parseExpression() ];
+
+        while (this.at().type === TokenType.Comma && this.next()) {
+            args.push(this.parseExpression());
+        }
+
+        return args;
     }
 
     private parsePrimaryExpression(): Expression {

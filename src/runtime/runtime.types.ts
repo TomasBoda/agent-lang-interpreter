@@ -1,5 +1,5 @@
 
-export type ValueType = "number" | "boolean";
+export type ValueType = "number" | "boolean" | "function";
 
 export interface RuntimeValue {
     type: ValueType;
@@ -13,6 +13,13 @@ export interface NumberValue extends RuntimeValue {
 export interface BooleanValue extends RuntimeValue {
     type: "boolean";
     value: boolean;
+}
+
+export type FunctionCall = (args: RuntimeValue[]) => RuntimeValue;
+
+export interface FunctionValue extends RuntimeValue {
+    type: "function";
+    call: FunctionCall;
 }
 
 export interface RuntimeVariable {

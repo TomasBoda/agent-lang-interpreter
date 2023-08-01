@@ -1,5 +1,6 @@
-import { RuntimeValue } from "./runtime.types";
+import { NumberValue, RuntimeValue } from "./runtime.types";
 import { Error } from "../utils/error";
+import { ABS, CEIL, COS, FLOOR, RANDOM, ROUND, SIN, SQRT, TAN, createGlobalFunction } from "../utils/functions";
 
 export class Environment {
 
@@ -9,6 +10,22 @@ export class Environment {
     constructor(parent?: Environment) {
         this.parent = parent;
         this.variables = new Map();
+    }
+
+    public static createGlobalEnvironment(): Environment {
+        const environment = new Environment();
+
+        environment.declareVariable("RANDOM", createGlobalFunction(RANDOM));
+        environment.declareVariable("SQRT", createGlobalFunction(SQRT));
+        environment.declareVariable("ABS", createGlobalFunction(ABS));
+        environment.declareVariable("FLOOR", createGlobalFunction(FLOOR));
+        environment.declareVariable("CEIL", createGlobalFunction(CEIL));
+        environment.declareVariable("ROUND", createGlobalFunction(ROUND));
+        environment.declareVariable("SIN", createGlobalFunction(SIN));
+        environment.declareVariable("COS", createGlobalFunction(COS));
+        environment.declareVariable("TAN", createGlobalFunction(TAN));
+
+        return environment;
     }
 
     public declareVariable(identifier: string, value: RuntimeValue): RuntimeValue {
