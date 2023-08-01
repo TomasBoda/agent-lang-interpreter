@@ -5,7 +5,7 @@ import { Program } from "../parser/parser.types";
 import { Parser } from "../parser/parser";
 import { Runtime } from "../runtime/runtime";
 import { writeFileSync } from "fs";
-import { InterpreterConfiguration, InterpreterOutput } from "./interpreter.types";
+import { Agent, InterpreterConfiguration, InterpreterOutput, RuntimeAgent, RuntimeOutput } from "./interpreter.types";
 
 export class Interpreter {
 
@@ -27,7 +27,22 @@ export class Interpreter {
 
         return interval(config.delay).pipe(
             take(config.steps),
-            map(step => runtime.run(config, step))
+            map(step => this.mapRuntimeOutput(runtime.run(config, step)))
         );
+    }
+
+    
+    private mapRuntimeAgent(agent: RuntimeAgent): Agent {
+        const variables: { [key: string]: number | boolean } = {};
+        agent.variables.forEach((value, key) => variables[key] = value);
+    
+        return {identifier: agent.identifier, variables } as Agent;
+    }
+    
+    private mapRuntimeOutput(output: RuntimeOutput): InterpreterOutput {
+        return {
+            step: output.step,
+            agents: output.agents.map((agent: RuntimeAgent) => this.mapRuntimeAgent(agent))
+        } as InterpreterOutput;
     }
 }

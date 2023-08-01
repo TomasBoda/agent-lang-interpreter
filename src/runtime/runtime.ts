@@ -2,20 +2,20 @@ import { BinaryExpression, BooleanLiteral, ConditionalExpression, Expression, Id
 import { RuntimeValue, NumberValue, BooleanValue, RuntimeVariable } from "./runtime.types";
 import { Error } from "../lib/error";
 import { InterpreterConfiguration } from "../interpreter/interpreter.types";
-import { Agent, AgentVariableIdentifier, AgentVariableValue, AgentVariables, InterpreterOutput } from "../interpreter/interpreter.types";
+import { RuntimeAgent, AgentVariableIdentifier, AgentVariableValue, AgentVariables, RuntimeOutput } from "../interpreter/interpreter.types";
 
 export class Runtime {
 
     private program: Program;
 
-    private previousOutput: InterpreterOutput = { step: 0, agents: [] };
-    private currentOutput: InterpreterOutput = { step: 0, agents: [] };
+    private previousOutput: RuntimeOutput = { step: 0, agents: [] };
+    private currentOutput: RuntimeOutput = { step: 0, agents: [] };
 
     constructor(program: Program) {
         this.program = program;
     }
 
-    public run(config: InterpreterConfiguration, step: number): InterpreterOutput {
+    public run(config: InterpreterConfiguration, step: number): RuntimeOutput {
         this.previousOutput = this.deepCopyOutput(this.currentOutput);
         this.currentOutput.step = step;
         this.currentOutput.agents = [];
@@ -23,7 +23,7 @@ export class Runtime {
         return this.evaluateProgram(this.program, config);
     }
 
-    private evaluateProgram(program: Program, config: InterpreterConfiguration): InterpreterOutput {
+    private evaluateProgram(program: Program, config: InterpreterConfiguration): RuntimeOutput {
         for (const statement of program.body) {
             if (statement.type !== NodeType.ObjectDeclaration) {
                 Error.runtime(statement.position, "Only object declarations allowed in program body");
@@ -44,7 +44,7 @@ export class Runtime {
         const identifier: string = declaration.identifier;
         const variables: AgentVariables = new Map<AgentVariableIdentifier, AgentVariableValue>();
 
-        this.currentOutput.agents.push({ id, identifier, variables } as Agent);
+        this.currentOutput.agents.push({ id, identifier, variables } as RuntimeAgent);
 
         for (const statement of declaration.body) {
             if (statement.type !== NodeType.VariableDeclaration) {
@@ -107,12 +107,12 @@ export class Runtime {
     }
 
     private evaluateIdentifier(identifier: Identifier, id: string): RuntimeValue {
-        let agents: Agent[] = [];
+        let agents: RuntimeAgent[] = [];
 
         if (this.currentOutput.step === 0) {
-            agents = this.currentOutput.agents.filter((agent: Agent) => agent.id == id);
+            agents = this.currentOutput.agents.filter((agent: RuntimeAgent) => agent.id == id);
         } else {
-            agents = this.previousOutput.agents.filter((agent: Agent) => agent.id == id);
+            agents = this.previousOutput.agents.filter((agent: RuntimeAgent) => agent.id == id);
         }
 
         if (agents.length === 0) {
@@ -125,7 +125,7 @@ export class Runtime {
             return {} as RuntimeValue;
         }
 
-        const agent: Agent = agents[0];
+        const agent: RuntimeAgent = agents[0];
 
         if (!agent.variables.has(identifier.identifier)) {
             Error.runtime(identifier.position, "Agent variable with the provided identifier not found");
@@ -243,15 +243,15 @@ export class Runtime {
         return value as RuntimeValue;
     }
 
-    private deepCopyOutput(output: InterpreterOutput): InterpreterOutput {
-        const newOutput: InterpreterOutput = { step: output.step, agents: [] };
+    private deepCopyOutput(output: RuntimeOutput): RuntimeOutput {
+        const newOutput: RuntimeOutput = { step: output.step, agents: [] };
 
         for (const agent of output.agents) {
             newOutput.agents.push({
                 id: agent.id,
                 identifier: agent.identifier,
                 variables: new Map(agent.variables)
-            } as Agent);
+            } as RuntimeAgent);
         }
 
         return newOutput;
