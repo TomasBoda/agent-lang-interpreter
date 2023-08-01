@@ -31,6 +31,10 @@ export function RANDOM(args: RuntimeValue[]): RuntimeValue {
     const min: NumberValue = numericArgs[0];
     const max: NumberValue = numericArgs[1];
 
+    if (min.value >= max.value) {
+        Error.runtime(null, "In function call RANDOM the first argument must be less than the second argument");
+    }
+
     const result = Math.random() * (max.value - min.value) + min.value;
 
     return { type: "number", value: normalize(result) } as NumberValue;

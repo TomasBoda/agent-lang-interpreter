@@ -220,6 +220,16 @@ export class Parser {
             case TokenType.Number:
                 return { type: NodeType.NumericLiteral, position: this.at().position, value: parseFloat(this.next().value) } as NumericLiteral;
             
+            // parse negative numbers
+            case TokenType.BinaryOperator:
+                if (token.value === "-") {
+                    if (this.getNext().type !== TokenType.Number) {
+                        Error.parse(token.position, "Negative sign must preceed a number, provided a non-number value");
+                    }
+
+                    return { type: NodeType.NumericLiteral, position: this.at().position, value: parseFloat(this.next().value + this.next().value) } as NumericLiteral
+                }
+
             case TokenType.Boolean:
                 return { type: NodeType.BooleanLiteral, position: this.at().position, value: this.next().value === "TRUE" ? true : false } as BooleanLiteral;
 
@@ -242,6 +252,14 @@ export class Parser {
     private next(): Token {
         const previous: Token = this.tokens.shift() as Token;
         return previous;
+    }
+
+    private getNext(): Token {
+        if (this.tokens.length <= 2) {
+            Error.parse(null, "Cannot get next token because EOF");
+        }
+
+        return this.tokens[1];
     }
 
     private expect(type: TokenType, message: string): Token {

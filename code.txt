@@ -2,12 +2,12 @@
 AGENT person 1 {
 
     CONST randomOne = RANDOM(1, 5);
-    CONST randomTwo = RANDOM(10, 5);
+    CONST randomTwo = RANDOM(-10, -5);
 
     CONST sqrtOne = SQRT(16);
     CONST sqrtTwo = SQRT(5);
 
-    CONST absOne = ABS(20);
+    CONST absOne = ABS(-20);
     CONST absTwo = ABS(40);
 
     CONST floorOne = FLOOR(1.2);
