@@ -1,6 +1,5 @@
 
-AGENT person 1 {
+agent person 1 {
 
-    VARIABLE x: 10 = (x + CHOICE(-1, 2)) % 20;
-    VARIABLE y: 10 = (y + CHOICE(-2, 1)) % 20;
+    variable x: random(5, 10) = x + choice(-1, 1);
 }

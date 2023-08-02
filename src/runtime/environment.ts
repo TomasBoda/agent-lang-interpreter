@@ -15,16 +15,16 @@ export class Environment {
     public static createGlobalEnvironment(): Environment {
         const environment = new Environment();
 
-        environment.declareVariable("RANDOM", createGlobalFunction(RANDOM));
-        environment.declareVariable("CHOICE", createGlobalFunction(CHOICE));
-        environment.declareVariable("SQRT", createGlobalFunction(SQRT));
-        environment.declareVariable("ABS", createGlobalFunction(ABS));
-        environment.declareVariable("FLOOR", createGlobalFunction(FLOOR));
-        environment.declareVariable("CEIL", createGlobalFunction(CEIL));
-        environment.declareVariable("ROUND", createGlobalFunction(ROUND));
-        environment.declareVariable("SIN", createGlobalFunction(SIN));
-        environment.declareVariable("COS", createGlobalFunction(COS));
-        environment.declareVariable("TAN", createGlobalFunction(TAN));
+        environment.declareVariable("random", createGlobalFunction(RANDOM));
+        environment.declareVariable("choice", createGlobalFunction(CHOICE));
+        environment.declareVariable("sqrt", createGlobalFunction(SQRT));
+        environment.declareVariable("abs", createGlobalFunction(ABS));
+        environment.declareVariable("floor", createGlobalFunction(FLOOR));
+        environment.declareVariable("ceil", createGlobalFunction(CEIL));
+        environment.declareVariable("round", createGlobalFunction(ROUND));
+        environment.declareVariable("sin", createGlobalFunction(SIN));
+        environment.declareVariable("cos", createGlobalFunction(COS));
+        environment.declareVariable("tan", createGlobalFunction(TAN));
 
         return environment;
     }

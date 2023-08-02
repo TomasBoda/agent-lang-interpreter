@@ -12,9 +12,10 @@ Logger.log("------------------------------------");
 const filename = "code.txt";
 const sourceCode = readFileSync(filename, "utf-8");
 
-const interpreter: Interpreter = new Interpreter(sourceCode);
-const config: InterpreterConfiguration = { steps: 100, delay: 500 };
+const interpreter: Interpreter = new Interpreter();
+const config: InterpreterConfiguration = { steps: 10, delay: 10 };
 
-interpreter.interpret(config).subscribe((output: InterpreterOutput) => {
-    Logger.log(output.agents[0].variables);
+interpreter.interpret(sourceCode, config).subscribe((output: InterpreterOutput) => {
+    Logger.log(output.status);
+    Logger.log(output.output?.agents[0].variables)
 });

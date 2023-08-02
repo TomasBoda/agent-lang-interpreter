@@ -1,22 +1,21 @@
-import { Error } from "../utils/error";
-import { Position, Symbol, Token, TokenType } from "./lexer.types";
+import { LexerValue, Position, Symbol, Token, TokenType } from "./lexer.types";
 
 export const ReservedKeywords: Record<string, TokenType> = {
-    "AGENT": TokenType.Agent,
+    "agent": TokenType.Agent,
 
-    "VARIABLE": TokenType.Variable,
-    "CONST": TokenType.Const,
-    "DYNAMIC": TokenType.Dynamic,
+    "variable": TokenType.Variable,
+    "const": TokenType.Const,
+    "dynamic": TokenType.Dynamic,
     
-    "IF": TokenType.If,
-    "THEN": TokenType.Then,
-    "ELSE": TokenType.Else,
-    "AND": TokenType.And,
-    "OR": TokenType.Or,
-    "AS": TokenType.As,
+    "if": TokenType.If,
+    "then": TokenType.Then,
+    "else": TokenType.Else,
+    "and": TokenType.And,
+    "or": TokenType.Or,
+    "as": TokenType.As,
 
-    "TRUE": TokenType.Boolean,
-    "FALSE": TokenType.Boolean,
+    "true": TokenType.Boolean,
+    "false": TokenType.Boolean,
 }
 
 export class Lexer {
@@ -30,7 +29,7 @@ export class Lexer {
         this.sourceCode = sourceCode;
     }
 
-    public tokenize(): Token[] {
+    public tokenize(): LexerValue {
         this.symbols = [];
         this.tokens = [];
 
@@ -87,7 +86,7 @@ export class Lexer {
                     while (this.hasNext() && (this.isNumber() || (this.isNext(".")))) {
                         if (this.isNext(".")) {
                             if (foundDecimalPoint) {
-                                Error.lex(position, "Number cannot contain more than one decimal point");
+                                return this.lexerError("Number cannot contain more than one decimal point");
                             }
 
                             foundDecimalPoint = true;
@@ -109,13 +108,17 @@ export class Lexer {
                 } else if (this.isSkippable()) {
                     this.next();
                 } else {
-                    Error.lex(position, "Unrecognized character found in source: " + this.getNext().value);
+                    return this.lexerError("Unrecognized character found in source: " + this.getNext().value);
                 }
             }
         }
 
         this.generateEOFToken();
-        return this.tokens;
+
+        return {
+            status: { code: 0 },
+            tokens: this.tokens
+        } as LexerValue;
     }
 
     private generateSourceCodeSymbols(): void {
@@ -132,6 +135,10 @@ export class Lexer {
                 charNumber = 1;
             }
         }
+    }
+
+    private lexerError(message: string): LexerValue {
+        return { status: { code: 1, message } } as LexerValue;
     }
 
     private getIdentifierTokenType(identifier: string): TokenType {

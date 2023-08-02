@@ -1,3 +1,4 @@
+import { ExitStatus } from "../interpreter/interpreter.types";
 
 export enum TokenType {
     Agent = "Agent",
@@ -47,4 +48,9 @@ export interface Position {
 export interface Symbol {
     value: string;
     position: Position;
+}
+
+export interface LexerValue {
+    status: ExitStatus;
+    tokens?: Token[];
 }

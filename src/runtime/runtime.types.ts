@@ -1,8 +1,17 @@
 
-export type ValueType = "number" | "boolean" | "function";
+export type ValueType = "error" | "number" | "boolean" | "function" | "output" | "void";
 
 export interface RuntimeValue {
     type: ValueType;
+}
+
+export interface RuntimeError extends RuntimeValue {
+    type: "error";
+    message: string;
+}
+
+export interface VoidValue extends RuntimeValue {
+    type: "void";
 }
 
 export interface NumberValue extends RuntimeValue {
@@ -37,7 +46,8 @@ export interface RuntimeAgent {
     variables: AgentVariables;
 }
 
-export interface RuntimeOutput {
+export interface RuntimeOutput extends RuntimeValue {
+    type: "output";
     step: number;
     agents: RuntimeAgent[];
 }

@@ -1,6 +1,8 @@
 import { Position } from "../lexer/lexer.types";
 
 export enum NodeType {
+    // Errors
+    Error = "Error",
     // Statements
     Program = "Program",
     ObjectDeclaration = "ObjectDeclaration",
@@ -21,10 +23,16 @@ export enum VariableType {
     Dynamic = "Dynamic"
 }
 
-export interface Statement {
+export interface ParserValue {
     type: NodeType;
-    position: Position;
 }
+
+export interface ParserError extends ParserValue {
+    type: NodeType.Error;
+    message: string;
+}
+
+export interface Statement extends ParserValue {}
 
 export interface Expression extends Statement {}
 

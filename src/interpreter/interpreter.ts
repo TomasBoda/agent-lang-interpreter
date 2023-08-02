@@ -1,40 +1,54 @@
-import { Observable, interval, map, take } from "rxjs";
+import { Observable, interval, map, of, take } from "rxjs";
 import { Lexer } from "../lexer/lexer";
-import { Token } from "../lexer/lexer.types";
-import { Program } from "../parser/parser.types";
+import { LexerValue, Token } from "../lexer/lexer.types";
+import { NodeType, ParserError, ParserValue, Program } from "../parser/parser.types";
 import { Parser } from "../parser/parser";
 import { Runtime } from "../runtime/runtime";
 import { writeFileSync } from "fs";
-import { Agent, InterpreterConfiguration, InterpreterOutput } from "./interpreter.types";
-import { NumberValue, RuntimeAgent, RuntimeOutput } from "../runtime/runtime.types";
+import { Agent, InterpreterConfiguration, InterpreterOutput, AgentOutput } from "./interpreter.types";
+import { RuntimeAgent, RuntimeError, RuntimeOutput, RuntimeValue } from "../runtime/runtime.types";
 import { Environment } from "../runtime/environment";
+import { exit } from "process";
 
 export class Interpreter {
 
-    private tokens: Token[];
-    private program: Program;
-
     private environment: Environment = Environment.createGlobalEnvironment();
 
-    constructor(sourceCode: string) {
+    public interpret(sourceCode: string, config: InterpreterConfiguration): Observable<InterpreterOutput> {
         const lexer: Lexer = new Lexer(sourceCode);
-        this.tokens = lexer.tokenize();
+        const lexerOutput: LexerValue = lexer.tokenize();
 
-        const parser: Parser = new Parser(this.tokens);
-        this.program = parser.parse();
+        if (lexerOutput.status.code !== 0 || !lexerOutput.tokens) {
+            return of(this.interpreterError(lexerOutput.status.message ?? ""));
+        }
 
-        writeFileSync("ast.json", JSON.stringify(this.program), "utf-8");
-    }
+        const parser: Parser = new Parser(lexerOutput.tokens);
+        const program: ParserValue = parser.parse();
+        writeFileSync("ast.json", JSON.stringify(program), "utf-8");
 
-    public interpret(config: InterpreterConfiguration): Observable<InterpreterOutput> {
-        const runtime: Runtime = new Runtime(this.program, this.environment);
+        if (program.type === NodeType.Error) {
+            return of(this.interpreterError((program as ParserError).message));
+        }
+
+        const runtime: Runtime = new Runtime(program as Program, this.environment);
 
         return interval(config.delay).pipe(
             take(config.steps),
-            map(step => this.mapRuntimeOutput(runtime.run(config, step)))
+            map(step => {
+                const value: RuntimeValue = runtime.run(step);
+
+                if (value.type === "error") {
+                    return this.interpreterError((value as RuntimeError).message);
+                }
+
+                return this.mapRuntimeOutput(value as RuntimeOutput);
+            })
         );
     }
 
+    private interpreterError(message: string): InterpreterOutput {
+        return { status: { code: 1, message } } as InterpreterOutput;
+    }
     
     private mapRuntimeAgent(agent: RuntimeAgent): Agent {
         const variables: { [key: string]: number | boolean } = {};
@@ -45,8 +59,11 @@ export class Interpreter {
     
     private mapRuntimeOutput(output: RuntimeOutput): InterpreterOutput {
         return {
-            step: output.step,
-            agents: output.agents.map((agent: RuntimeAgent) => this.mapRuntimeAgent(agent))
+            status: { code: 0 },
+            output: {
+                step: output.step,
+                agents: output.agents.map((agent: RuntimeAgent) => this.mapRuntimeAgent(agent))
+            }
         } as InterpreterOutput;
     }
 }
