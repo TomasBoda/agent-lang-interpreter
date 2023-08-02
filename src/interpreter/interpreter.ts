@@ -4,11 +4,9 @@ import { LexerValue, Token } from "../lexer/lexer.types";
 import { NodeType, ParserError, ParserValue, Program } from "../parser/parser.types";
 import { Parser } from "../parser/parser";
 import { Runtime } from "../runtime/runtime";
-import { writeFileSync } from "fs";
 import { Agent, InterpreterConfiguration, InterpreterOutput, AgentOutput } from "./interpreter.types";
 import { RuntimeAgent, RuntimeError, RuntimeOutput, RuntimeValue } from "../runtime/runtime.types";
 import { Environment } from "../runtime/environment";
-import { exit } from "process";
 
 export class Interpreter {
 
@@ -24,7 +22,6 @@ export class Interpreter {
 
         const parser: Parser = new Parser(lexerOutput.tokens);
         const program: ParserValue = parser.parse();
-        writeFileSync("ast.json", JSON.stringify(program), "utf-8");
 
         if (program.type === NodeType.Error) {
             return of(this.interpreterError((program as ParserError).message));
