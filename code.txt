@@ -1,5 +1,5 @@
 
 agent person 1 {
     
-    dynamic alive = true;
+    dynamic alive = step();
 }

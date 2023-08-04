@@ -68,7 +68,13 @@ export class Runtime {
                 return variableValue as RuntimeError;
             }
 
-            variables.set(statement.identifier, this.getRawRuntimeValue(variableValue));
+            const rawValue = this.getRawRuntimeValue(variableValue);
+
+            if (rawValue === undefined) {
+                return this.runtimeError(`Cannot extract raw runtime value because the value type '${variableValue.type}' is not supported`) as RuntimeError;
+            }
+
+            variables.set(statement.identifier, rawValue);
         }
 
         return { type: "void" } as VoidValue;
@@ -108,15 +114,16 @@ export class Runtime {
         return this.evaluateRuntimeValue(declaration.value, id);
     }
 
-    private getRawRuntimeValue(value: RuntimeValue): AgentVariableValue {
+    private getRawRuntimeValue(value: RuntimeValue): AgentVariableValue | undefined {
         if (value.type === "number") {
             return (value as NumberValue).value;
         } else if (value.type === "boolean") {
             return (value as BooleanValue).value;
+        } else if (value.type === "agents") {
+            return (value as AgentsValue).agents;
         }
 
-
-        return (value as AgentsValue).agents;
+        return undefined;
     }
 
     private evaluateRuntimeValue(node: ParserValue, id: string): RuntimeValue {
