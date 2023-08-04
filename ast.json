@@ -1,1 +1,21 @@
-{"type":"Program","body":[{"type":"ObjectDeclaration","identifier":"bird","count":2,"body":[{"type":"VariableDeclaration","variableType":"Const","identifier":"size","value":{"type":"NumericLiteral","value":5}}]},{"type":"ObjectDeclaration","identifier":"person","count":2,"body":[{"type":"VariableDeclaration","variableType":"Dynamic","identifier":"a","value":{"type":"CallExpression","caller":{"type":"Identifier","identifier":"agents"},"args":[{"type":"Identifier","identifier":"person"}]}}]}]}
+{
+    "type": "Program",
+    "body": [
+        {
+            "type": "ObjectDeclaration",
+            "identifier": "person",
+            "count": 1,
+            "body": [
+                {
+                    "type": "VariableDeclaration",
+                    "variableType": "Dynamic",
+                    "identifier": "alive",
+                    "value": {
+                        "type": "BooleanLiteral",
+                        "value": false
+                    }
+                }
+            ]
+        }
+    ]
+}

@@ -1,10 +1,5 @@
 
-agent bird 2 {
-    const size = 5;
-}
-
-agent person 2 {
-
-    dynamic a = agents(person);
-
+agent person 1 {
+    
+    dynamic alive = true;
 }

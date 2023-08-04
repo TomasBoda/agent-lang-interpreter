@@ -424,7 +424,7 @@ export class Parser {
             case TokenType.Boolean:
                 return {
                     type: NodeType.BooleanLiteral,
-                    value: this.next().value === "TRUE" ? true : false
+                    value: this.next().value === "true" ? true : false
                 } as BooleanLiteral;
 
             case TokenType.OpenParen:
