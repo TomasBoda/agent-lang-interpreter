@@ -12,6 +12,7 @@ export interface RuntimeError extends RuntimeValue {
 
 export interface VoidValue extends RuntimeValue {
     type: "void";
+    value: void;
 }
 
 export interface NumberValue extends RuntimeValue {
@@ -29,11 +30,6 @@ export type FunctionCall = (args: RuntimeValue[]) => RuntimeValue;
 export interface FunctionValue extends RuntimeValue {
     type: "function";
     call: FunctionCall;
-}
-
-export interface RuntimeVariable {
-    identifier: string;
-    value: number | boolean;
 }
 
 export type AgentVariableIdentifier = string;

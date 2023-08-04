@@ -1,7 +1,13 @@
 
-agent person 1 {
+agent person 2 {
 
     const a = 2;
     variable x: 0 = x + a;
-    
+
+}
+
+agent bird 5 {
+
+    const c = 20;
+    variable y: 0 = c * c;
 }
