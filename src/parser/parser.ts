@@ -130,6 +130,10 @@ export class Parser {
 
         const value: ParserValue = this.parseExpression();
 
+        if (variableType === TokenType.Const && !this.isConstValueValid(value)) {
+            return this.parserError("Const cannot contain identifiers");
+        }
+
         if (this.isError(value)) {
             return value as ParserError;
         }
@@ -479,5 +483,44 @@ export class Parser {
 
     private createEmptyProgram(): Program {
         return { type: NodeType.Program, body: [] };
+    }
+
+    private isConstValueValid(value: ParserValue): boolean {
+        if (value.type === NodeType.Identifier) {
+            return false;
+        }
+
+        if (value.type === NodeType.BinaryExpression) {
+            const left = this.isConstValueValid((value as BinaryExpression).left);
+            const right = this.isConstValueValid((value as BinaryExpression).right);
+            return left && right;
+        }
+
+        if (value.type === NodeType.LogicalExpression) {
+            const left = this.isConstValueValid((value as LogicalExpression).left);
+            const right = this.isConstValueValid((value as LogicalExpression).right);
+            return left && right;
+        }
+
+        if (value.type === NodeType.ConditionalExpression) {
+            const condition = this.isConstValueValid((value as ConditionalExpression).condition);
+            const consequent = this.isConstValueValid((value as ConditionalExpression).consequent);
+            const alternate = this.isConstValueValid((value as ConditionalExpression).alternate);
+            return condition && consequent && alternate;
+        }
+
+        if (value.type === NodeType.CallExpression) {
+            for (const arg of (value as CallExpression).args) {
+                const result = this.isConstValueValid(arg as ParserValue);
+                
+                if (!result) {
+                    return false;
+                }
+            }
+
+            return true;
+        }
+
+        return true;
     }
 }

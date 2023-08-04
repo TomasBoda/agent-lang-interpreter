@@ -1,4 +1,3 @@
-/*
 import { readFileSync } from "fs";
 import { Interpreter, InterpreterConfiguration, Logger } from "./src";
 import { InterpreterOutput } from "./src/interpreter/interpreter.types";
@@ -14,10 +13,9 @@ const filename = "code.txt";
 const sourceCode = readFileSync(filename, "utf-8");
 
 const interpreter: Interpreter = new Interpreter();
-const config: InterpreterConfiguration = { steps: 10, delay: 10 };
+const config: InterpreterConfiguration = { steps: 5, delay: 10 };
 
 interpreter.interpret(sourceCode, config).subscribe((output: InterpreterOutput) => {
     Logger.log(output.status);
-    Logger.log(output.output?.agents[0].variables)
+    Logger.log(output.output?.agents[0])
 });
-*/

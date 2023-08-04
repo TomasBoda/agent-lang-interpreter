@@ -1,5 +1,7 @@
 
 agent person 1 {
 
-    variable x: random(5, 10) = x + choice(-1, 1);
+    const a = 2;
+    variable x: 0 = x + a;
+    
 }

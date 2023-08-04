@@ -69,7 +69,26 @@ export class Runtime {
         if (declaration.variableType === VariableType.Variable && declaration.default && this.currentOutput.step === 0) {
             value = this.evaluateRuntimeValue(declaration.default, id);
         } else {
-            value = this.evaluateRuntimeValue(declaration.value, id);
+            if (declaration.variableType === VariableType.Const) {
+                if (this.currentOutput.step === 0) {
+                    value = this.evaluateRuntimeValue(declaration.value, id);
+                } else {
+                    const agents = this.previousOutput.agents.filter((agent: RuntimeAgent) => agent.id == id);
+                    // TODO: check validity
+                    const agent = agents[0];
+                    const previousValue = agent.variables.get(declaration.identifier);
+
+                    if (typeof previousValue === "number") {
+                        return { type: "number", value: previousValue } as NumberValue;
+                    } else if (typeof previousValue === "boolean") {
+                        return { type: "boolean", value: previousValue } as BooleanValue;
+                    }
+
+                    return this.runtimeError("Const variable declaration error");
+                }
+            } else {
+                value = this.evaluateRuntimeValue(declaration.value, id);
+            }
         }
 
         return value;
