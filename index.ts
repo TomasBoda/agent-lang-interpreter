@@ -1,3 +1,4 @@
+/*
 import { readFileSync } from "fs";
 import { Interpreter, InterpreterConfiguration, Logger } from "./src";
 import { InterpreterOutput } from "./src/interpreter/interpreter.types";
@@ -20,3 +21,4 @@ interpreter.interpret(sourceCode, config).subscribe((output: InterpreterOutput) 
     Logger.log(output.output?.agents[2].variables);
     Logger.log(output.output?.agents[3].variables)
 });
+*/
