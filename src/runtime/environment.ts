@@ -1,4 +1,4 @@
-import { NumberValue, RuntimeValue } from "./runtime.types";
+import { NumberValue, RuntimeError, RuntimeValue } from "./runtime.types";
 import { Error } from "../utils/error";
 import { ABS, CEIL, CHOICE, COS, FLOOR, RANDOM, ROUND, SIN, SQRT, TAN, createGlobalFunction } from "../utils/functions";
 
@@ -31,8 +31,7 @@ export class Environment {
 
     public declareVariable(identifier: string, value: RuntimeValue): RuntimeValue {
         if (this.variables?.has(identifier)) {
-            Error.runtime(null, `Cannot declare variable '${identifier}' as it has already been declared`);
-            return {} as RuntimeValue;
+            return { type: "error", message: `Cannot declare variable '${identifier}' as it has already been declared` } as RuntimeError;
         }
 
         this.variables.set(identifier, value);
@@ -41,23 +40,32 @@ export class Environment {
 
     public assignVariable(identifier: string, value: RuntimeValue): RuntimeValue {
         const env = this.resolve(identifier);
+
+        if (!env) {
+            return { type: "error", message: `Variable ${identifier} does not exist` } as RuntimeError;
+        }
+
         env.variables.set(identifier, value);
         return value;
     }
 
     public lookupVariable(identifier: string): RuntimeValue {
         const env = this.resolve(identifier);
+
+        if (!env) {
+            return { type: "error", message: `Variable ${identifier} does not exist` } as RuntimeError;
+        }
+
         return env.variables.get(identifier) as RuntimeValue;
     }
 
-    public resolve(identifier: string): Environment {
+    public resolve(identifier: string): Environment | undefined {
         if (this.variables.has(identifier)) {
             return this;
         }
 
         if (this.parent === undefined) {
-            Error.parse(null, `Cannot resolve variable ${identifier} as it does not exist`);
-            return {} as Environment;
+            return undefined;
         }
 
         return this.parent.resolve(identifier);

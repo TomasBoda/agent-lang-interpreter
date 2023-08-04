@@ -1,13 +1,10 @@
 
-agent person 2 {
-
-    const a = 2;
-    variable x: 0 = x + a;
-
+agent bird 2 {
+    const size = 5;
 }
 
-agent bird 5 {
+agent person 2 {
 
-    const c = 20;
-    variable y: 0 = c * c;
+    dynamic a = agents(person);
+
 }

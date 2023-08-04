@@ -1,10 +1,11 @@
 import { BinaryExpression, BooleanLiteral, CallExpression, ConditionalExpression, Expression, Identifier, LogicalExpression, NodeType, NumericLiteral, ObjectDeclaration, ParserValue, Program, VariableDeclaration, VariableType } from "../parser/parser.types";
-import { RuntimeValue, NumberValue, BooleanValue, FunctionValue, RuntimeError, VoidValue } from "./runtime.types";
+import { RuntimeValue, NumberValue, BooleanValue, FunctionValue, RuntimeError, VoidValue, FunctionCall, IdentifierValue, AgentsValue } from "./runtime.types";
 import { Error } from "../utils/error";
 import { InterpreterConfiguration } from "../interpreter/interpreter.types";
 import { RuntimeAgent, AgentVariableIdentifier, AgentVariableValue, AgentVariables, RuntimeOutput } from "./runtime.types";
 import { Environment } from "./environment";
-import { normalizeNumber } from "../utils/functions";
+import { createGlobalFunction, normalizeNumber } from "../utils/functions";
+import { writeFileSync } from "fs";
 
 export class Runtime {
 
@@ -16,13 +17,20 @@ export class Runtime {
 
     constructor(program: Program, environment: Environment) {
         this.program = program;
+
+        writeFileSync("ast.json", JSON.stringify(program));
+
         this.environment = environment;
+        this.environment.declareVariable("step", createGlobalFunction(this.createStepFunction(0)));
+        this.environment.declareVariable("agents", createGlobalFunction(this.createAgentsFunction([], "")));
     }
 
     public run(step: number): RuntimeValue {
         this.previousOutput = this.deepCopyOutput(this.currentOutput);
         this.currentOutput.step = step;
         this.currentOutput.agents = [];
+
+        this.provideDataToStepFunction(step);
 
         return this.evaluateProgram(this.program);
     }
@@ -33,6 +41,9 @@ export class Runtime {
 
             for (let id = 0; id < numberOfAgents; id++) {
                 const agentId = (statement as ObjectDeclaration).identifier + "-" + id;
+
+                this.provideDataToAgentsFunction(this.previousOutput.agents, agentId);
+
                 const value = this.evaluateObjectDeclaration(statement as ObjectDeclaration, agentId);
 
                 if (this.isError(value)) {
@@ -46,6 +57,9 @@ export class Runtime {
 
     private evaluateObjectDeclaration(declaration: ObjectDeclaration, id: string): RuntimeValue {
         const identifier = declaration.identifier;
+
+        this.environment.declareVariable(identifier, { type: "identifier", value: identifier } as IdentifierValue);
+
         const variables = new Map<AgentVariableIdentifier, AgentVariableValue>();
 
         this.currentOutput.agents.push({ id, identifier, variables } as RuntimeAgent);
@@ -100,9 +114,12 @@ export class Runtime {
     private getRawRuntimeValue(value: RuntimeValue): AgentVariableValue {
         if (value.type === "number") {
             return (value as NumberValue).value;
+        } else if (value.type === "boolean") {
+            return (value as BooleanValue).value;
         }
 
-        return (value as BooleanValue).value;
+
+        return (value as AgentsValue).agents;
     }
 
     private evaluateRuntimeValue(node: ParserValue, id: string): RuntimeValue {
@@ -141,6 +158,12 @@ export class Runtime {
     }
 
     private evaluateIdentifier(identifier: Identifier, id: string): RuntimeValue {
+        const variableLookup = this.environment.lookupVariable(identifier.identifier);
+
+        if (!this.isError(variableLookup)) {
+            return variableLookup;
+        }
+
         const output = this.currentOutput.step === 0 ? this.currentOutput : this.previousOutput;
         let agent = this.getAgent(id, output);
 
@@ -311,7 +334,8 @@ export class Runtime {
             args.push(argValue);
         }
 
-        return (func as FunctionValue).call(args);
+        const result = (func as FunctionValue).call(args);
+        return result;
     }
 
     private isError(node: RuntimeValue): boolean {
@@ -344,5 +368,46 @@ export class Runtime {
         }
 
         return agents[0];
+    }
+
+    private provideDataToStepFunction(step: number): void {
+        this.environment.assignVariable("step", createGlobalFunction(this.createStepFunction(step)));
+    }
+
+    private provideDataToAgentsFunction(agents: RuntimeAgent[], id: string): void {
+        this.environment.assignVariable("agents", createGlobalFunction(this.createAgentsFunction(agents, id)));
+    }
+
+    private createAgentsFunction(agents: RuntimeAgent[], id: string): FunctionCall {
+        function agentsFunction(args: RuntimeValue[]): RuntimeValue {
+            if (args.length !== 1) {
+                return { type: "error", message: `Function 'agents' requires 1 argument, ${args.length} provided` } as RuntimeError;
+            }
+
+            if (args[0].type !== "identifier") {
+                return { type: "error", message: "Function 'agents' requires an identifier arguments" } as RuntimeError;
+            }
+
+            const identifier = (args[0] as IdentifierValue).value;
+            
+            return {
+                type: "agents",
+                agents: agents.filter((agent: RuntimeAgent) => agent.id.split("-")[0] === identifier && agent.id !== id)
+            } as AgentsValue;
+        }
+
+        return agentsFunction;
+    }
+
+    private createStepFunction(step: number): FunctionCall {
+        function stepFunction(args: RuntimeValue[]): RuntimeValue {
+            if (args.length !== 0) {
+                return { type: "error", message: `Function 'step' requires 0 arguments, ${args.length} provided`} as RuntimeError;
+            }
+        
+            return { type: "number", value: step } as NumberValue;
+        }
+
+        return stepFunction;
     }
 }

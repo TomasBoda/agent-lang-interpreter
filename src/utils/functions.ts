@@ -28,7 +28,7 @@ function expectNumericArgs(args: RuntimeValue[], count: number): RuntimeValue[] 
     return returnedArguments;
 }
 
-// GLOBAL FUNCTIONS ---------
+// GLOBAL FUNCTIONS
 
 export function RANDOM(args: RuntimeValue[]): RuntimeValue {
     const numericArgs: RuntimeValue[] = expectNumericArgs(args, 2);

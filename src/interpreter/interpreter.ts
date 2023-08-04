@@ -5,7 +5,7 @@ import { NodeType, ParserError, ParserValue, Program } from "../parser/parser.ty
 import { Parser } from "../parser/parser";
 import { Runtime } from "../runtime/runtime";
 import { Agent, InterpreterConfiguration, InterpreterOutput, AgentOutput } from "./interpreter.types";
-import { RuntimeAgent, RuntimeError, RuntimeOutput, RuntimeValue } from "../runtime/runtime.types";
+import { AgentVariableValue, RuntimeAgent, RuntimeError, RuntimeOutput, RuntimeValue } from "../runtime/runtime.types";
 import { Environment } from "../runtime/environment";
 
 export class Interpreter {
@@ -48,7 +48,7 @@ export class Interpreter {
     }
     
     private mapRuntimeAgent(agent: RuntimeAgent): Agent {
-        const variables: { [key: string]: number | boolean } = {};
+        const variables: { [key: string]: AgentVariableValue } = {};
         agent.variables.forEach((value, key) => variables[key] = value);
     
         return {identifier: agent.identifier, variables } as Agent;
