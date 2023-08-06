@@ -5,7 +5,6 @@ import { InterpreterConfiguration } from "../interpreter/interpreter.types";
 import { RuntimeAgent, AgentVariableIdentifier, AgentVariableValue, AgentVariables, RuntimeOutput } from "./runtime.types";
 import { Environment } from "./environment";
 import { createGlobalFunction, normalizeNumber } from "../utils/functions";
-import { writeFileSync } from "fs";
 
 export class Runtime {
 
@@ -19,8 +18,6 @@ export class Runtime {
 
     constructor(program: Program, environment: Environment) {
         this.program = program;
-
-        writeFileSync("ast.json", JSON.stringify(program));
 
         this.environment = environment;
         this.environment.declareVariable("step", createGlobalFunction(this.createStepFunction(0)));

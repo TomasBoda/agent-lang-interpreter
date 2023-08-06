@@ -1,7 +1,6 @@
 import { Position, Token, TokenType } from "../lexer/lexer.types";
 import { BinaryExpression, BooleanLiteral, CallExpression, ConditionalExpression, Expression, Identifier, LambdaExpression, LogicalExpression, NodeType, NumericLiteral, ObjectDeclaration, ParserError, ParserValue, Program, Statement, VariableDeclaration, VariableType } from "./parser.types";
 import { Error } from "../utils/error";
-import { writeFileSync } from "fs";
 
 export class Parser {
 
