@@ -58,6 +58,12 @@ export class Lexer {
                 const position = this.getNext().position;
                 let operator = this.next().value;
 
+                if (this.getNext().value === ">") {
+                    operator += this.next().value;
+                    this.token(TokenType.LambdaArrow, { value: operator, position });
+                    continue;
+                }
+
                 if (this.getNext().value === "=") {
                     operator += this.next().value;
                 }
@@ -83,7 +89,7 @@ export class Lexer {
                     let number: string = "";
                     let foundDecimalPoint: boolean = false;
 
-                    while (this.hasNext() && (this.isNumber() || (this.isNext(".")))) {
+                    while (this.hasNext() && (this.isNumber() || this.isNext("."))) {
                         if (this.isNext(".")) {
                             if (foundDecimalPoint) {
                                 return this.lexerError("Number cannot contain more than one decimal point");
@@ -99,8 +105,17 @@ export class Lexer {
                 // identifiers
                 } else if (this.isAlpha()) {
                     let identifier: string = "";
+                    let foundDot: boolean = false;
 
-                    while (this.hasNext() && this.isAlpha()) {
+                    while (this.hasNext() && (this.isAlpha() || this.isNext("."))) {
+                        if (this.isNext(".")) {
+                            if (foundDot) {
+                                return this.lexerError("Member expressions cannot contain more than one dot");
+                            }
+
+                            foundDot = true;
+                        }
+
                         identifier += this.next().value;
                     }
 

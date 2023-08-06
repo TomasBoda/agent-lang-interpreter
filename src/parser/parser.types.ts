@@ -14,7 +14,8 @@ export enum NodeType {
     BinaryExpression = "BinaryExpression",
     LogicalExpression = "LogicalExpression",
     ConditionalExpression = "ConditionalExpression",
-    CallExpression = "CallExpression"
+    CallExpression = "CallExpression",
+    LambdaExpression = "LambdaExpression",
 }
 
 export enum VariableType {
@@ -81,6 +82,13 @@ export interface CallExpression extends Expression {
     type: NodeType.CallExpression;
     caller: Expression;
     args: Expression[];
+}
+
+export interface LambdaExpression extends Expression {
+    type: NodeType.LambdaExpression;
+    base: Expression;
+    param: string;
+    value: Expression;
 }
 
 export interface Identifier extends Expression {

@@ -1,6 +1,6 @@
 import { NumberValue, RuntimeError, RuntimeValue } from "./runtime.types";
 import { Error } from "../utils/error";
-import { ABS, CEIL, CHOICE, COS, COUNT, FLOOR, RANDOM, ROUND, SIN, SQRT, TAN, createGlobalFunction } from "../utils/functions";
+import { ABS, CEIL, CHOICE, COS, COUNT, FILTER, FLOOR, RANDOM, ROUND, SIN, SQRT, TAN, createGlobalFunction } from "../utils/functions";
 
 export class Environment {
 
@@ -27,13 +27,15 @@ export class Environment {
         environment.declareVariable("tan", createGlobalFunction(TAN));
 
         environment.declareVariable("count", createGlobalFunction(COUNT));
+        environment.declareVariable("filter", createGlobalFunction(FILTER));
 
         return environment;
     }
 
     public declareVariable(identifier: string, value: RuntimeValue): RuntimeValue {
         if (this.variables?.has(identifier)) {
-            return { type: "error", message: `Cannot declare variable '${identifier}' as it has already been declared` } as RuntimeError;
+            this.assignVariable(identifier, value);
+            return value;
         }
 
         this.variables.set(identifier, value);

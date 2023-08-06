@@ -1,6 +1,7 @@
 import { Position, Token, TokenType } from "../lexer/lexer.types";
-import { BinaryExpression, BooleanLiteral, CallExpression, ConditionalExpression, Expression, Identifier, LogicalExpression, NodeType, NumericLiteral, ObjectDeclaration, ParserError, ParserValue, Program, Statement, VariableDeclaration, VariableType } from "./parser.types";
+import { BinaryExpression, BooleanLiteral, CallExpression, ConditionalExpression, Expression, Identifier, LambdaExpression, LogicalExpression, NodeType, NumericLiteral, ObjectDeclaration, ParserError, ParserValue, Program, Statement, VariableDeclaration, VariableType } from "./parser.types";
 import { Error } from "../utils/error";
+import { writeFileSync } from "fs";
 
 export class Parser {
 
@@ -164,7 +165,33 @@ export class Parser {
     }
 
     private parseExpression(): ParserValue {
-        return this.parseConditionalExpression();
+        return this.parseLambdaExpression();
+    }
+
+    private parseLambdaExpression(): ParserValue {
+        const base = this.parseConditionalExpression();
+
+        if (this.at().type === TokenType.LambdaArrow) {
+            this.next();
+            const param = this.next().value;
+
+            if (this.isNotOf(TokenType.LambdaArrow)) {
+                return this.parserError("Expected a lambda arrow after param in lambda expression");
+            }
+
+            this.next();
+
+            const value = this.parseConditionalExpression();
+
+            return {
+                type: NodeType.LambdaExpression,
+                base,
+                param,
+                value
+            } as LambdaExpression;
+        }
+
+        return base;
     }
 
     private parseConditionalExpression(): ParserValue {

@@ -1,5 +1,5 @@
 
-export type ValueType = "error" | "number" | "boolean" | "function" | "output" | "void" | "agents" | "identifier";
+export type ValueType = "error" | "number" | "boolean" | "function" | "output" | "void" | "agent" | "agents" | "lambda" | "identifier";
 
 export interface RuntimeValue {
     type: ValueType;
@@ -47,9 +47,20 @@ export interface RuntimeAgent {
     variables: AgentVariables;
 }
 
+export interface AgentValue extends RuntimeValue {
+    type: "agent";
+    value: RuntimeAgent;
+}
+
 export interface AgentsValue extends RuntimeValue {
     type: "agents";
     agents: RuntimeAgent[];
+}
+
+export interface LambdaValue extends RuntimeValue {
+    type: "lambda";
+    agents: RuntimeAgent[];
+    results: RuntimeValue[];
 }
 
 export interface RuntimeOutput extends RuntimeValue {

@@ -1,15 +1,18 @@
-import { BinaryExpression, BooleanLiteral, CallExpression, ConditionalExpression, Expression, Identifier, LogicalExpression, NodeType, NumericLiteral, ObjectDeclaration, ParserValue, Program, VariableDeclaration, VariableType } from "../parser/parser.types";
-import { RuntimeValue, NumberValue, BooleanValue, FunctionValue, RuntimeError, VoidValue, FunctionCall, IdentifierValue, AgentsValue } from "./runtime.types";
+import { BinaryExpression, BooleanLiteral, CallExpression, ConditionalExpression, Expression, Identifier, LambdaExpression, LogicalExpression, NodeType, NumericLiteral, ObjectDeclaration, ParserValue, Program, VariableDeclaration, VariableType } from "../parser/parser.types";
+import { RuntimeValue, NumberValue, BooleanValue, FunctionValue, RuntimeError, VoidValue, FunctionCall, IdentifierValue, AgentsValue, AgentValue, LambdaValue } from "./runtime.types";
 import { Error } from "../utils/error";
 import { InterpreterConfiguration } from "../interpreter/interpreter.types";
 import { RuntimeAgent, AgentVariableIdentifier, AgentVariableValue, AgentVariables, RuntimeOutput } from "./runtime.types";
 import { Environment } from "./environment";
 import { createGlobalFunction, normalizeNumber } from "../utils/functions";
+import { writeFileSync } from "fs";
 
 export class Runtime {
 
     private program: Program;
+
     private environment: Environment;
+    private lambdaEnv: Environment;
 
     private previousOutput: RuntimeOutput = { type: "output", step: 0, agents: [] };
     private currentOutput: RuntimeOutput = { type: "output", step: 0, agents: [] };
@@ -17,9 +20,13 @@ export class Runtime {
     constructor(program: Program, environment: Environment) {
         this.program = program;
 
+        writeFileSync("ast.json", JSON.stringify(program));
+
         this.environment = environment;
         this.environment.declareVariable("step", createGlobalFunction(this.createStepFunction(0)));
         this.environment.declareVariable("agents", createGlobalFunction(this.createAgentsFunction([], "")));
+
+        this.lambdaEnv = new Environment();
     }
 
     public run(step: number): RuntimeValue {
@@ -142,6 +149,8 @@ export class Runtime {
                 return this.evaluateConditionalExpression(node as ConditionalExpression, id);
             case NodeType.CallExpression:
                 return this.evaluateCallExpression(node as CallExpression, id);
+            case NodeType.LambdaExpression:
+                return this.evaluateLambdaExpression(node as LambdaExpression, id);
             default:
                 return this.runtimeError(`Unknown runtime node '${node.type}'`);
         }
@@ -162,6 +171,41 @@ export class Runtime {
     }
 
     private evaluateIdentifier(identifier: Identifier, id: string): RuntimeValue {
+        if (this.isMemberIdentifier(identifier)) {
+            if (identifier.identifier.split(".").length !== 2) {
+                return this.runtimeError("Member identifier needs to have exactly two parts");
+            }
+
+            const callerIdentifier = identifier.identifier.split(".")[0];
+            const paramIdentifier = identifier.identifier.split(".")[1];
+
+            const caller = this.lambdaEnv.lookupVariable(callerIdentifier);
+
+            if (caller.type === "error") {
+                return caller as RuntimeError;
+            }
+
+            if (caller.type !== "agent") {
+                return this.runtimeError("Member caller needs to be of type 'agent'");
+            }
+
+            const agent: AgentValue = caller as AgentValue;
+
+            if (!agent.value.variables.has(paramIdentifier)) {
+                return this.runtimeError(`Variable ${paramIdentifier} does not exist in agent with id '${agent.value.id}'`);
+            }
+
+            const variableValue = agent.value.variables.get(paramIdentifier);
+
+            if (typeof variableValue === "number") {
+                return { type: "number", value: variableValue } as NumberValue;
+            } else if (typeof variableValue === "boolean") {
+                return { type: "boolean", value: variableValue } as BooleanValue;
+            }
+
+            return this.runtimeError("Unknown variable type in member identifier");
+        }
+
         const variableLookup = this.environment.lookupVariable(identifier.identifier);
 
         if (!this.isError(variableLookup)) {
@@ -340,6 +384,35 @@ export class Runtime {
 
         const result = (func as FunctionValue).call(args);
         return result;
+    }
+
+    private evaluateLambdaExpression(expression: LambdaExpression, id: string): RuntimeValue {
+        const agents: RuntimeValue = this.evaluateRuntimeValue(expression.base, id);
+        const param: IdentifierValue = { type: "identifier", value: expression.param } as IdentifierValue;
+
+        if (agents.type !== "agents") {
+            return this.runtimeError("Lambda expression requires 'agents' as base argument");
+        }
+
+        const runtimeAgents = (agents as AgentsValue).agents.filter((agent: RuntimeAgent) => agent.id !== id);
+        const results: RuntimeValue[] = [];
+
+        for (const agent of runtimeAgents) {
+            this.lambdaEnv.declareVariable(param.value, { type: "agent", value: agent } as AgentValue);
+
+            const result = this.evaluateRuntimeValue(expression.value, id);
+            results.push(result);
+        }
+
+        return {
+            type: "lambda",
+            agents: runtimeAgents,
+            results
+        } as LambdaValue;
+    }
+
+    private isMemberIdentifier(identifier: Identifier): boolean {
+        return identifier.identifier.split(".").length > 1;
     }
 
     private isError(node: RuntimeValue): boolean {

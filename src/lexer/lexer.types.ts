@@ -20,6 +20,7 @@ export enum TokenType {
 
     Equals = "Equals",
     BinaryOperator = "BinaryOperator",
+    LambdaArrow = "LambdaArrow",
 
     OpenParen = "OpenParen",
     CloseParen = "CloseParen",

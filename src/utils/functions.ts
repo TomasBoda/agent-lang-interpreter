@@ -1,4 +1,4 @@
-import { AgentsValue, FunctionCall, FunctionValue, NumberValue, RuntimeError, RuntimeValue } from "../runtime/runtime.types";
+import { AgentsValue, BooleanValue, FunctionCall, FunctionValue, LambdaValue, NumberValue, RuntimeAgent, RuntimeError, RuntimeValue } from "../runtime/runtime.types";
 import { Error } from "./error";
 
 export function createGlobalFunction(call: FunctionCall): FunctionValue {
@@ -29,6 +29,38 @@ function expectNumericArgs(args: RuntimeValue[], count: number): RuntimeValue[] 
 }
 
 // GLOBAL FUNCTIONS
+
+export function FILTER(args: RuntimeValue[]): RuntimeValue {
+    if (args.length !== 1) {
+        return { type: "error", message: `Function 'filter' expected 1 argument, ${args.length} provided` } as RuntimeError;
+    }
+
+    if (args[0].type !== "lambda") {
+        return { type: "error", message: `Function 'filter' expected arguments of type 'lambda', ${args[0].type} provided` } as RuntimeError;
+    }
+
+    const lambda: LambdaValue = args[0] as LambdaValue;
+
+    if (lambda.agents.length !== lambda.results.length) {
+        return { type: "error", message: `Number of agents does not equal the number of results in 'filter' function.` } as RuntimeError;
+    }
+
+    const agents: RuntimeAgent[] = [];
+
+    for (let i = 0; i < lambda.agents.length; i++) {
+        if (lambda.results[i].type !== "boolean") {
+            return { type: "error", message: `Function 'filter' requires lambda expression with boolean return valie` } as RuntimeError;
+        }
+
+        const result: BooleanValue = lambda.results[i] as BooleanValue;
+
+        if (result.value) {
+            agents.push(lambda.agents[i] as RuntimeAgent);
+        }
+    }
+
+    return { type: "agents", agents } as AgentsValue;
+}
 
 export function COUNT(args: RuntimeValue[]): RuntimeValue {
     if (args.length !== 1) {
