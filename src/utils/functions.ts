@@ -1,4 +1,4 @@
-import { FunctionCall, FunctionValue, NumberValue, RuntimeError, RuntimeValue } from "../runtime/runtime.types";
+import { AgentsValue, FunctionCall, FunctionValue, NumberValue, RuntimeError, RuntimeValue } from "../runtime/runtime.types";
 import { Error } from "./error";
 
 export function createGlobalFunction(call: FunctionCall): FunctionValue {
@@ -29,6 +29,21 @@ function expectNumericArgs(args: RuntimeValue[], count: number): RuntimeValue[] 
 }
 
 // GLOBAL FUNCTIONS
+
+export function COUNT(args: RuntimeValue[]): RuntimeValue {
+    if (args.length !== 1) {
+        return { type: "error", message: `Function 'count' expected 1 argument, ${args.length} provided` } as RuntimeError;
+    }
+
+    if (args[0].type !== "agents") {
+        return { type: "error", message: `Function 'count' expected arguments of type 'agents', ${args[0].type} provided` } as RuntimeError;
+    }
+
+    const agents: AgentsValue = args[0] as AgentsValue;
+    const length = agents.agents.length;
+
+    return { type: "number", value: length } as NumberValue;
+}
 
 export function RANDOM(args: RuntimeValue[]): RuntimeValue {
     const numericArgs: RuntimeValue[] = expectNumericArgs(args, 2);

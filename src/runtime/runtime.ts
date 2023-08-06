@@ -350,6 +350,10 @@ export class Runtime {
         return { type: "error", message } as RuntimeError;
     }
 
+    private customModulo(a: number, b: number): number {
+        return ((a % b) + b) % b;
+    }
+
     private deepCopyOutput(output: RuntimeOutput): RuntimeOutput {
         const newOutput: RuntimeOutput = { type: "output", step: output.step, agents: [] };
 
@@ -413,9 +417,5 @@ export class Runtime {
         }
 
         return stepFunction;
-    }
-
-    private customModulo(a: number, b: number): number {
-        return ((a % b) + b) % b;
     }
 }

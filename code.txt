@@ -1,6 +1,10 @@
 
 agent person 1 {
     
-    const speed = 10;
-    variable x: 200 = (x + speed) % 400;
+    
+}
+
+agent bird 5 {
+
+    dynamic c = count(agents(person));
 }
