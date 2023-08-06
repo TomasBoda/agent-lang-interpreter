@@ -230,6 +230,10 @@ export class Runtime {
             return { type: "boolean", value } as BooleanValue;
         }
 
+        if (Array.isArray(value)) {
+            return { type: "agents", agents: value } as AgentsValue;
+        }
+
         return this.runtimeError(`Variable identifier '${identifier.identifier}' has unknown type, expected number or boolean`);
     }
 
