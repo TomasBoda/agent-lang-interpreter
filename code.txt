@@ -1,5 +1,6 @@
 
 agent person 1 {
     
-    dynamic alive = step();
+    const speed = 10;
+    variable x: 200 = (x + speed) % 400;
 }

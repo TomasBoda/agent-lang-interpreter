@@ -254,7 +254,7 @@ export class Runtime {
                 return this.runtimeError("Modulo by zero not allowed") as RuntimeError;
             }
 
-            result = leftHandSide.value % rightHandSide.value;
+            result = this.customModulo(leftHandSide.value, rightHandSide.value);
         }
     
         return { type: "number", value: normalizeNumber(result) } as NumberValue;
@@ -413,5 +413,9 @@ export class Runtime {
         }
 
         return stepFunction;
+    }
+
+    private customModulo(a: number, b: number): number {
+        return ((a % b) + b) % b;
     }
 }
