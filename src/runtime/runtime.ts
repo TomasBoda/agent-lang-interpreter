@@ -1,6 +1,5 @@
 import { BinaryExpression, BooleanLiteral, CallExpression, ConditionalExpression, Expression, Identifier, LambdaExpression, LogicalExpression, NodeType, NumericLiteral, ObjectDeclaration, ParserValue, Program, VariableDeclaration, VariableType } from "../parser/parser.types";
-import { RuntimeValue, NumberValue, BooleanValue, FunctionValue, RuntimeError, VoidValue, FunctionCall, IdentifierValue, AgentsValue, AgentValue, LambdaValue } from "./runtime.types";
-import { Error } from "../utils/error";
+import { RuntimeValue, NumberValue, BooleanValue, FunctionValue, RuntimeError, VoidValue, FunctionCall, IdentifierValue, AgentsValue, AgentValue, LambdaValue, ValueType } from "./runtime.types";
 import { InterpreterConfiguration } from "../interpreter/interpreter.types";
 import { RuntimeAgent, AgentVariableIdentifier, AgentVariableValue, AgentVariables, RuntimeOutput } from "./runtime.types";
 import { Environment } from "./environment";
@@ -13,8 +12,8 @@ export class Runtime {
     private environment: Environment;
     private lambdaEnv: Environment;
 
-    private previousOutput: RuntimeOutput = { type: "output", step: 0, agents: [] };
-    private currentOutput: RuntimeOutput = { type: "output", step: 0, agents: [] };
+    private previousOutput: RuntimeOutput = { type: ValueType.Output, step: 0, agents: [] };
+    private currentOutput: RuntimeOutput = { type: ValueType.Output, step: 0, agents: [] };
 
     constructor(program: Program, environment: Environment) {
         this.program = program;
@@ -59,7 +58,7 @@ export class Runtime {
     private evaluateObjectDeclaration(declaration: ObjectDeclaration, id: string): RuntimeValue {
         const identifier = declaration.identifier;
 
-        this.environment.declareVariable(identifier, { type: "identifier", value: identifier } as IdentifierValue);
+        this.environment.declareVariable(identifier, { type: ValueType.Identifier, value: identifier } as IdentifierValue);
 
         const variables = new Map<AgentVariableIdentifier, AgentVariableValue>();
 
@@ -81,7 +80,7 @@ export class Runtime {
             variables.set(statement.identifier, rawValue);
         }
 
-        return { type: "void" } as VoidValue;
+        return { type: ValueType.Void } as VoidValue;
     }
 
     private evaluateVariableDeclaration(declaration: VariableDeclaration, id: string): RuntimeValue {
@@ -107,9 +106,9 @@ export class Runtime {
             const previousValue = agent?.variables.get(declaration.identifier);
 
             if (typeof previousValue === "number") {
-                return { type: "number", value: previousValue } as NumberValue;
+                return { type: ValueType.Number, value: previousValue } as NumberValue;
             } else if (typeof previousValue === "boolean") {
-                return { type: "boolean", value: previousValue } as BooleanValue;
+                return { type: ValueType.Boolean, value: previousValue } as BooleanValue;
             }
 
             return this.runtimeError("Const variable declaration error");
@@ -119,11 +118,11 @@ export class Runtime {
     }
 
     private getRawRuntimeValue(value: RuntimeValue): AgentVariableValue | undefined {
-        if (value.type === "number") {
+        if (value.type === ValueType.Number) {
             return (value as NumberValue).value;
-        } else if (value.type === "boolean") {
+        } else if (value.type === ValueType.Boolean) {
             return (value as BooleanValue).value;
-        } else if (value.type === "agents") {
+        } else if (value.type === ValueType.Agents) {
             return (value as AgentsValue).value;
         }
 
@@ -155,14 +154,14 @@ export class Runtime {
 
     private evaluateNumericLiteral(numericLiteral: NumericLiteral): RuntimeValue {
         return {
-            type: "number",
+            type: ValueType.Number,
             value: normalizeNumber(numericLiteral.value)
         } as NumberValue;
     }
 
     private evaluateBooleanLiteral(booleanLiteral: BooleanLiteral): RuntimeValue {
         return {
-            type: "boolean",
+            type: ValueType.Boolean,
             value: booleanLiteral.value
         } as BooleanValue;
     }
@@ -178,11 +177,11 @@ export class Runtime {
 
             const caller = this.lambdaEnv.lookupVariable(callerIdentifier);
 
-            if (caller.type === "error") {
+            if (caller.type === ValueType.Error) {
                 return caller as RuntimeError;
             }
 
-            if (caller.type !== "agent") {
+            if (caller.type !== ValueType.Agent) {
                 return this.runtimeError("Member caller needs to be of type 'agent'");
             }
 
@@ -195,9 +194,9 @@ export class Runtime {
             const variableValue = agent.value.variables.get(paramIdentifier);
 
             if (typeof variableValue === "number") {
-                return { type: "number", value: variableValue } as NumberValue;
+                return { type: ValueType.Number, value: variableValue } as NumberValue;
             } else if (typeof variableValue === "boolean") {
-                return { type: "boolean", value: variableValue } as BooleanValue;
+                return { type: ValueType.Boolean, value: variableValue } as BooleanValue;
             }
 
             return this.runtimeError("Unknown variable type in member identifier");
@@ -223,15 +222,15 @@ export class Runtime {
         const value = agent.variables.get(identifier.identifier);
 
         if (typeof value === "number") {
-            return { type: "number", value } as NumberValue;
+            return { type: ValueType.Number, value } as NumberValue;
         }
 
         if (typeof value === "boolean") {
-            return { type: "boolean", value } as BooleanValue;
+            return { type: ValueType.Boolean, value } as BooleanValue;
         }
 
         if (Array.isArray(value)) {
-            return { type: "agents", value } as AgentsValue;
+            return { type: ValueType.Agents, value } as AgentsValue;
         }
 
         return this.runtimeError(`Variable identifier '${identifier.identifier}' has unknown type, expected number or boolean`);
@@ -250,7 +249,7 @@ export class Runtime {
             return rightHandSide as RuntimeError;
         }
 
-        const isValid = (expression.operator === "==" && ((leftHandSide.type === "number" && rightHandSide.type === "number") || (leftHandSide.type === "boolean" && rightHandSide.type === "boolean"))) || (leftHandSide.type === "number" && rightHandSide.type === "number");
+        const isValid = (expression.operator === "==" && ((leftHandSide.type === ValueType.Number && rightHandSide.type === ValueType.Number) || (leftHandSide.type === ValueType.Boolean && rightHandSide.type === ValueType.Boolean))) || (leftHandSide.type === ValueType.Number && rightHandSide.type === ValueType.Number);
 
         if (!isValid) {
             return this.runtimeError("Binary expression requires numeric or boolean operands") as RuntimeError;
@@ -278,7 +277,7 @@ export class Runtime {
             result = leftHandSide.value == rightHandSide.value;
         }
 
-        return { type: "boolean", value: result } as BooleanValue;
+        return { type: ValueType.Boolean, value: result } as BooleanValue;
     }
 
     private evaluateNumericBinaryExpression(leftHandSide: NumberValue, rightHandSide: NumberValue, operator: string): RuntimeValue {
@@ -304,7 +303,7 @@ export class Runtime {
             result = this.customModulo(leftHandSide.value, rightHandSide.value);
         }
     
-        return { type: "number", value: normalizeNumber(result) } as NumberValue;
+        return { type: ValueType.Number, value: normalizeNumber(result) } as NumberValue;
     }
 
     private evaluateLogicalExpression(expression: LogicalExpression, id: string): RuntimeValue {
@@ -320,21 +319,21 @@ export class Runtime {
             return rightHandSide as RuntimeError;
         }
 
-        if (leftHandSide.type === "boolean" && rightHandSide.type === "boolean") {
+        if (leftHandSide.type === ValueType.Boolean && rightHandSide.type === ValueType.Boolean) {
             if (expression.operator === "and") {
                 const leftValue = (leftHandSide as BooleanValue).value;
                 const rightValue = (rightHandSide as BooleanValue).value;
 
                 const result = leftValue && rightValue;
 
-                return { type: "boolean", value: result } as BooleanValue;
+                return { type: ValueType.Boolean, value: result } as BooleanValue;
             } else if (expression.operator === "or") {
                 const leftValue = (leftHandSide as BooleanValue).value;
                 const rightValue = (rightHandSide as BooleanValue).value;
 
                 const result = leftValue || rightValue;
 
-                return { type: "boolean", value: result } as BooleanValue;
+                return { type: ValueType.Boolean, value: result } as BooleanValue;
             }
         }
 
@@ -348,7 +347,7 @@ export class Runtime {
             return condition as RuntimeError;
         }
 
-        if (condition.type !== "boolean") {
+        if (condition.type !== ValueType.Boolean) {
             return this.runtimeError("If statement requires a boolean expression as its condition");
         }
 
@@ -369,7 +368,7 @@ export class Runtime {
             return this.runtimeError(`Function with the identifier '${identifier}; does not exist`) as RuntimeError;
         }
 
-        if (func.type !== "function") {
+        if (func.type !== ValueType.Function) {
             this.runtimeError(`Identifier '${identifier}' is not a function`) as RuntimeError;
         }
 
@@ -391,9 +390,9 @@ export class Runtime {
 
     private evaluateLambdaExpression(expression: LambdaExpression, id: string): RuntimeValue {
         const agents: RuntimeValue = this.evaluateRuntimeValue(expression.base, id);
-        const param: IdentifierValue = { type: "identifier", value: expression.param } as IdentifierValue;
+        const param: IdentifierValue = { type: ValueType.Identifier, value: expression.param } as IdentifierValue;
 
-        if (agents.type !== "agents") {
+        if (agents.type !== ValueType.Agents) {
             return this.runtimeError("Lambda expression requires 'agents' as base argument");
         }
 
@@ -401,14 +400,14 @@ export class Runtime {
         const results: RuntimeValue[] = [];
 
         for (const agent of runtimeAgents) {
-            this.lambdaEnv.declareVariable(param.value, { type: "agent", value: agent } as AgentValue);
+            this.lambdaEnv.declareVariable(param.value, { type: ValueType.Agent, value: agent } as AgentValue);
 
             const result = this.evaluateRuntimeValue(expression.value, id);
             results.push(result);
         }
 
         return {
-            type: "lambda",
+            type: ValueType.Lambda,
             agents: runtimeAgents,
             results
         } as LambdaValue;
@@ -419,11 +418,11 @@ export class Runtime {
     }
 
     private isError(node: RuntimeValue): boolean {
-        return node.type === "error";
+        return node.type === ValueType.Error;
     }
 
     private runtimeError(message: string): RuntimeError {
-        return { type: "error", message } as RuntimeError;
+        return { type: ValueType.Error, message } as RuntimeError;
     }
 
     private customModulo(a: number, b: number): number {
@@ -431,7 +430,7 @@ export class Runtime {
     }
 
     private deepCopyOutput(output: RuntimeOutput): RuntimeOutput {
-        const newOutput: RuntimeOutput = { type: "output", step: output.step, agents: [] };
+        const newOutput: RuntimeOutput = { type: ValueType.Output, step: output.step, agents: [] };
 
         for (const agent of output.agents) {
             newOutput.agents.push({
@@ -465,17 +464,17 @@ export class Runtime {
     private createAgentsFunction(agents: RuntimeAgent[], id: string): FunctionCall {
         function agentsFunction(args: RuntimeValue[]): RuntimeValue {
             if (args.length !== 1) {
-                return { type: "error", message: `Function 'agents' requires 1 argument, ${args.length} provided` } as RuntimeError;
+                return { type: ValueType.Error, message: `Function 'agents' requires 1 argument, ${args.length} provided` } as RuntimeError;
             }
 
-            if (args[0].type !== "identifier") {
-                return { type: "error", message: "Function 'agents' requires an identifier arguments" } as RuntimeError;
+            if (args[0].type !== ValueType.Identifier) {
+                return { type: ValueType.Error, message: "Function 'agents' requires an identifier arguments" } as RuntimeError;
             }
 
             const identifier = (args[0] as IdentifierValue).value;
             
             return {
-                type: "agents",
+                type: ValueType.Agents,
                 value: agents.filter((agent: RuntimeAgent) => agent.id.split("-")[0] === identifier && agent.id !== id)
             } as AgentsValue;
         }
@@ -486,10 +485,10 @@ export class Runtime {
     private createStepFunction(step: number): FunctionCall {
         function stepFunction(args: RuntimeValue[]): RuntimeValue {
             if (args.length !== 0) {
-                return { type: "error", message: `Function 'step' requires 0 arguments, ${args.length} provided`} as RuntimeError;
+                return { type: ValueType.Error, message: `Function 'step' requires 0 arguments, ${args.length} provided`} as RuntimeError;
             }
         
-            return { type: "number", value: step } as NumberValue;
+            return { type: ValueType.Number, value: step } as NumberValue;
         }
 
         return stepFunction;

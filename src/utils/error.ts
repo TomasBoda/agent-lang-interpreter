@@ -1,33 +1,18 @@
-import { exit } from "process";
-import { Position } from "../lexer/lexer.types";
-
-enum ErrorType {
-    LEX = "Lex Error",
-    PARSE = "Parse Error",
-    RUNTIME = "Runtime Error"
-}
+import { LexerValue } from "../lexer/lexer.types";
+import { NodeType, ParserError } from "../parser/parser.types";
+import { RuntimeError, ValueType } from "../runtime/runtime.types";
 
 export class Error {
 
-    static lex(position: Position | null, message: string): void {
-        Error.raise(ErrorType.LEX, position, message);
+    static lexer(message: string): LexerValue {
+        return { status: { code: 1, message } } as LexerValue;
     }
 
-    static parse(position: Position | null, message: string): void {
-        Error.raise(ErrorType.PARSE, position, message);
+    static parser(message: string): ParserError {
+        return { type: NodeType.Error, message } as ParserError;
     }
 
-    static runtime(position: Position | null, message: string): void {
-        Error.raise(ErrorType.RUNTIME, position, message);
-    }
-
-    private static raise(type: ErrorType, position: Position | null, message: string): void {
-        if (position === null) {
-            console.log(`${type}: ${message}`);
-        } else {
-            console.log(`${type} (line ${position.line}, character ${position.character}): ${message}`);
-        }
-
-        exit(0);
+    static runtime(message: string): RuntimeError {
+        return { type: ValueType.Error, message } as RuntimeError;
     }
 }

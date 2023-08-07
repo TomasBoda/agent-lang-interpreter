@@ -1,6 +1,6 @@
+import { exit } from "process";
 import { Position, Token, TokenType } from "../lexer/lexer.types";
 import { BinaryExpression, BooleanLiteral, CallExpression, ConditionalExpression, Expression, Identifier, LambdaExpression, LogicalExpression, NodeType, NumericLiteral, ObjectDeclaration, ParserError, ParserValue, Program, Statement, VariableDeclaration, VariableType } from "./parser.types";
-import { Error } from "../utils/error";
 
 export class Parser {
 
@@ -485,7 +485,8 @@ export class Parser {
 
     private getNext(): Token {
         if (this.tokens.length <= 2) {
-            Error.parse(null, "Cannot get next token because EOF");
+            // TODO
+            exit(0);
         }
 
         return this.tokens[1];

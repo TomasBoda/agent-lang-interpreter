@@ -12,7 +12,6 @@ export const ReservedKeywords: Record<string, TokenType> = {
     "else": TokenType.Else,
     "and": TokenType.And,
     "or": TokenType.Or,
-    "as": TokenType.As,
 
     "true": TokenType.Boolean,
     "false": TokenType.Boolean,

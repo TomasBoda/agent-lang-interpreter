@@ -1,11 +1,11 @@
 import { Observable, interval, map, of, take } from "rxjs";
 import { Lexer } from "../lexer/lexer";
-import { LexerValue, Token } from "../lexer/lexer.types";
+import { LexerValue } from "../lexer/lexer.types";
 import { NodeType, ParserError, ParserValue, Program } from "../parser/parser.types";
 import { Parser } from "../parser/parser";
 import { Runtime } from "../runtime/runtime";
-import { Agent, InterpreterConfiguration, InterpreterOutput, AgentOutput } from "./interpreter.types";
-import { AgentVariableValue, RuntimeAgent, RuntimeError, RuntimeOutput, RuntimeValue } from "../runtime/runtime.types";
+import { Agent, InterpreterConfiguration, InterpreterOutput } from "./interpreter.types";
+import { AgentVariableValue, RuntimeAgent, RuntimeError, RuntimeOutput, RuntimeValue, ValueType } from "../runtime/runtime.types";
 import { Environment } from "../runtime/environment";
 
 export class Interpreter {
@@ -34,7 +34,7 @@ export class Interpreter {
             map(step => {
                 const value: RuntimeValue = runtime.run(step);
 
-                if (value.type === "error") {
+                if (value.type === ValueType.Error) {
                     return this.interpreterError((value as RuntimeError).message);
                 }
 

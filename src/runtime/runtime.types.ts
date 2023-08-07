@@ -1,39 +1,53 @@
 
-export type ValueType = "error" | "number" | "boolean" | "function" | "output" | "void" | "agent" | "agents" | "lambda" | "identifier";
+export type ValueTypeX = "error" | "number" | "boolean" | "function" | "output" | "void" | "agent" | "agents" | "lambda" | "identifier";
+
+export enum ValueType {
+    Error = "Error",
+    
+    Number = "Number",
+    Boolean = "Boolean",
+    Function = "Function",
+    Void = "Void",
+    Agent = "Agent",
+    Agents = "Agents",
+    Lambda = "Lambda",
+    Identifier = "Identifier",
+    Output = "Output",
+}
 
 export interface RuntimeValue {
     type: ValueType;
 }
 
 export interface RuntimeError extends RuntimeValue {
-    type: "error";
+    type: ValueType.Error;
     message: string;
 }
 
 export interface VoidValue extends RuntimeValue {
-    type: "void";
+    type: ValueType.Void;
     value: void;
 }
 
 export interface NumberValue extends RuntimeValue {
-    type: "number";
+    type: ValueType.Number;
     value: number;
 }
 
 export interface BooleanValue extends RuntimeValue {
-    type: "boolean";
+    type: ValueType.Boolean;
     value: boolean;
 }
 
 export interface IdentifierValue extends RuntimeValue {
-    type: "identifier";
+    type: ValueType.Identifier;
     value: string;
 }
 
 export type FunctionCall = (args: RuntimeValue[]) => RuntimeValue;
 
 export interface FunctionValue extends RuntimeValue {
-    type: "function";
+    type: ValueType.Function;
     call: FunctionCall;
 }
 
@@ -48,23 +62,23 @@ export interface RuntimeAgent {
 }
 
 export interface AgentValue extends RuntimeValue {
-    type: "agent";
+    type: ValueType.Agent;
     value: RuntimeAgent;
 }
 
 export interface AgentsValue extends RuntimeValue {
-    type: "agents";
+    type: ValueType.Agents;
     value: RuntimeAgent[];
 }
 
 export interface LambdaValue extends RuntimeValue {
-    type: "lambda";
+    type: ValueType.Lambda;
     agents: RuntimeAgent[];
     results: RuntimeValue[];
 }
 
 export interface RuntimeOutput extends RuntimeValue {
-    type: "output";
+    type: ValueType.Output;
     step: number;
     agents: RuntimeAgent[];
 }

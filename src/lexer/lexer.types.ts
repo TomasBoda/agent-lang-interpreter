@@ -12,7 +12,6 @@ export enum TokenType {
     Else = "Else",
     And = "And",
     Or = "Or",
-    As = "As",
 
     Identifier = "Identifier",
     Number = "Number",

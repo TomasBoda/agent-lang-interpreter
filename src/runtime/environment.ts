@@ -1,5 +1,4 @@
-import { NumberValue, RuntimeError, RuntimeValue } from "./runtime.types";
-import { Error } from "../utils/error";
+import { NumberValue, RuntimeError, RuntimeValue, ValueType } from "./runtime.types";
 import { ABS, CEIL, CHOICE, COS, COUNT, EMPTY, FILTER, FLOOR, PI, RANDOM, ROUND, SIN, SQRT, TAN, createGlobalFunction } from "../utils/functions";
 
 export class Environment {
@@ -48,7 +47,7 @@ export class Environment {
         const env = this.resolve(identifier);
 
         if (!env) {
-            return { type: "error", message: `Variable ${identifier} does not exist` } as RuntimeError;
+            return { type: ValueType.Error, message: `Variable ${identifier} does not exist` } as RuntimeError;
         }
 
         env.variables.set(identifier, value);
@@ -59,7 +58,7 @@ export class Environment {
         const env = this.resolve(identifier);
 
         if (!env) {
-            return { type: "error", message: `Variable ${identifier} does not exist` } as RuntimeError;
+            return { type: ValueType.Error, message: `Variable ${identifier} does not exist` } as RuntimeError;
         }
 
         return env.variables.get(identifier) as RuntimeValue;
