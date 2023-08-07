@@ -1,7 +1,14 @@
+agent person 2 {
+	const speed = 5;
+	variable angle: 0 = angle + choice(-0.1, 0.1);
+	variable x: random(0, 400) = (x + speed * cos(angle)) % 400;
+	variable y: random(0, 400) = (y + speed * sin(angle)) % 400;
 
-agent person 5 {
+	const proximity = 100;
+	
+	variable infected: random(0, 1) < 0.5 = infected or (count(infectedNeighbours) > 0 and random(0, 1) < 0.5);
+	dynamic neighbours = filter(agents(person) => p => sqrt((p.x - x) * (p.x - x) + (p.y - y) * (p.y - y)) <= proximity);
+	dynamic infectedNeighbours = filter(neighbours => n => n.infected == true);
 
-    const age = random(0, 10);
-
-    dynamic younger = filter(agents(person) => p => p.age < age);
+	variable alive: false = infected; 
 }

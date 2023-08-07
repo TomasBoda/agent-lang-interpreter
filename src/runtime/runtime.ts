@@ -319,14 +319,14 @@ export class Runtime {
         }
 
         if (leftHandSide.type === "boolean" && rightHandSide.type === "boolean") {
-            if (expression.operator === "AND") {
+            if (expression.operator === "and") {
                 const leftValue = (leftHandSide as BooleanValue).value;
                 const rightValue = (rightHandSide as BooleanValue).value;
 
                 const result = leftValue && rightValue;
 
                 return { type: "boolean", value: result } as BooleanValue;
-            } else if (expression.operator === "OR") {
+            } else if (expression.operator === "or") {
                 const leftValue = (leftHandSide as BooleanValue).value;
                 const rightValue = (rightHandSide as BooleanValue).value;
 

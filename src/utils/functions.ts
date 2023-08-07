@@ -97,18 +97,33 @@ export function RANDOM(args: RuntimeValue[]): RuntimeValue {
 }
 
 export function CHOICE(args: RuntimeValue[]): RuntimeValue {
-    const numericArgs: RuntimeValue[] = expectNumericArgs(args, 2);
-
-    if (numericArgs.length === 1 && numericArgs[0].type === "error") {
-        return numericArgs[0] as RuntimeError;
+    if (args.length === 1 && args[0].type === "error") {
+        return args[0] as RuntimeError;
     }
 
-    const first: NumberValue = numericArgs[0] as NumberValue;
-    const second: NumberValue = numericArgs[1] as NumberValue;
+    if (args.length !== 2) {
+        return { type: "error", message: `Function 'choice' requires 2 arguments, ${args.length} provided` } as RuntimeError;
+    }
 
-    const result = Math.random() >= 0.5 ? first.value : second.value;
+    if (args[0].type === "number" && args[1].type === "number") {
+        const first: NumberValue = args[0] as NumberValue;
+        const second: NumberValue = args[1] as NumberValue;
 
-    return { type: "number", value: normalizeNumber(result) } as NumberValue;
+        const result = Math.random() >= 0.5 ? first.value : second.value;
+
+        return { type: "number", value: normalizeNumber(result) } as NumberValue;
+    }
+
+    if (args[0].type === "boolean" && args[1].type === "boolean") {
+        const first: BooleanValue = args[0] as BooleanValue;
+        const second: BooleanValue = args[1] as BooleanValue;
+
+        const result = Math.random() >= 0.5 ? first.value : second.value;
+
+        return { type: "boolean", value: result } as BooleanValue;
+    }
+
+    return { type: "error", message: "Function 'choice' requires arguments of type 'number' or 'boolean'" } as RuntimeError;
 }
 
 export function SQRT(args: RuntimeValue[]): RuntimeValue {
