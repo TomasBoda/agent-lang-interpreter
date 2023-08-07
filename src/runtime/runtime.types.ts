@@ -54,7 +54,7 @@ export interface AgentValue extends RuntimeValue {
 
 export interface AgentsValue extends RuntimeValue {
     type: "agents";
-    agents: RuntimeAgent[];
+    value: RuntimeAgent[];
 }
 
 export interface LambdaValue extends RuntimeValue {

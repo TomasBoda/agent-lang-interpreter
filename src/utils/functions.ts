@@ -30,6 +30,14 @@ function expectNumericArgs(args: RuntimeValue[], count: number): RuntimeValue[] 
 
 // GLOBAL FUNCTIONS
 
+export function EMPTY(args: RuntimeValue[]): RuntimeValue {
+    if (args.length !== 0) {
+        return { type: "error", message: `Function 'empty' expected 0 arguments, ${args.length} provided` } as RuntimeError;
+    }
+
+    return { type: "agents", value: [] } as AgentsValue;
+}
+
 export function FILTER(args: RuntimeValue[]): RuntimeValue {
     if (args.length !== 1) {
         return { type: "error", message: `Function 'filter' expected 1 argument, ${args.length} provided` } as RuntimeError;
@@ -59,7 +67,7 @@ export function FILTER(args: RuntimeValue[]): RuntimeValue {
         }
     }
 
-    return { type: "agents", agents } as AgentsValue;
+    return { type: "agents", value: agents } as AgentsValue;
 }
 
 export function COUNT(args: RuntimeValue[]): RuntimeValue {
@@ -72,7 +80,7 @@ export function COUNT(args: RuntimeValue[]): RuntimeValue {
     }
 
     const agents: AgentsValue = args[0] as AgentsValue;
-    const length = agents.agents.length;
+    const length = agents.value.length;
 
     return { type: "number", value: length } as NumberValue;
 }

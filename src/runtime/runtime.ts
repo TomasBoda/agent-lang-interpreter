@@ -124,7 +124,7 @@ export class Runtime {
         } else if (value.type === "boolean") {
             return (value as BooleanValue).value;
         } else if (value.type === "agents") {
-            return (value as AgentsValue).agents;
+            return (value as AgentsValue).value;
         }
 
         return undefined;
@@ -231,7 +231,7 @@ export class Runtime {
         }
 
         if (Array.isArray(value)) {
-            return { type: "agents", agents: value } as AgentsValue;
+            return { type: "agents", value } as AgentsValue;
         }
 
         return this.runtimeError(`Variable identifier '${identifier.identifier}' has unknown type, expected number or boolean`);
@@ -395,7 +395,7 @@ export class Runtime {
             return this.runtimeError("Lambda expression requires 'agents' as base argument");
         }
 
-        const runtimeAgents = (agents as AgentsValue).agents.filter((agent: RuntimeAgent) => agent.id !== id);
+        const runtimeAgents = (agents as AgentsValue).value.filter((agent: RuntimeAgent) => agent.id !== id);
         const results: RuntimeValue[] = [];
 
         for (const agent of runtimeAgents) {
@@ -474,7 +474,7 @@ export class Runtime {
             
             return {
                 type: "agents",
-                agents: agents.filter((agent: RuntimeAgent) => agent.id.split("-")[0] === identifier && agent.id !== id)
+                value: agents.filter((agent: RuntimeAgent) => agent.id.split("-")[0] === identifier && agent.id !== id)
             } as AgentsValue;
         }
 
