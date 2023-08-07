@@ -50,7 +50,7 @@ export interface Symbol {
     position: Position;
 }
 
-export interface LexerValue {
+export interface LexerOutput {
     status: ExitStatus;
     tokens?: Token[];
 }

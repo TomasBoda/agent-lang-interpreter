@@ -1,11 +1,12 @@
-import { LexerValue } from "../lexer/lexer.types";
+import { InterpreterOutput } from "../interpreter/interpreter.types";
+import { LexerOutput } from "../lexer/lexer.types";
 import { NodeType, ParserError } from "../parser/parser.types";
 import { RuntimeError, ValueType } from "../runtime/runtime.types";
 
 export class Error {
 
-    static lexer(message: string): LexerValue {
-        return { status: { code: 1, message } } as LexerValue;
+    static lexer(message: string): LexerOutput {
+        return { status: { code: 1, message } } as LexerOutput;
     }
 
     static parser(message: string): ParserError {
@@ -14,5 +15,9 @@ export class Error {
 
     static runtime(message: string): RuntimeError {
         return { type: ValueType.Error, message } as RuntimeError;
+    }
+
+    static interpreter(message: string): InterpreterOutput {
+        return { status: { code: 1, message } } as InterpreterOutput;
     }
 }

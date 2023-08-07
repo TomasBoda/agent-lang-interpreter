@@ -1,12 +1,13 @@
 import { Observable, interval, map, of, take } from "rxjs";
 import { Lexer } from "../lexer/lexer";
-import { LexerValue } from "../lexer/lexer.types";
+import { LexerOutput } from "../lexer/lexer.types";
 import { NodeType, ParserError, ParserValue, Program } from "../parser/parser.types";
 import { Parser } from "../parser/parser";
 import { Runtime } from "../runtime/runtime";
 import { Agent, InterpreterConfiguration, InterpreterOutput } from "./interpreter.types";
 import { AgentVariableValue, RuntimeAgent, RuntimeError, RuntimeOutput, RuntimeValue, ValueType } from "../runtime/runtime.types";
 import { Environment } from "../runtime/environment";
+import { Error } from "../utils/error";
 
 export class Interpreter {
 
@@ -14,17 +15,17 @@ export class Interpreter {
 
     public interpret(sourceCode: string, config: InterpreterConfiguration): Observable<InterpreterOutput> {
         const lexer: Lexer = new Lexer(sourceCode);
-        const lexerOutput: LexerValue = lexer.tokenize();
+        const lexerOutput: LexerOutput = lexer.tokenize();
 
         if (lexerOutput.status.code !== 0 || !lexerOutput.tokens) {
-            return of(this.interpreterError(lexerOutput.status.message ?? ""));
+            return of(Error.interpreter(lexerOutput.status.message ?? ""));
         }
 
         const parser: Parser = new Parser(lexerOutput.tokens);
         const program: ParserValue = parser.parse();
 
         if (program.type === NodeType.Error) {
-            return of(this.interpreterError((program as ParserError).message));
+            return of(Error.interpreter((program as ParserError).message));
         }
 
         const runtime: Runtime = new Runtime(program as Program, this.environment);
@@ -35,16 +36,12 @@ export class Interpreter {
                 const value: RuntimeValue = runtime.run(step);
 
                 if (value.type === ValueType.Error) {
-                    return this.interpreterError((value as RuntimeError).message);
+                    return Error.interpreter((value as RuntimeError).message);
                 }
 
                 return this.mapRuntimeOutput(value as RuntimeOutput);
             })
         );
-    }
-
-    private interpreterError(message: string): InterpreterOutput {
-        return { status: { code: 1, message } } as InterpreterOutput;
     }
     
     private mapRuntimeAgent(agent: RuntimeAgent): Agent {

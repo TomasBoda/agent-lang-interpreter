@@ -1,4 +1,5 @@
 import { AgentsValue, BooleanValue, FunctionCall, FunctionValue, LambdaValue, NumberValue, RuntimeAgent, RuntimeError, RuntimeValue, ValueType } from "../runtime/runtime.types";
+import { Error } from "./error";
 
 export function createGlobalFunction(call: FunctionCall): FunctionValue {
     return { type: ValueType.Function, call } as FunctionValue;
@@ -11,14 +12,14 @@ export function normalizeNumber(value: number, digits: number = 2): number {
 
 function expectNumericArgs(args: RuntimeValue[], count: number): RuntimeValue[] {
     if (args.length !== count) {
-        return [{ type: ValueType.Error, message: "Number of arguments do not match, expected " + count + ", provided " + args.length + " in a function call" } as RuntimeError]
+        return [Error.runtime("Number of arguments do not match, expected " + count + ", provided " + args.length + " in a function call") as RuntimeError];
     }
 
     const returnedArguments: RuntimeValue[] = [];
 
     for (const arg of args) {
         if (arg.type !== ValueType.Number) {
-            return [{ type: ValueType.Error, message: "Expected a numeric argument, did not get a number" } as RuntimeError];
+            return [Error.runtime("Expected a numeric argument, did not get a number") as RuntimeError];
         }
 
         returnedArguments.push(arg as NumberValue);
@@ -31,7 +32,7 @@ function expectNumericArgs(args: RuntimeValue[], count: number): RuntimeValue[] 
 
 export function PI(args: RuntimeValue[]): RuntimeValue {
     if (args.length !== 0) {
-        return { type: ValueType.Error, message: `Function 'pi' expected 0 arguments, ${args.length} provided` } as RuntimeError;
+        return Error.runtime(`Function 'pi' expected 0 arguments, ${args.length} provided`) as RuntimeError;
     }
 
     return { type: ValueType.Number, value: Math.PI } as NumberValue;
@@ -39,7 +40,7 @@ export function PI(args: RuntimeValue[]): RuntimeValue {
 
 export function EMPTY(args: RuntimeValue[]): RuntimeValue {
     if (args.length !== 0) {
-        return { type: ValueType.Error, message: `Function 'empty' expected 0 arguments, ${args.length} provided` } as RuntimeError;
+        return Error.runtime(`Function 'empty' expected 0 arguments, ${args.length} provided`) as RuntimeError;
     }
 
     return { type: ValueType.Agents, value: [] } as AgentsValue;
@@ -47,24 +48,24 @@ export function EMPTY(args: RuntimeValue[]): RuntimeValue {
 
 export function FILTER(args: RuntimeValue[]): RuntimeValue {
     if (args.length !== 1) {
-        return { type: ValueType.Error, message: `Function 'filter' expected 1 argument, ${args.length} provided` } as RuntimeError;
+        return Error.runtime(`Function 'filter' expected 1 argument, ${args.length} provided`) as RuntimeError;
     }
 
     if (args[0].type !== ValueType.Lambda) {
-        return { type: ValueType.Error, message: `Function 'filter' expected arguments of type 'lambda', ${args[0].type} provided` } as RuntimeError;
+        return Error.runtime(`Function 'filter' expected arguments of type 'lambda', ${args[0].type} provided`) as RuntimeError;
     }
 
     const lambda: LambdaValue = args[0] as LambdaValue;
 
     if (lambda.agents.length !== lambda.results.length) {
-        return { type: ValueType.Error, message: `Number of agents does not equal the number of results in 'filter' function.` } as RuntimeError;
+        return Error.runtime(`Number of agents does not equal the number of results in 'filter' function.`) as RuntimeError;
     }
 
     const agents: RuntimeAgent[] = [];
 
     for (let i = 0; i < lambda.agents.length; i++) {
         if (lambda.results[i].type !== ValueType.Boolean) {
-            return { type: ValueType.Error, message: `Function 'filter' requires lambda expression with boolean return value` } as RuntimeError;
+            return Error.runtime(`Function 'filter' requires lambda expression with boolean return value`) as RuntimeError;
         }
 
         const result: BooleanValue = lambda.results[i] as BooleanValue;
@@ -79,11 +80,11 @@ export function FILTER(args: RuntimeValue[]): RuntimeValue {
 
 export function COUNT(args: RuntimeValue[]): RuntimeValue {
     if (args.length !== 1) {
-        return { type: ValueType.Error, message: `Function 'count' expected 1 argument, ${args.length} provided` } as RuntimeError;
+        return Error.runtime(`Function 'count' expected 1 argument, ${args.length} provided`) as RuntimeError;
     }
 
     if (args[0].type !== ValueType.Agents) {
-        return { type: ValueType.Error, message: `Function 'count' expected arguments of type 'agents', ${args[0].type} provided` } as RuntimeError;
+        return Error.runtime(`Function 'count' expected arguments of type 'agents', ${args[0].type} provided`) as RuntimeError;
     }
 
     const agents: AgentsValue = args[0] as AgentsValue;
@@ -103,7 +104,7 @@ export function RANDOM(args: RuntimeValue[]): RuntimeValue {
     const max: NumberValue = numericArgs[1] as NumberValue;
 
     if (min.value >= max.value) {
-        return { type: ValueType.Error, message: "In function call RANDOM the first argument must be less than the second argument" } as RuntimeError;
+        return Error.runtime("In function call RANDOM the first argument must be less than the second argument") as RuntimeError;
     }
 
     const result = Math.random() * (max.value - min.value) + min.value;
@@ -117,7 +118,7 @@ export function CHOICE(args: RuntimeValue[]): RuntimeValue {
     }
 
     if (args.length !== 2) {
-        return { type: ValueType.Error, message: `Function 'choice' requires 2 arguments, ${args.length} provided` } as RuntimeError;
+        return Error.runtime(`Function 'choice' requires 2 arguments, ${args.length} provided`) as RuntimeError;
     }
 
     if (args[0].type === ValueType.Number && args[1].type === ValueType.Number) {
@@ -138,7 +139,7 @@ export function CHOICE(args: RuntimeValue[]): RuntimeValue {
         return { type: ValueType.Boolean, value: result } as BooleanValue;
     }
 
-    return { type: ValueType.Error, message: "Function 'choice' requires arguments of type 'number' or 'boolean'" } as RuntimeError;
+    return Error.runtime("Function 'choice' requires arguments of type 'number' or 'boolean'") as RuntimeError;
 }
 
 export function SQRT(args: RuntimeValue[]): RuntimeValue {

@@ -1,4 +1,5 @@
-import { LexerValue, Position, Symbol, Token, TokenType } from "./lexer.types";
+import { LexerOutput, Position, Symbol, Token, TokenType } from "./lexer.types";
+import { Error } from "../utils/error";
 
 export const ReservedKeywords: Record<string, TokenType> = {
     "agent": TokenType.Agent,
@@ -28,7 +29,7 @@ export class Lexer {
         this.sourceCode = sourceCode;
     }
 
-    public tokenize(): LexerValue {
+    public tokenize(): LexerOutput {
         this.symbols = [];
         this.tokens = [];
 
@@ -91,7 +92,7 @@ export class Lexer {
                     while (this.hasNext() && (this.isNumber() || this.isNext("."))) {
                         if (this.isNext(".")) {
                             if (foundDecimalPoint) {
-                                return this.lexerError("Number cannot contain more than one decimal point");
+                                return Error.lexer("Number cannot contain more than one decimal point");
                             }
 
                             foundDecimalPoint = true;
@@ -109,7 +110,7 @@ export class Lexer {
                     while (this.hasNext() && (this.isAlpha() || this.isNext("."))) {
                         if (this.isNext(".")) {
                             if (foundDot) {
-                                return this.lexerError("Member expressions cannot contain more than one dot");
+                                return Error.lexer("Member expressions cannot contain more than one dot");
                             }
 
                             foundDot = true;
@@ -122,7 +123,7 @@ export class Lexer {
                 } else if (this.isSkippable()) {
                     this.next();
                 } else {
-                    return this.lexerError("Unrecognized character found in source: " + this.getNext().value);
+                    return Error.lexer("Unrecognized character found in source: " + this.getNext().value);
                 }
             }
         }
@@ -132,7 +133,7 @@ export class Lexer {
         return {
             status: { code: 0 },
             tokens: this.tokens
-        } as LexerValue;
+        } as LexerOutput;
     }
 
     private generateSourceCodeSymbols(): void {
@@ -149,10 +150,6 @@ export class Lexer {
                 charNumber = 1;
             }
         }
-    }
-
-    private lexerError(message: string): LexerValue {
-        return { status: { code: 1, message } } as LexerValue;
     }
 
     private getIdentifierTokenType(identifier: string): TokenType {
