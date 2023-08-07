@@ -1,3 +1,4 @@
+import { exit } from "process";
 import { AgentsValue, BooleanValue, FunctionCall, FunctionValue, LambdaValue, NumberValue, RuntimeAgent, RuntimeError, RuntimeValue } from "../runtime/runtime.types";
 import { Error } from "./error";
 
@@ -65,7 +66,9 @@ export function FILTER(args: RuntimeValue[]): RuntimeValue {
 
     for (let i = 0; i < lambda.agents.length; i++) {
         if (lambda.results[i].type !== "boolean") {
-            return { type: "error", message: `Function 'filter' requires lambda expression with boolean return valie` } as RuntimeError;
+            console.log(lambda.results);
+            return { type: "error", message: `Function 'filter' requires lambda expression with boolean return value` } as RuntimeError;
+            exit(0);
         }
 
         const result: BooleanValue = lambda.results[i] as BooleanValue;

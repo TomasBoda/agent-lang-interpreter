@@ -250,8 +250,10 @@ export class Runtime {
             return rightHandSide as RuntimeError;
         }
 
-        if (leftHandSide.type !== "number" || rightHandSide.type !== "number") {
-            return this.runtimeError("Binary expression requires numeric operands") as RuntimeError;
+        const isValid = (expression.operator === "==" && ((leftHandSide.type === "number" && rightHandSide.type === "number") || (leftHandSide.type === "boolean" && rightHandSide.type === "boolean"))) || (leftHandSide.type === "number" && rightHandSide.type === "number");
+
+        if (!isValid) {
+            return this.runtimeError("Binary expression requires numeric or boolean operands") as RuntimeError;
         }
     
         if (expression.operator === "==" || expression.operator === ">" || expression.operator === ">=" || expression.operator === "<" || expression.operator === "<=") {
