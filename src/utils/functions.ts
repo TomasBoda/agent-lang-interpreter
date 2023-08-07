@@ -30,6 +30,14 @@ function expectNumericArgs(args: RuntimeValue[], count: number): RuntimeValue[] 
 
 // GLOBAL FUNCTIONS
 
+export function PI(args: RuntimeValue[]): RuntimeValue {
+    if (args.length !== 0) {
+        return { type: "error", message: `Function 'pi' expected 0 arguments, ${args.length} provided` } as RuntimeError;
+    }
+
+    return { type: "number", value: Math.PI } as NumberValue;
+}
+
 export function EMPTY(args: RuntimeValue[]): RuntimeValue {
     if (args.length !== 0) {
         return { type: "error", message: `Function 'empty' expected 0 arguments, ${args.length} provided` } as RuntimeError;

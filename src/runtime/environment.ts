@@ -1,6 +1,6 @@
 import { NumberValue, RuntimeError, RuntimeValue } from "./runtime.types";
 import { Error } from "../utils/error";
-import { ABS, CEIL, CHOICE, COS, COUNT, EMPTY, FILTER, FLOOR, RANDOM, ROUND, SIN, SQRT, TAN, createGlobalFunction } from "../utils/functions";
+import { ABS, CEIL, CHOICE, COS, COUNT, EMPTY, FILTER, FLOOR, PI, RANDOM, ROUND, SIN, SQRT, TAN, createGlobalFunction } from "../utils/functions";
 
 export class Environment {
 
@@ -25,6 +25,7 @@ export class Environment {
         environment.declareVariable("sin", createGlobalFunction(SIN));
         environment.declareVariable("cos", createGlobalFunction(COS));
         environment.declareVariable("tan", createGlobalFunction(TAN));
+        environment.declareVariable("pi", createGlobalFunction(PI));
 
         environment.declareVariable("count", createGlobalFunction(COUNT));
         environment.declareVariable("filter", createGlobalFunction(FILTER));
