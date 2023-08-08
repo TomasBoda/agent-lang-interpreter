@@ -30,6 +30,30 @@ function expectNumericArgs(args: RuntimeValue[], count: number): RuntimeValue[] 
 
 // GLOBAL FUNCTIONS
 
+export function PROB(args: RuntimeValue[]): RuntimeValue {
+    if (args.length !== 1) {
+        return Error.runtime(`Function 'prob' expected 1 argument, ${args.length} provided`) as RuntimeError;
+    }
+
+    if (args[0].type === ValueType.Error) {
+        return args[0] as RuntimeError;
+    }
+
+    if (args[0].type !== ValueType.Number) {
+        return Error.runtime(`Function 'prob' expected argument of type 'number', type '${args[0].type}' provided`) as RuntimeError;
+    }
+
+    const probability: NumberValue = args[0] as NumberValue;
+
+    if (probability.value < 0 || probability.value > 1) {
+        return Error.runtime(`Function 'prob' expected number between 0 and 1, ${probability.value} provided`) as RuntimeError;
+    }
+
+    const result = Math.random() <= probability.value;
+
+    return { type: ValueType.Boolean, value: result } as BooleanValue;
+}
+
 export function PI(args: RuntimeValue[]): RuntimeValue {
     if (args.length !== 0) {
         return Error.runtime(`Function 'pi' expected 0 arguments, ${args.length} provided`) as RuntimeError;
