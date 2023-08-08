@@ -49,7 +49,7 @@ export function PROB(args: RuntimeValue[]): RuntimeValue {
         return Error.runtime(`Function 'prob' expected number between 0 and 1, ${probability.value} provided`) as RuntimeError;
     }
 
-    const result = Math.random() <= probability.value;
+    const result = Math.random() < probability.value;
 
     return { type: ValueType.Boolean, value: result } as BooleanValue;
 }
