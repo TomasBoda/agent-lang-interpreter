@@ -18,6 +18,6 @@ export class Error {
     }
 
     static interpreter(message: string): InterpreterOutput {
-        return { status: { code: 1, message: `Interpreter Error: ${message}` } } as InterpreterOutput;
+        return { status: { code: 1, message } } as InterpreterOutput;
     }
 }
