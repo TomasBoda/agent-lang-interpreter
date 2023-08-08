@@ -1,6 +1,4 @@
 
-export type ValueTypeX = "error" | "number" | "boolean" | "function" | "output" | "void" | "agent" | "agents" | "lambda" | "identifier";
-
 export enum ValueType {
     Error = "Error",
     
@@ -58,7 +56,7 @@ export type AgentVariables = Map<AgentVariableIdentifier, AgentVariableValue>;
 export interface RuntimeAgent {
     id: string;
     identifier: string;
-    variables: AgentVariables;
+    variables: Map<string, RuntimeValue>;
 }
 
 export interface AgentValue extends RuntimeValue {

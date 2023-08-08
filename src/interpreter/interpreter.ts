@@ -45,10 +45,10 @@ export class Interpreter {
     }
     
     private mapRuntimeAgent(agent: RuntimeAgent): Agent {
-        const variables: { [key: string]: AgentVariableValue } = {};
+        const variables: { [key: string]: RuntimeValue } = {};
         agent.variables.forEach((value, key) => variables[key] = value);
     
-        return {identifier: agent.identifier, variables } as Agent;
+        return { identifier: agent.identifier, variables } as Agent;
     }
     
     private mapRuntimeOutput(output: RuntimeOutput): InterpreterOutput {

@@ -57,10 +57,9 @@ export class Runtime {
 
     private evaluateObjectDeclaration(declaration: ObjectDeclaration, id: string): RuntimeValue {
         const identifier = declaration.identifier;
+        const variables = new Map<string, RuntimeValue>();
 
         this.environment.declareVariable(identifier, { type: ValueType.Identifier, value: identifier } as IdentifierValue);
-
-        const variables = new Map<AgentVariableIdentifier, AgentVariableValue>();
 
         this.currentOutput.agents.push({ id, identifier, variables } as RuntimeAgent);
 
@@ -71,13 +70,7 @@ export class Runtime {
                 return variableValue as RuntimeError;
             }
 
-            const rawValue = this.getRawRuntimeValue(variableValue);
-
-            if (rawValue === undefined) {
-                return Error.runtime(`Cannot extract raw runtime value because the value type '${variableValue.type}' is not supported`) as RuntimeError;
-            }
-
-            variables.set(statement.identifier, rawValue);
+            variables.set(statement.identifier, variableValue);
         }
 
         return { type: ValueType.Void } as VoidValue;
@@ -103,30 +96,16 @@ export class Runtime {
                 return Error.runtime("Agent with the provided id not found");
             }
 
-            const previousValue = agent?.variables.get(declaration.identifier);
+            const previousValue: RuntimeValue | undefined = agent.variables.get(declaration.identifier);
 
-            if (typeof previousValue === "number") {
-                return { type: ValueType.Number, value: previousValue } as NumberValue;
-            } else if (typeof previousValue === "boolean") {
-                return { type: ValueType.Boolean, value: previousValue } as BooleanValue;
+            if (!previousValue) {
+                return Error.runtime("Previous agent value does not exist");
             }
 
-            return Error.runtime("Const variable declaration error");
+            return previousValue;
         }
 
         return this.evaluateRuntimeValue(declaration.value, id);
-    }
-
-    private getRawRuntimeValue(value: RuntimeValue): AgentVariableValue | undefined {
-        if (value.type === ValueType.Number) {
-            return (value as NumberValue).value;
-        } else if (value.type === ValueType.Boolean) {
-            return (value as BooleanValue).value;
-        } else if (value.type === ValueType.Agents) {
-            return (value as AgentsValue).value;
-        }
-
-        return undefined;
     }
 
     private evaluateRuntimeValue(node: ParserValue, id: string): RuntimeValue {
@@ -191,15 +170,13 @@ export class Runtime {
                 return Error.runtime(`Variable ${paramIdentifier} does not exist in agent with id '${agent.value.id}'`);
             }
 
-            const variableValue = agent.value.variables.get(paramIdentifier);
+            const variableValue: RuntimeValue | undefined = agent.value.variables.get(paramIdentifier);
 
-            if (typeof variableValue === "number") {
-                return { type: ValueType.Number, value: variableValue } as NumberValue;
-            } else if (typeof variableValue === "boolean") {
-                return { type: ValueType.Boolean, value: variableValue } as BooleanValue;
+            if (!variableValue) {
+                return Error.runtime("Unknown variable type in member identifier");
             }
 
-            return Error.runtime("Unknown variable type in member identifier");
+            return variableValue;
         }
 
         const variableLookup = this.environment.lookupVariable(identifier.identifier);
@@ -219,21 +196,13 @@ export class Runtime {
             return Error.runtime(`Variable '${identifier.identifier}' in agent '${id}' does not exist`) as RuntimeError;
         }
 
-        const value = agent.variables.get(identifier.identifier);
+        const value: RuntimeValue | undefined = agent.variables.get(identifier.identifier);
 
-        if (typeof value === "number") {
-            return { type: ValueType.Number, value } as NumberValue;
+        if (!value) {
+            return Error.runtime(`Variable identifier '${identifier.identifier}' has unknown type, expected number or boolean`);
         }
 
-        if (typeof value === "boolean") {
-            return { type: ValueType.Boolean, value } as BooleanValue;
-        }
-
-        if (Array.isArray(value)) {
-            return { type: ValueType.Agents, value } as AgentsValue;
-        }
-
-        return Error.runtime(`Variable identifier '${identifier.identifier}' has unknown type, expected number or boolean`);
+        return value;
     }
 
     private evaluateBinaryExpression(expression: BinaryExpression, id: string): RuntimeValue {
