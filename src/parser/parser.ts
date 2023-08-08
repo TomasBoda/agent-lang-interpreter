@@ -272,7 +272,7 @@ export class Parser {
             return left as ParserError;
         }
 
-        while (this.at().value === "==" || this.at().value === ">" || this.at().value === ">=" || this.at().value === "<" || this.at().value === "<=") {
+        while (this.at().value === "==" || this.at().value === "!=" || this.at().value === ">" || this.at().value === ">=" || this.at().value === "<" || this.at().value === "<=") {
             const operator = this.next().value;
             const right = this.parseAdditiveExpression();
 

@@ -5,7 +5,7 @@ import { NodeType, ParserError, ParserValue, Program } from "../parser/parser.ty
 import { Parser } from "../parser/parser";
 import { Runtime } from "../runtime/runtime";
 import { Agent, InterpreterConfiguration, InterpreterOutput } from "./interpreter.types";
-import { AgentVariableValue, RuntimeAgent, RuntimeError, RuntimeOutput, RuntimeValue, ValueType } from "../runtime/runtime.types";
+import { RuntimeAgent, RuntimeError, RuntimeOutput, RuntimeValue, ValueType } from "../runtime/runtime.types";
 import { Environment } from "../runtime/environment";
 import { Error } from "../utils/error";
 

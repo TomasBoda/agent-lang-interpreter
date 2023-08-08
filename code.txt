@@ -13,9 +13,9 @@ agent person 10 {
 
 	const timespan = 14;
 	variable remaining: timespan = if infected then remaining - 1 else timespan;
-	const probability = 1;
+	const probability = 0.5;
 
-	variable infected: choice(true, false) = (infected and remaining > 0) or (count(closeInfected) > 0 and random(0, 1) <= 1);
+	variable infected: choice(true, false) = (infected and remaining > 0) or (count(closeInfected) != 0 and random(0, 1) <= 0.5);
 
 	dynamic alive = infected;
 }

@@ -1,4 +1,3 @@
-import { Position } from "../lexer/lexer.types";
 
 export enum NodeType {
     // Errors

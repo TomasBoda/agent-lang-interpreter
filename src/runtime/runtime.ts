@@ -1,6 +1,6 @@
 import { BinaryExpression, BooleanLiteral, CallExpression, ConditionalExpression, Identifier, LambdaExpression, LogicalExpression, NodeType, NumericLiteral, ObjectDeclaration, ParserValue, Program, VariableDeclaration, VariableType } from "../parser/parser.types";
 import { RuntimeValue, NumberValue, BooleanValue, FunctionValue, RuntimeError, VoidValue, FunctionCall, IdentifierValue, AgentsValue, AgentValue, LambdaValue, ValueType } from "./runtime.types";
-import { RuntimeAgent, AgentVariableIdentifier, AgentVariableValue, RuntimeOutput } from "./runtime.types";
+import { RuntimeAgent, RuntimeOutput } from "./runtime.types";
 import { Environment } from "./environment";
 import { createGlobalFunction, normalizeNumber } from "../utils/functions";
 import { Error } from "../utils/error";
@@ -218,13 +218,13 @@ export class Runtime {
             return rightHandSide as RuntimeError;
         }
 
-        const isValid = (expression.operator === "==" && ((leftHandSide.type === ValueType.Number && rightHandSide.type === ValueType.Number) || (leftHandSide.type === ValueType.Boolean && rightHandSide.type === ValueType.Boolean))) || (leftHandSide.type === ValueType.Number && rightHandSide.type === ValueType.Number);
+        const isValid = ((expression.operator === "==" || expression.operator === "!=") && ((leftHandSide.type === ValueType.Number && rightHandSide.type === ValueType.Number) || (leftHandSide.type === ValueType.Boolean && rightHandSide.type === ValueType.Boolean))) || (leftHandSide.type === ValueType.Number && rightHandSide.type === ValueType.Number);
 
         if (!isValid) {
             return Error.runtime("Binary expression requires numeric or boolean operands") as RuntimeError;
         }
     
-        if (expression.operator === "==" || expression.operator === ">" || expression.operator === ">=" || expression.operator === "<" || expression.operator === "<=") {
+        if (expression.operator === "==" || expression.operator === "!=" || expression.operator === ">" || expression.operator === ">=" || expression.operator === "<" || expression.operator === "<=") {
             return this.evaluateComparisonBinaryExpression(leftHandSide as NumberValue, rightHandSide as NumberValue, expression.operator);
         } else {
             return this.evaluateNumericBinaryExpression(leftHandSide as NumberValue, rightHandSide as NumberValue, expression.operator);
@@ -243,7 +243,9 @@ export class Runtime {
         } else if (operator === "<=") {
             result = leftHandSide.value <= rightHandSide.value;
         } else if (operator === "==") {
-            result = leftHandSide.value == rightHandSide.value;
+            result = leftHandSide.value === rightHandSide.value;
+        } else if (operator === "!=") {
+            result = leftHandSide.value !== rightHandSide.value;
         }
 
         return { type: ValueType.Boolean, value: result } as BooleanValue;

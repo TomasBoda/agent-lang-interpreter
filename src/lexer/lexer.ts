@@ -73,6 +73,16 @@ export class Lexer {
                 } else {
                     this.token(TokenType.BinaryOperator, { value: operator, position });
                 }
+            } else if (this.isNext("!")) {
+                const position = this.getNext().position;
+                let operator = this.next().value;
+
+                if (this.isNext("=")) {
+                    operator += this.next().value;
+                    this.token(TokenType.BinaryOperator, { value: operator, position });
+                } else {
+                    return Error.lexer("Token ! must follow =");
+                }
             } else if (this.isNext(",")) {
                 this.token(TokenType.Comma);
             } else if (this.isNext(".")) {

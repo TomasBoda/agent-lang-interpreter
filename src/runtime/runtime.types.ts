@@ -49,10 +49,6 @@ export interface FunctionValue extends RuntimeValue {
     call: FunctionCall;
 }
 
-export type AgentVariableIdentifier = string;
-export type AgentVariableValue = number | boolean | RuntimeAgent[];
-export type AgentVariables = Map<AgentVariableIdentifier, AgentVariableValue>;
-
 export interface RuntimeAgent {
     id: string;
     identifier: string;
