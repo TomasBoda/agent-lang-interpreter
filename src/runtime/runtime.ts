@@ -42,8 +42,7 @@ export class Runtime {
     private environment: Environment;
     private lambdaEnv: Environment;
 
-    private previousOutput: RuntimeOutput = { type: ValueType.Output, step: 0, agents: [] };
-    private currentOutput: RuntimeOutput = { type: ValueType.Output, step: 0, agents: [] };
+    private output: RuntimeOutput = { type: ValueType.Output, step: 0, agents: [] };
 
     constructor(program: Program, environment: Environment) {
         this.program = program;
@@ -57,10 +56,7 @@ export class Runtime {
     }
 
     public run(step: number): RuntimeValue {
-        this.previousOutput = this.deepCopyOutput(this.currentOutput);
-        this.currentOutput.step = step;
-        this.currentOutput.agents = [];
-
+        this.output.step = step;
         this.provideDataToStepFunction(step);
 
         return this.evaluateProgram(this.program);
@@ -78,7 +74,7 @@ export class Runtime {
 
             for (let id = 0; id < numberOfAgents; id++) {
                 const agentId = this.getAgentId(objectDeclaration.identifier, id);
-                this.provideDataToAgentsFunction(this.previousOutput.agents, agentId);
+                this.provideDataToAgentsFunction(this.output.agents, agentId);
 
                 const objectDeclarationResult = this.evaluateObjectDeclaration(objectDeclaration, agentId);
 
@@ -88,7 +84,7 @@ export class Runtime {
             }
         }
 
-        return this.currentOutput;
+        return this.output;
     }
 
     private evaluateObjectDeclaration(declaration: ObjectDeclaration, id: string): RuntimeValue {
@@ -98,7 +94,9 @@ export class Runtime {
         // declare agent identifier as global variable for later use in 'agents' method
         this.environment.declareVariable(identifier, { type: ValueType.Identifier, value: identifier } as IdentifierValue);
 
-        this.currentOutput.agents.push({ id, identifier, variables } as RuntimeAgent);
+        if (this.output.step === 0) {
+            this.output.agents.push({ id, identifier, variables } as RuntimeAgent);
+        }
 
         for (const statement of declaration.body) {
             if (statement.type !== NodeType.VariableDeclaration) {
@@ -118,7 +116,17 @@ export class Runtime {
                 continue;
             }
 
-            variables.set(variableIdentifier, variableValue);
+            if (this.output.step === 0) {
+                variables.set(variableIdentifier, variableValue);
+            } else {
+                const agent = this.output.agents.find((agent: RuntimeAgent) => agent.id === id);
+
+                if (!agent) {
+                    return Error.runtime(`Agent with id '${id}' not found while updating its variable`) as RuntimeError;
+                }
+
+                agent.variables.set(variableIdentifier, variableValue);
+            }
         }
 
         return { type: ValueType.Void } as VoidValue;
@@ -127,25 +135,25 @@ export class Runtime {
     private evaluateVariableDeclaration(declaration: VariableDeclaration, id: string): RuntimeValue {
         switch (declaration.variableType) {
             case VariableType.Variable: {
-                if (declaration.default && this.currentOutput.step === 0) {
+                if (declaration.default && this.output.step === 0) {
                     return this.evaluateRuntimeValue(declaration.default, id);
                 }
 
                 return this.evaluateRuntimeValue(declaration.value, id);
             }
             case VariableType.Dynamic: {
-                if (this.currentOutput.step === 0) {
+                if (this.output.step === 0) {
                     return { type: ValueType.Void } as VoidValue;
                 }
 
                 return this.evaluateRuntimeValue(declaration.value, id);
             }
             case VariableType.Const: {
-                if (this.currentOutput.step === 0) {
+                if (this.output.step === 0) {
                     return this.evaluateRuntimeValue(declaration.value, id);
                 }
 
-                const agent = this.getAgent(id, this.previousOutput);
+                const agent = this.getAgent(id, this.output);
 
                 if (!agent) {
                     return Error.runtime("Agent with the provided id not found");
@@ -209,8 +217,7 @@ export class Runtime {
             return variableLookup as RuntimeError;
         }
 
-        const output = this.currentOutput.step === 0 ? this.currentOutput : this.previousOutput;
-        const agent = this.getAgent(id, output);
+        const agent = this.getAgent(id, this.output);
 
         if (!agent) {
             return Error.runtime(`Agent with id '${id}' not found`) as RuntimeError;
@@ -444,20 +451,6 @@ export class Runtime {
 
     private customModulo(a: number, b: number): number {
         return ((a % b) + b) % b;
-    }
-
-    private deepCopyOutput(output: RuntimeOutput): RuntimeOutput {
-        const newOutput: RuntimeOutput = { type: ValueType.Output, step: output.step, agents: [] };
-
-        for (const agent of output.agents) {
-            newOutput.agents.push({
-                id: agent.id,
-                identifier: agent.identifier,
-                variables: new Map(agent.variables)
-            } as RuntimeAgent);
-        }
-
-        return newOutput;
     }
 
     private getAgent(id: string, output: RuntimeOutput): RuntimeAgent | undefined {

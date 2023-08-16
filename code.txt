@@ -1,6 +1,27 @@
-
 agent person 3 {
+        const speed = 3;
+        variable angle: random(0, 2 * pi()) = angle + choice(-0.1, 0.1);
 
-    const age = random(10, 50);
-    dynamic youngest = max(agents(person) => p => p.age).age;
+        dynamic shouldStay = prob(0.5);
+
+        dynamic xNew = (x + speed * cos(angle)) % 400;
+        dynamic yNew = (y + speed * sin(angle)) % 400;
+
+        variable x: random(50, 350) = if shouldStay then x else xNew;
+        variable y: random(50, 350) = if shouldStay then y else yNew;
+    
+        const distance = 20;
+    
+        variable people: empty() = agents(person);
+        dynamic closePeople = filter(people => p => sqrt((p.x - x) * (p.x - x) + (p.y - y) * (p.y - y)) <= distance);
+        dynamic closeInfected = filter(closePeople => c => c.infected == true);
+    
+        const timespan = 200;
+        variable remaining: timespan = if infected then remaining - 1 else timespan;
+
+        dynamic shouldInfect = prob(0.4);
+    
+        variable infected: prob(0.5) = (infected and remaining > 0) or (count(closeInfected) > 0 and shouldInfect);
+    
+        dynamic alive = infected;
 }
