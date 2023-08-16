@@ -115,17 +115,8 @@ export class Lexer {
                 // identifiers
                 } else if (this.isAlpha()) {
                     let identifier: string = "";
-                    let foundDot: boolean = false;
 
-                    while (this.hasNext() && (this.isAlpha() || this.isNext("."))) {
-                        if (this.isNext(".")) {
-                            if (foundDot) {
-                                return Error.lexer("Member expressions cannot contain more than one dot");
-                            }
-
-                            foundDot = true;
-                        }
-
+                    while (this.hasNext() && this.isAlpha()) {
                         identifier += this.next().value;
                     }
 

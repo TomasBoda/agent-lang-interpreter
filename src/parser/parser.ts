@@ -1,11 +1,29 @@
-import { exit } from "process";
-import { Token, TokenType } from "../lexer/lexer.types";
-import { BinaryExpression, BooleanLiteral, CallExpression, ConditionalExpression, Identifier, LambdaExpression, LogicalExpression, NodeType, NumericLiteral, ObjectDeclaration, ParserError, ParserValue, Program, Statement, VariableDeclaration, VariableType } from "./parser.types";
-import { Error } from "../utils/error";
+import {exit} from "process";
+import {Token, TokenType} from "../lexer/lexer.types";
+import {
+    BinaryExpression,
+    BooleanLiteral,
+    CallExpression,
+    ConditionalExpression,
+    Identifier,
+    LambdaExpression,
+    LogicalExpression,
+    MemberExpression,
+    NodeType,
+    NumericLiteral,
+    ObjectDeclaration,
+    ParserError,
+    ParserValue,
+    Program,
+    Statement,
+    VariableDeclaration,
+    VariableType
+} from "./parser.types";
+import {Error} from "../utils/error";
 
 export class Parser {
 
-    private tokens: Token[];
+    private readonly tokens: Token[];
 
     constructor(tokens: Token[]) {
         this.tokens = tokens;
@@ -318,7 +336,7 @@ export class Parser {
     }
 
     private parseMultiplicativeExpression(): ParserValue {
-        let left = this.parseCallExpression();
+        let left = this.parseMemberExpression();
 
         if (this.isError(left)) {
             return left as ParserError;
@@ -326,7 +344,7 @@ export class Parser {
 
         while (this.at().value === "*" || this.at().value === "/" || this.at().value === "%") {
             const operator = this.next().value;
-            const right = this.parseCallExpression();
+            const right = this.parseMemberExpression();
 
             if (this.isError(right)) {
                 return right as ParserError;
@@ -341,6 +359,24 @@ export class Parser {
         }
 
         return left;
+    }
+
+    private parseMemberExpression(): ParserValue {
+        const caller = this.parseCallExpression();
+
+        if (this.at().type === TokenType.Dot) {
+            this.next();
+
+            const value = this.parseCallExpression();
+
+            return {
+                type: NodeType.MemberExpression,
+                caller,
+                value
+            } as MemberExpression;
+        }
+
+        return caller;
     }
 
     private parseCallExpression(): ParserValue {
@@ -480,8 +516,7 @@ export class Parser {
     }
 
     private next(): Token {
-        const previous: Token = this.tokens.shift() as Token;
-        return previous;
+        return this.tokens.shift() as Token;
     }
 
     private getNext(): Token {

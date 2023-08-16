@@ -1,5 +1,23 @@
 import { RuntimeError, RuntimeValue, ValueType } from "./runtime.types";
-import { ABS, CEIL, CHOICE, COS, COUNT, EMPTY, FILTER, FLOOR, PI, PROB, RANDOM, ROUND, SIN, SQRT, TAN, createGlobalFunction } from "../utils/functions";
+import {
+    ABS,
+    CEIL,
+    CHOICE,
+    COS,
+    COUNT,
+    EMPTY,
+    FILTER,
+    FLOOR,
+    PI,
+    PROB,
+    RANDOM,
+    ROUND,
+    SIN,
+    SQRT,
+    TAN,
+    createGlobalFunction,
+    MIN, MAX
+} from "../utils/functions";
 import { Error } from "../utils/error";
 
 export class Environment {
@@ -31,6 +49,8 @@ export class Environment {
         environment.declareVariable("count", createGlobalFunction(COUNT));
         environment.declareVariable("filter", createGlobalFunction(FILTER));
         environment.declareVariable("empty", createGlobalFunction(EMPTY));
+        environment.declareVariable("min", createGlobalFunction(MIN));
+        environment.declareVariable("max", createGlobalFunction(MAX));
 
         return environment;
     }

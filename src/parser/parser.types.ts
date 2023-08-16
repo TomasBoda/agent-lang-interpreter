@@ -15,6 +15,7 @@ export enum NodeType {
     ConditionalExpression = "ConditionalExpression",
     CallExpression = "CallExpression",
     LambdaExpression = "LambdaExpression",
+    MemberExpression = "MemberExpression",
 }
 
 export enum VariableType {
@@ -53,7 +54,7 @@ export interface ObjectDeclaration extends Statement {
     type: NodeType.ObjectDeclaration;
     identifier: string;
     count: number;
-    body: VariableDeclaration[];
+    body: Expression[];
 }
 
 export interface BinaryExpression extends Expression {
@@ -87,6 +88,12 @@ export interface LambdaExpression extends Expression {
     type: NodeType.LambdaExpression;
     base: Expression;
     param: string;
+    value: Expression;
+}
+
+export interface MemberExpression extends Expression {
+    type: NodeType.MemberExpression;
+    caller: Expression;
     value: Expression;
 }
 

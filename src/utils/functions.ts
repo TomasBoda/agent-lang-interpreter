@@ -1,5 +1,17 @@
-import { AgentsValue, BooleanValue, FunctionCall, FunctionValue, LambdaValue, NumberValue, RuntimeAgent, RuntimeError, RuntimeValue, ValueType } from "../runtime/runtime.types";
-import { Error } from "./error";
+import {
+    AgentsValue,
+    AgentValue,
+    BooleanValue,
+    FunctionCall,
+    FunctionValue,
+    LambdaValue,
+    NumberValue,
+    RuntimeAgent,
+    RuntimeError,
+    RuntimeValue,
+    ValueType
+} from "../runtime/runtime.types";
+import {Error} from "./error";
 
 export function createGlobalFunction(call: FunctionCall): FunctionValue {
     return { type: ValueType.Function, call } as FunctionValue;
@@ -68,6 +80,80 @@ export function EMPTY(args: RuntimeValue[]): RuntimeValue {
     }
 
     return { type: ValueType.Agents, value: [] } as AgentsValue;
+}
+
+export function MIN(args: RuntimeValue[]): RuntimeValue {
+    if (args.length !== 1) {
+        return Error.runtime(`Function 'min' expected 1 argument, ${args.length} provided`) as RuntimeError;
+    }
+
+    if (args[0].type !== ValueType.Lambda) {
+        return Error.runtime(`Function 'min' expected arguments of type 'lambda', ${args[0].type} provided`) as RuntimeError;
+    }
+
+    const lambda: LambdaValue = args[0] as LambdaValue;
+
+    if (lambda.agents.length !== lambda.results.length) {
+        return Error.runtime(`Number of agents does not equal the number of results in 'min' function.`) as RuntimeError;
+    }
+
+    for (let i = 0; i < lambda.results.length; i++) {
+        const result: RuntimeValue = lambda.results[i];
+
+        if (result.type !== ValueType.Number) {
+            return Error.runtime(`Function 'min' requires a lambda expression that returns numeric values`);
+        }
+    }
+
+    const results = lambda.results.map((result: RuntimeValue) => (result as NumberValue).value);
+    const minValue = Math.min(...results);
+
+    for (let i = 0; i < results.length; i++) {
+        if (results[i] === minValue) {
+            const agent: RuntimeAgent = lambda.agents[i];
+
+            return { type: ValueType.Agent, value: agent } as AgentValue;
+        }
+    }
+
+    return { type: ValueType.Agent, value: {} } as AgentValue;
+}
+
+export function MAX(args: RuntimeValue[]): RuntimeValue {
+    if (args.length !== 1) {
+        return Error.runtime(`Function 'max' expected 1 argument, ${args.length} provided`) as RuntimeError;
+    }
+
+    if (args[0].type !== ValueType.Lambda) {
+        return Error.runtime(`Function 'max' expected arguments of type 'lambda', ${args[0].type} provided`) as RuntimeError;
+    }
+
+    const lambda: LambdaValue = args[0] as LambdaValue;
+
+    if (lambda.agents.length !== lambda.results.length) {
+        return Error.runtime(`Number of agents does not equal the number of results in 'max' function.`) as RuntimeError;
+    }
+
+    for (let i = 0; i < lambda.results.length; i++) {
+        const result: RuntimeValue = lambda.results[i];
+
+        if (result.type !== ValueType.Number) {
+            return Error.runtime(`Function 'max' requires a lambda expression that returns numeric values`);
+        }
+    }
+
+    const results = lambda.results.map((result: RuntimeValue) => (result as NumberValue).value);
+    const maxValue = Math.max(...results);
+
+    for (let i = 0; i < results.length; i++) {
+        if (results[i] === maxValue) {
+            const agent: RuntimeAgent = lambda.agents[i];
+
+            return { type: ValueType.Agent, value: agent } as AgentValue;
+        }
+    }
+
+    return { type: ValueType.Agent, value: {} } as AgentValue;
 }
 
 export function FILTER(args: RuntimeValue[]): RuntimeValue {
