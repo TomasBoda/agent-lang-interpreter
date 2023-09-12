@@ -4,11 +4,11 @@ agent person 3 {
 
         dynamic shouldStay = prob(0.5);
 
-        dynamic xNew = (x + speed * cos(angle)) % 400;
-        dynamic yNew = (y + speed * sin(angle)) % 400;
+        dynamic xNew = (x + speed * cos(angle)) % width();
+        dynamic yNew = (y + speed * sin(angle)) % height();
 
-        variable x: random(50, 350) = if shouldStay then x else xNew;
-        variable y: random(50, 350) = if shouldStay then y else yNew;
+        variable x: random(50, width() - 50) = if shouldStay then x else xNew;
+        variable y: random(50, height() - 50) = if shouldStay then y else yNew;
     
         const distance = 20;
     

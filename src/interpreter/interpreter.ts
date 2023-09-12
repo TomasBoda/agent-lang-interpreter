@@ -5,9 +5,17 @@ import { NodeType, ParserError, ParserValue, Program } from "../parser/parser.ty
 import { Parser } from "../parser/parser";
 import { Runtime } from "../runtime/runtime";
 import { Agent, InterpreterConfiguration, InterpreterOutput } from "./interpreter.types";
-import { RuntimeAgent, RuntimeError, RuntimeOutput, RuntimeValue, ValueType } from "../runtime/runtime.types";
+import {
+    FunctionCall, NumberValue,
+    RuntimeAgent,
+    RuntimeError,
+    RuntimeOutput,
+    RuntimeValue,
+    ValueType
+} from "../runtime/runtime.types";
 import { Environment } from "../runtime/environment";
 import { Error } from "../utils/error";
+import {createGlobalFunction} from "../utils/functions";
 
 export class Interpreter {
 
@@ -27,6 +35,9 @@ export class Interpreter {
         if (program.type === NodeType.Error) {
             return of(Error.interpreter((program as ParserError).message));
         }
+
+        this.environment.declareVariable("width", createGlobalFunction(this.createWidthFunction(config.width)));
+        this.environment.declareVariable("height", createGlobalFunction(this.createHeightFunction(config.height)));
 
         const runtime: Runtime = new Runtime(program as Program, this.environment);
 
@@ -59,5 +70,29 @@ export class Interpreter {
                 agents: output.agents.map((agent: RuntimeAgent) => this.mapRuntimeAgent(agent))
             }
         } as InterpreterOutput;
+    }
+
+    private createWidthFunction(width: number): FunctionCall {
+        function widthFunction(args: RuntimeValue[]): RuntimeValue {
+            if (args.length !== 0) {
+                return { type: ValueType.Error, message: `Function 'width' requires 0 arguments, ${args.length} provided`} as RuntimeError;
+            }
+
+            return { type: ValueType.Number, value: width } as NumberValue;
+        }
+
+        return widthFunction;
+    }
+
+    private createHeightFunction(height: number): FunctionCall {
+        function heightFunction(args: RuntimeValue[]): RuntimeValue {
+            if (args.length !== 0) {
+                return { type: ValueType.Error, message: `Function 'height' requires 0 arguments, ${args.length} provided`} as RuntimeError;
+            }
+
+            return { type: ValueType.Number, value: height } as NumberValue;
+        }
+
+        return heightFunction;
     }
 }
