@@ -475,7 +475,7 @@ export class Parser {
             case TokenType.BinaryOperator:
                 if (token.value === "-") {
                     if (this.getNext().type !== TokenType.Number) {
-                        return Error.parser("Negative signmust preceed a number");
+                        return Error.parser("Negative sign must be preceded by a number");
                     }
 
                     return {
@@ -487,7 +487,7 @@ export class Parser {
             case TokenType.Boolean:
                 return {
                     type: NodeType.BooleanLiteral,
-                    value: this.next().value === "true" ? true : false
+                    value: this.next().value === "true"
                 } as BooleanLiteral;
 
             case TokenType.OpenParen:
