@@ -5,7 +5,7 @@
 ![Contributors Badge](https://img.shields.io/badge/contributors-1-green?style=flat)
 ![License Badge](https://img.shields.io/badge/license-MIT-red?style=flat)
 
-# About
+## About
 Interpreter for the AgentLang programming language written in TypeScript.
 
 ## Contributing
