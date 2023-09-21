@@ -1,5 +1,5 @@
-<img src="./agent-lang-interpreter-logo-black.png#gh-light-mode-only" width="420">
-<img src="./agent-lang-interpreter-logo-white.png#gh-dark-mode-only" width="420">
+<img src="./agent-lang-interpreter-logo-black.png#gh-light-mode-only" width="400">
+<img src="./agent-lang-interpreter-logo-white.png#gh-dark-mode-only" width="400">
 
 ![Version Badge](https://img.shields.io/badge/version-1.0.0-blue?style=flat)
 ![Contributors Badge](https://img.shields.io/badge/contributors-1-green?style=flat)
