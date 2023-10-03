@@ -1,1 +1,34 @@
-{"type":"Program","body":[{"type":"ObjectDeclaration","identifier":"person","count":3,"body":[{"type":"VariableDeclaration","variableType":"Const","identifier":"age","value":{"type":"CallExpression","caller":{"type":"Identifier","identifier":"random"},"args":[{"type":"NumericLiteral","value":10},{"type":"NumericLiteral","value":50}]}},{"type":"VariableDeclaration","variableType":"Dynamic","identifier":"youngest","value":{"type":"MemberExpression","caller":{"type":"CallExpression","caller":{"type":"Identifier","identifier":"max"},"args":[{"type":"LambdaExpression","base":{"type":"CallExpression","caller":{"type":"Identifier","identifier":"agents"},"args":[{"type":"Identifier","identifier":"person"}]},"param":"p","value":{"type":"MemberExpression","caller":{"type":"Identifier","identifier":"p"},"value":{"type":"Identifier","identifier":"age"}}}]},"value":{"type":"Identifier","identifier":"age"}}}]}]}
+{
+    "type": "Program",
+    "body": [
+        {
+            "type": "ObjectDeclaration",
+            "identifier": "person",
+            "count": 10,
+            "body": [
+                {
+                    "type": "VariableDeclaration",
+                    "variableType": "Const",
+                    "identifier": "age",
+                    "value": {
+                        "type": "NumericLiteral",
+                        "value": 10
+                    }
+                },
+                {
+                    "type": "VariableDeclaration",
+                    "variableType": "Dynamic",
+                    "identifier": "hello",
+                    "value": {
+                        "type": "UnaryExpression",
+                        "operator": "-",
+                        "value": {
+                            "type": "NumericLiteral",
+                            "value": 20
+                        }
+                    }
+                }
+            ]
+        }
+    ]
+}
