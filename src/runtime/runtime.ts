@@ -12,6 +12,7 @@ import {
     ObjectDeclaration,
     ParserValue,
     Program,
+    UnaryExpression,
     VariableDeclaration,
     VariableType
 } from "../parser/parser.types";
@@ -183,6 +184,8 @@ export class Runtime {
                 return this.evaluateIdentifier(node as Identifier, id);
             case NodeType.BinaryExpression:
                 return this.evaluateBinaryExpression(node as BinaryExpression, id);
+            case NodeType.UnaryExpression:
+                return this.evaluateUnaryExpression(node as UnaryExpression, id);
             case NodeType.LogicalExpression:
                 return this.evaluateLogicalExpression(node as LogicalExpression, id);
             case NodeType.ConditionalExpression:
@@ -260,6 +263,21 @@ export class Runtime {
         } else {
             return this.evaluateNumericBinaryExpression(leftHandSide as NumberValue, rightHandSide as NumberValue, expression.operator);
         }
+    }
+
+    private evaluateUnaryExpression(expression: UnaryExpression, id: string): RuntimeValue {
+        const operator = expression.operator;
+        const value = this.evaluateRuntimeValue(expression.value, id);
+
+        if (value.type !== ValueType.Number) {
+            return Error.runtime("Unary expression requires numeric value as operand");
+        }
+
+        if (operator === "-") {
+            return { type: ValueType.Number, value: -(value as NumberValue).value } as NumberValue;
+        }
+
+        return { type: ValueType.Number, value: (value as NumberValue).value } as NumberValue;
     }
 
     private evaluateComparisonBinaryExpression(leftHandSide: NumberValue, rightHandSide: NumberValue, operator: string): RuntimeValue {

@@ -1,4 +1,5 @@
+
 agent person 1 {
-        const speed = 1;
-        dynamic hello = -speed;
+        const age = 10;
+        dynamic hello = -age;
 }

@@ -16,6 +16,7 @@ import {
     ParserValue,
     Program,
     Statement,
+    UnaryExpression,
     VariableDeclaration,
     VariableType
 } from "./parser.types";
@@ -473,16 +474,21 @@ export class Parser {
             
             // parse negative numbers
             case TokenType.BinaryOperator:
-                if (token.value === "-") {
-                    if (this.getNext().type !== TokenType.Number) {
-                        return Error.parser("Negative sign must be preceded by a number");
-                    }
-
-                    return {
-                        type: NodeType.NumericLiteral,
-                        value: parseFloat(this.next().value + this.next().value)
-                    } as NumericLiteral
+                if (token.value !== "+" && token.value !== "-") {
+                    return Error.parser("Unary expression requires operator + or -.");
                 }
+
+                if (this.getNext().type !== TokenType.Number && this.getNext().type !== TokenType.Identifier) {
+                    return Error.parser("Unary expression requires value of type number or identifier");
+                }
+
+                this.next();
+
+                return {
+                    type: NodeType.UnaryExpression,
+                    operator: token.value,
+                    value: this.parsePrimaryExpression(),
+                } as UnaryExpression;
 
             case TokenType.Boolean:
                 return {
