@@ -496,11 +496,11 @@ export class Runtime {
     private createAgentsFunction(agents: RuntimeAgent[], id: string): FunctionCall {
         function agentsFunction(args: RuntimeValue[]): RuntimeValue {
             if (args.length !== 1) {
-                return { type: ValueType.Error, message: `Function 'agents' requires 1 argument, ${args.length} provided` } as RuntimeError;
+                return Error.runtime(`Function 'agents' requires 1 argument, ${args.length} provided`);
             }
 
             if (args[0].type !== ValueType.Identifier) {
-                return { type: ValueType.Error, message: "Function 'agents' requires an identifier arguments" } as RuntimeError;
+                return Error.runtime("Function 'agents' requires an identifier arguments" );
             }
 
             const identifier = (args[0] as IdentifierValue).value;
@@ -517,7 +517,7 @@ export class Runtime {
     private createStepFunction(step: number): FunctionCall {
         function stepFunction(args: RuntimeValue[]): RuntimeValue {
             if (args.length !== 0) {
-                return { type: ValueType.Error, message: `Function 'step' requires 0 arguments, ${args.length} provided`} as RuntimeError;
+                return Error.runtime(`Function 'step' requires 0 arguments, ${args.length} provided`);
             }
         
             return { type: ValueType.Number, value: step } as NumberValue;

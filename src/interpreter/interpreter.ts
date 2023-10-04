@@ -75,7 +75,7 @@ export class Interpreter {
     private createWidthFunction(width: number): FunctionCall {
         function widthFunction(args: RuntimeValue[]): RuntimeValue {
             if (args.length !== 0) {
-                return { type: ValueType.Error, message: `Function 'width' requires 0 arguments, ${args.length} provided`} as RuntimeError;
+                return Error.runtime(`Function 'width' requires 0 arguments, ${args.length} provided`);
             }
 
             return { type: ValueType.Number, value: width } as NumberValue;
@@ -87,7 +87,7 @@ export class Interpreter {
     private createHeightFunction(height: number): FunctionCall {
         function heightFunction(args: RuntimeValue[]): RuntimeValue {
             if (args.length !== 0) {
-                return { type: ValueType.Error, message: `Function 'height' requires 0 arguments, ${args.length} provided`} as RuntimeError;
+                return Error.runtime(`Function 'height' requires 0 arguments, ${args.length} provided`);
             }
 
             return { type: ValueType.Number, value: height } as NumberValue;
