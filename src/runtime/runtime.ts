@@ -269,12 +269,20 @@ export class Runtime {
         const operator = expression.operator;
         const value = this.evaluateRuntimeValue(expression.value, id);
 
-        if (value.type !== ValueType.Number) {
-            return Error.runtime("Unary expression requires numeric value as operand");
+        if (operator === "-") {
+            if (value.type !== ValueType.Number) {
+                return Error.runtime("Unary expression requires numeric value as operand");
+            }
+
+            return { type: ValueType.Number, value: -(value as NumberValue).value } as NumberValue;
         }
 
-        if (operator === "-") {
-            return { type: ValueType.Number, value: -(value as NumberValue).value } as NumberValue;
+        if (operator === "!") {
+            if (value.type !== ValueType.Boolean) {
+                return Error.runtime("Unary expression requires boolean value as operand");
+            }
+
+            return { type: ValueType.Boolean, value: !(value as BooleanValue).value } as BooleanValue;
         }
 
         return { type: ValueType.Number, value: (value as NumberValue).value } as NumberValue;

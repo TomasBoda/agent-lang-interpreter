@@ -4,22 +4,21 @@ import { Position } from "../symbolizer/symbolizer.types";
 export enum TokenType {
     Agent = "Agent",
 
-    Variable = "Variable",
-    Const = "Const",
-    Dynamic = "Dynamic",
+    VariableType = "VariableType",
 
     If = "If",
     Then = "Then",
     Else = "Else",
-    And = "And",
-    Or = "Or",
 
     Identifier = "Identifier",
     Number = "Number",
     Boolean = "Boolean",
 
-    Equals = "Equals",
     BinaryOperator = "BinaryOperator",
+    UnaryOperator = "UnaryOperator",
+    RelationalOperator = "RelationalOperator",
+    AssignmentOperator = "AssignmentOperator",
+
     LambdaArrow = "LambdaArrow",
 
     OpenParen = "OpenParen",

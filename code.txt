@@ -2,4 +2,7 @@
 agent person 1 {
         const age = 10;
         dynamic hello = -age;
+        variable y: random(1, 10) = y + choice(-1, 1);
+        const b = true;
+        dynamic c = !b;
 }

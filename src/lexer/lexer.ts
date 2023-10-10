@@ -1,23 +1,7 @@
 import { LexerOutput, Token, TokenType } from "./lexer.types";
 import { Symbol, Position } from "../symbolizer/symbolizer.types";
 import { Error } from "../utils/error";
-
-export const ReservedKeywords: Record<string, TokenType> = {
-    "agent": TokenType.Agent,
-
-    "variable": TokenType.Variable,
-    "const": TokenType.Const,
-    "dynamic": TokenType.Dynamic,
-    
-    "if": TokenType.If,
-    "then": TokenType.Then,
-    "else": TokenType.Else,
-    "and": TokenType.And,
-    "or": TokenType.Or,
-
-    "true": TokenType.Boolean,
-    "false": TokenType.Boolean,
-}
+import { ReservedKeywords } from "./lexer.keywords";
 
 export class Lexer {
 
@@ -29,98 +13,123 @@ export class Lexer {
     }
 
     public tokenize(): LexerOutput {
-        this.tokens = [];
+        this.clearTokens();
 
         while (this.hasNext()) {
-            if (this.isNext("(")) {
-                this.token(TokenType.OpenParen);
-            } else if (this.isNext(")")) {
-                this.token(TokenType.CloseParen);
-            } else if (this.isNext("{")) {
-                this.token(TokenType.OpenBrace);
-            } else if (this.isNext("}")) {
-                this.token(TokenType.CloseBrace);
-            } else if (this.isNext("+")) {
-                this.token(TokenType.BinaryOperator);
-            } else if (this.isNext("-")) {
-                this.token(TokenType.BinaryOperator);
-            } else if (this.isNext("*")) {
-                this.token(TokenType.BinaryOperator);
-            } else if (this.isNext("/")) {
-                this.token(TokenType.BinaryOperator);
-            } else if (this.isNext("%")) {
-                this.token(TokenType.BinaryOperator);
-            } else if (this.isNext(">") || this.isNext("<") || this.isNext("=")) {
-                const position = this.getNext().position;
-                let operator = this.next().value;
-
-                if (this.getNext().value === ">") {
-                    operator += this.next().value;
-                    this.token(TokenType.LambdaArrow, { value: operator, position });
-                    continue;
+            switch (this.getNext().value) {
+                case "(":
+                    this.token(TokenType.OpenParen);
+                    break;
+                case ")":
+                    this.token(TokenType.CloseParen);
+                    break;
+                case "{":
+                    this.token(TokenType.OpenBrace);
+                    break;
+                case "}":
+                    this.token(TokenType.CloseBrace);
+                    break;
+                case "+":
+                case "-":
+                case "*":
+                case "/":
+                case "%":
+                    this.token(TokenType.BinaryOperator);
+                    break;
+                case "<": {
+                    const operator = this.next();
+                    if (this.isNext("=")) operator.value += this.next().value;
+                    this.token(TokenType.RelationalOperator, operator);
+                    break;
                 }
-
-                if (this.getNext().value === "=") {
-                    operator += this.next().value;
+                case ">": {
+                    const operator = this.next();
+                    if (this.isNext("=")) operator.value += this.next().value;
+                    this.token(TokenType.RelationalOperator, operator);
+                    break;
                 }
+                case "=": {
+                    const operator = this.next();
+    
+                    if (this.isNext(">")) {
+                        operator.value += this.next().value;
+                        this.token(TokenType.LambdaArrow, operator);
+                        break;
+                    }
+    
+                    if (this.isNext("=")) {
+                        operator.value += this.next().value;
+                        this.token(TokenType.RelationalOperator, operator);
+                        break;
+                    }
 
-                if (operator === "=") {
-                    this.token(TokenType.Equals, { value: operator, position });
-                } else {
-                    this.token(TokenType.BinaryOperator, { value: operator, position });
+                    this.token(TokenType.AssignmentOperator, operator);
+                    break;
                 }
-            } else if (this.isNext("!")) {
-                const position = this.getNext().position;
-                let operator = this.next().value;
+                case "!": {
+                    const operator = this.next();
 
-                if (this.isNext("=")) {
-                    operator += this.next().value;
-                    this.token(TokenType.BinaryOperator, { value: operator, position });
-                } else {
-                    return Error.lexer("Token ! must follow =");
+                    if (this.isNext("=")) {
+                        operator.value += this.next().value;
+                        this.token(TokenType.RelationalOperator, operator);
+                        break;
+                    }
+                    
+                    this.token(TokenType.UnaryOperator, operator);
+                    break;
                 }
-            } else if (this.isNext(",")) {
-                this.token(TokenType.Comma);
-            } else if (this.isNext(".")) {
-                this.token(TokenType.Dot);
-            } else if (this.isNext(":")) {
-                this.token(TokenType.Colon);
-            } else if (this.isNext(";")) {
-                this.token(TokenType.Semicolon);
-            } else {
-                const position: Position = this.getNext().position;
-
-                // decimal numbers
-                if (this.isNumber()) {
-                    let number: string = "";
-                    let foundDecimalPoint: boolean = false;
-
-                    while (this.hasNext() && (this.isNumber() || this.isNext("."))) {
-                        if (this.isNext(".")) {
-                            if (foundDecimalPoint) {
-                                return Error.lexer("Number cannot contain more than one decimal point");
+                case ".":
+                    this.token(TokenType.Dot);
+                    break;
+                case ",":
+                    this.token(TokenType.Comma);
+                    break;
+                case ":":
+                    this.token(TokenType.Colon);
+                    break;
+                case ";":
+                    this.token(TokenType.Semicolon);
+                    break;
+                default: {
+                    const { position } = this.getNext();
+    
+                    if (this.isNumber()) {
+                        let number = "";
+                        let foundDecimalPoint = false;
+    
+                        while (this.hasNext() && (this.isNumber() || this.isNext("."))) {
+                            if (this.isNext(".")) {
+                                if (foundDecimalPoint) {
+                                    return Error.lexer("Number cannot contain more than one decimal point", position);
+                                }
+    
+                                foundDecimalPoint = true;
                             }
-
-                            foundDecimalPoint = true;
+    
+                            number += this.next().value;
                         }
-
-                        number += this.next().value;
+    
+                        this.token(TokenType.Number, { value: number, position });
+                        break;
                     }
-
-                    this.token(TokenType.Number, { value: number, position });
-                // identifiers
-                } else if (this.isAlpha()) {
-                    let identifier: string = "";
-
-                    while (this.hasNext() && this.isAlpha()) {
-                        identifier += this.next().value;
+    
+                    if (this.isAlpha()) {
+                        let identifier = "";
+    
+                        while (this.hasNext() && this.isAlpha()) {
+                            identifier += this.next().value;
+                        }
+    
+                        this.token(this.getIdentifierTokenType(identifier), { value: identifier, position });
+                        break;
                     }
-
-                    this.token(this.getIdentifierTokenType(identifier), { value: identifier, position });
-                } else if (this.isSkippable()) {
-                    this.next();
-                } else {
-                    return Error.lexer("Unrecognized character found in source: " + this.getNext().value);
+    
+                    if (this.isSkippable()) {
+                        this.next();
+                        break;
+                    }
+    
+                    return Error.lexer("Unrecognized character found in source: " + this.getNext().value, this.getNext().position);
                 }
             }
         }
@@ -133,11 +142,6 @@ export class Lexer {
         } as LexerOutput;
     }
 
-    private getIdentifierTokenType(identifier: string): TokenType {
-        const keyword = ReservedKeywords[identifier];
-        return keyword ? keyword : TokenType.Identifier;
-    }
-
     private hasNext(): boolean {
         return this.symbols.length > 0;
     }
@@ -146,8 +150,8 @@ export class Lexer {
         return this.symbols[0];
     }
 
-    private isNext(symbol: string): boolean {
-        return symbol === this.getNext().value;
+    private isNext(character: string): boolean {
+        return character === this.getNext().value;
     }
 
     private next(): Symbol {
@@ -156,10 +160,6 @@ export class Lexer {
 
     private token(type: TokenType, symbol = this.next()): void {
         this.tokens.push({ type, value: symbol.value, position: symbol.position });
-    }
-
-    private symbol(value: string, line: number, character: number): void {
-        this.symbols.push({ value, position: { line, character } });
     }
 
     private generateEOFToken(): void {
@@ -174,6 +174,11 @@ export class Lexer {
         this.token(TokenType.EOF, { value: "EOF", position: eofPosition });
     }
 
+    private getIdentifierTokenType(identifier: string): TokenType {
+        const keyword = ReservedKeywords[identifier];
+        return keyword ? keyword : TokenType.Identifier;
+    }
+
     private isAlpha(): boolean {
         return this.getNext().value.toUpperCase() != this.getNext().value.toLowerCase();
     }
@@ -186,5 +191,9 @@ export class Lexer {
 
     private isSkippable(): boolean {
         return this.getNext().value === " " || this.getNext().value === "\n" || this.getNext().value === "\t";
+    }
+
+    private clearTokens(): void {
+        this.tokens = [];
     }
 }
