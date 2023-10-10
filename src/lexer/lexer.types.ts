@@ -1,4 +1,5 @@
 import { ExitStatus } from "../interpreter/interpreter.types";
+import { Position } from "../symbolizer/symbolizer.types";
 
 export enum TokenType {
     Agent = "Agent",
@@ -37,16 +38,6 @@ export enum TokenType {
 export interface Token {
     value: string;
     type: TokenType;
-    position: Position;
-}
-
-export interface Position {
-    line: number;
-    character: number;
-}
-
-export interface Symbol {
-    value: string;
     position: Position;
 }
 

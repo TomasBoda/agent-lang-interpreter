@@ -1,4 +1,5 @@
-import { LexerOutput, Position, Symbol, Token, TokenType } from "./lexer.types";
+import { LexerOutput, Token, TokenType } from "./lexer.types";
+import { Symbol, Position } from "../symbolizer/symbolizer.types";
 import { Error } from "../utils/error";
 
 export const ReservedKeywords: Record<string, TokenType> = {
@@ -20,20 +21,15 @@ export const ReservedKeywords: Record<string, TokenType> = {
 
 export class Lexer {
 
-    private sourceCode: string;
-
-    private symbols: Symbol[] = [];
+    private symbols: Symbol[];
     private tokens: Token[] = [];
 
-    constructor(sourceCode: string) {
-        this.sourceCode = sourceCode;
+    constructor(symbols: Symbol[]) {
+        this.symbols = symbols;
     }
 
     public tokenize(): LexerOutput {
-        this.symbols = [];
         this.tokens = [];
-
-        this.generateSourceCodeSymbols();
 
         while (this.hasNext()) {
             if (this.isNext("(")) {
@@ -135,22 +131,6 @@ export class Lexer {
             status: { code: 0 },
             tokens: this.tokens
         } as LexerOutput;
-    }
-
-    private generateSourceCodeSymbols(): void {
-        let lineNumber: number = 1;
-        let charNumber: number = 1;
-
-        for (const character of this.sourceCode.split("")) {
-            this.symbol(character, lineNumber, charNumber);
-
-            charNumber++;
-
-            if (character === "\n") {
-                lineNumber++;
-                charNumber = 1;
-            }
-        }
     }
 
     private getIdentifierTokenType(identifier: string): TokenType {

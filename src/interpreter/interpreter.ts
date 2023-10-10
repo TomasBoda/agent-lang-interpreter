@@ -15,14 +15,19 @@ import {
 } from "../runtime/runtime.types";
 import { Environment } from "../runtime/environment";
 import { Error } from "../utils/error";
-import {createGlobalFunction} from "../utils/functions";
+import { createGlobalFunction } from "../utils/functions";
+import { Symbolizer } from "../symbolizer/symbolizer";
+import { Symbol } from "../symbolizer/symbolizer.types";
 
 export class Interpreter {
 
     private environment: Environment = Environment.createGlobalEnvironment();
 
     public interpret(sourceCode: string, config: InterpreterConfiguration): Observable<InterpreterOutput> {
-        const lexer: Lexer = new Lexer(sourceCode);
+        const symbolizer: Symbolizer = new Symbolizer(sourceCode);
+        const symbols: Symbol[] = symbolizer.symbolize();
+
+        const lexer: Lexer = new Lexer(symbols);
         const lexerOutput: LexerOutput = lexer.tokenize();
 
         if (lexerOutput.status.code !== 0 || !lexerOutput.tokens) {
