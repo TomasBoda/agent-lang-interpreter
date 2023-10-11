@@ -8,14 +8,14 @@
         <th>Status</th>
     </tr>
     <tr>
-        <td>TC_01</td>
+        <td><code>TC01</code></td>
         <td>Return empty array of symbols for empty source code</td>
-        <td>:white_check_mark:</td>
+        <td align="center">:white_check_mark:</td>
     </tr>
     <tr>
-        <td>TC_02</td>
+        <td><code>TC02</code></td>
         <td>Return empty array of symbols for empty source code</td>
-        <td>:x:</td>
+        <td align="center">:x:</td>
     </tr>
 </table>
 
