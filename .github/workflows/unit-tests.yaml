@@ -26,7 +26,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-  - name: Checkout Code
+    - name: Checkout Code
       uses: actions/checkout@v2
 
     - name: Set up Node.js Environment
