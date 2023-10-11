@@ -4,7 +4,7 @@
 <table>
     <tr>
         <th>ID</th>
-        <th>Description<th>
+        <th>Description</th>
         <th>Status</th>
     <tr>
     <tr>
