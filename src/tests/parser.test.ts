@@ -17,7 +17,6 @@ describe("Lexer", () => {
 
     test("should create", () => {
         expect(parser).toBeTruthy();
-        expect(2).toBe(1);
     });
 
     test("should parse empty source code", () => {
