@@ -1,7 +1,7 @@
 import { describe, test, expect, beforeEach } from "bun:test";
 import { Lexer } from "../lexer/lexer";
 import { Symbolizer } from "../symbolizer/symbolizer";
-import { LexerOutput, Token, TokenType } from "../lexer/lexer.types";
+import { Token, TokenType } from "../lexer/lexer.types";
 import { ExitStatus } from "../interpreter/interpreter.types";
 
 describe("Lexer", () => {
@@ -41,7 +41,7 @@ describe("Lexer", () => {
         expect(tokens?.[5]).toEqual({ type: TokenType.EOF, value: "EOF", position: { line: 1, character: 19 } });
     });
 
-    test("should return error when number contains more than one decimal points", () => {
+    test("should return error when number contains more than one decimal point", () => {
         provideSourceCode("agent person 10 { const age = 1.2.3; }");
 
         const { code, message } = status;
