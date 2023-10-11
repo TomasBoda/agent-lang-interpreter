@@ -10,8 +10,8 @@
   ],
   "main": "src/index.ts",
   "scripts": {
-    "start": "bun run index.ts",
-    "test": "bun test"
+    "start": "npx bun run index.ts",
+    "test": "npx bun test"
   },
   "devDependencies": {
     "typescript": "^4.9.5",
