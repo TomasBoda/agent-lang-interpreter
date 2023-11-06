@@ -1,3 +1,4 @@
-agent a 1 { }
-agent a 2 { }
-agent a 3 { }
+agent person 10 {
+    
+    const i = index();
+}

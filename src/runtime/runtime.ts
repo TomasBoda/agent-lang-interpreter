@@ -52,6 +52,7 @@ export class Runtime {
 
         this.environment.declareVariable("step", createGlobalFunction(this.createStepFunction(0)));
         this.environment.declareVariable("agents", createGlobalFunction(this.createAgentsFunction([], "")));
+        this.environment.declareVariable("index", createGlobalFunction(this.createIndexFunction(0)));
 
         this.lambdaEnv = new Environment();
     }
@@ -75,6 +76,8 @@ export class Runtime {
 
             for (let id = 0; id < numberOfAgents; id++) {
                 const agentId = this.getAgentId(objectDeclaration.identifier, id);
+
+                this.provideDataToIndexFunction(id);
                 this.provideDataToAgentsFunction(this.output.agents, agentId);
 
                 const objectDeclarationResult = this.evaluateObjectDeclaration(objectDeclaration, agentId);
@@ -493,12 +496,28 @@ export class Runtime {
         return `${identifier}-${id}`;
     }
 
-    private provideDataToStepFunction(step: number): void {
-        this.environment.assignVariable("step", createGlobalFunction(this.createStepFunction(step)));
+    private provideDataToIndexFunction(index: number): void {
+        this.environment.assignVariable("index", createGlobalFunction(this.createIndexFunction(index)));
     }
 
     private provideDataToAgentsFunction(agents: RuntimeAgent[], id: string): void {
         this.environment.assignVariable("agents", createGlobalFunction(this.createAgentsFunction(agents, id)));
+    }
+
+    private provideDataToStepFunction(step: number): void {
+        this.environment.assignVariable("step", createGlobalFunction(this.createStepFunction(step)));
+    }
+
+    private createIndexFunction(index: number): FunctionCall {
+        function indexFunction(args: RuntimeValue[]): RuntimeValue {
+            if (args.length !== 0) {
+                return Error.runtime(`Function 'index' requires 0 arguments, ${args.length} provided`);
+            }
+
+            return { type: ValueType.Number, value: index } as NumberValue;
+        }
+
+        return indexFunction;
     }
 
     private createAgentsFunction(agents: RuntimeAgent[], id: string): FunctionCall {
