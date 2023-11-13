@@ -18,7 +18,6 @@ import { Error } from "../utils/error";
 import { createGlobalFunction } from "../utils/functions";
 import { Symbolizer } from "../symbolizer/symbolizer";
 import { Symbol } from "../symbolizer/symbolizer.types";
-import { writeFileSync } from "fs";
 
 export class Interpreter {
 
@@ -37,8 +36,6 @@ export class Interpreter {
 
         const parser: Parser = new Parser(lexerOutput.tokens);
         const program: ParserValue = parser.parse();
-
-        writeFileSync("ast.json", JSON.stringify(program));
 
         if (program.type === NodeType.Error) {
             return of(Error.interpreter((program as ParserError).message));
