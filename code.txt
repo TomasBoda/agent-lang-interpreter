@@ -1,4 +1,5 @@
 agent person 1 {
 
-    property x: round(random(0, 10)) = x + choice(-1, 1);
+    property x = random(0, 10);
+    const y = random(0, 10);
 }

@@ -14,6 +14,7 @@ import {
     Program,
     UnaryExpression,
     VariableDeclaration,
+    VariableType,
 } from "../parser/parser.types";
 import {
     AgentsValue,
@@ -31,9 +32,9 @@ import {
     ValueType,
     VoidValue
 } from "./runtime.types";
-import {Environment} from "./environment";
-import {createGlobalFunction, normalizeNumber} from "../utils/functions";
-import {Error} from "../utils/error";
+import { Environment } from "./environment";
+import { createGlobalFunction, normalizeNumber } from "../utils/functions";
+import { Error } from "../utils/error";
 
 export class Runtime {
 
@@ -136,11 +137,37 @@ export class Runtime {
     }
 
     private evaluateVariableDeclaration(declaration: VariableDeclaration, id: string): RuntimeValue {
-        if (declaration.default && this.output.step === 0) {
-            return this.evaluateRuntimeValue(declaration.default, id);
-        }
+        switch (declaration.variableType) {
+            case VariableType.Property: {
+                if (declaration.default && this.output.step === 0) {
+                    return this.evaluateRuntimeValue(declaration.default, id);
+                }
+        
+                return this.evaluateRuntimeValue(declaration.value, id);
+            }
+            case VariableType.Const: {
+                if (this.output.step === 0) {
+                    return this.evaluateRuntimeValue(declaration.value, id);
+                }
 
-        return this.evaluateRuntimeValue(declaration.value, id);
+                const agent = this.getAgent(id, this.output);
+
+                if (!agent) {
+                    return Error.runtime("Trying to retrieve previous const value, but the agent with the provided id was not found");
+                }
+
+                const previousConstValue: RuntimeValue | undefined = agent.variables.get(declaration.identifier);
+
+                if (!previousConstValue) {
+                    return Error.runtime("Trying to retrieve previous const value, but the previous agent value does not exist");
+                }
+
+                return previousConstValue;
+            }
+            default: {
+                return Error.runtime("Unrecognized variable type in variable declaration") as RuntimeError;
+            }
+        }
     }
 
     private evaluateRuntimeValue(node: ParserValue, id: string): RuntimeValue {

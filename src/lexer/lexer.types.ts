@@ -4,6 +4,7 @@ import { Position } from "../symbolizer/symbolizer.types";
 export enum TokenType {
     Agent = "Agent",
     Property = "Property",
+    Const = "Const",
 
     If = "If",
     Then = "Then",

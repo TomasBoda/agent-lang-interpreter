@@ -1,4 +1,9 @@
 
+export enum VariableType {
+    Const = "Const",
+    Property = "Property"
+}
+
 export enum NodeType {
     // Errors
     Error = "Error",
@@ -46,6 +51,7 @@ export interface ObjectDeclaration extends Statement {
 
 export interface VariableDeclaration extends Statement {
     type: NodeType.VariableDeclaration;
+    variableType: VariableType;
     identifier: string;
     value: Expression;
     default?: Expression;

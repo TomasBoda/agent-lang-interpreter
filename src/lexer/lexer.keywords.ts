@@ -4,6 +4,7 @@ export const ReservedKeywords: Record<string, TokenType> = {
     "agent": TokenType.Agent,
 
     "property": TokenType.Property,
+    "const": TokenType.Const,
     
     "if": TokenType.If,
     "then": TokenType.Then,

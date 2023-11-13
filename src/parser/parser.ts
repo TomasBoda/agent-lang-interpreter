@@ -1,6 +1,6 @@
 import { exit } from "process";
 import { Token, TokenType } from "../lexer/lexer.types";
-import { BinaryExpression, BooleanLiteral, CallExpression, ConditionalExpression, Expression, Identifier, LambdaExpression, LogicalExpression, MemberExpression, NodeType, NumericLiteral, ObjectDeclaration, ParserError, ParserValue, Program, Statement, UnaryExpression, VariableDeclaration } from "./parser.types";
+import { BinaryExpression, BooleanLiteral, CallExpression, ConditionalExpression, Expression, Identifier, LambdaExpression, LogicalExpression, MemberExpression, NodeType, NumericLiteral, ObjectDeclaration, ParserError, ParserValue, Program, Statement, UnaryExpression, VariableDeclaration, VariableType } from "./parser.types";
 import { Error } from "../utils/error";
 import { Position } from "../symbolizer/symbolizer.types";
 import { getProgram } from "./optimizer";
@@ -74,6 +74,7 @@ export class Parser {
         while (this.at().type !== TokenType.CloseBrace) {
             switch (this.at().type) {
                 case TokenType.Property:
+                case TokenType.Const:
                     const declaration: ParserValue = this.parseVariableDeclaration();
 
                     if (this.isError(declaration)) {
@@ -102,11 +103,11 @@ export class Parser {
     }
 
     private parseVariableDeclaration(): ParserValue {
-        if (this.isNotOf(TokenType.Property)) {
-            return Error.parser("Expected prop keyword at the beginning of variable declaration", this.position()) as ParserError;
+        if (this.isNotOf(TokenType.Property) && this.isNotOf(TokenType.Const)) {
+            return Error.parser("Expected property or const keyword at the beginning of variable declaration", this.position()) as ParserError;
         }
 
-        this.next();
+        const variableType = this.next();
 
         if (this.isNotOf(TokenType.Identifier)) {
             return Error.parser("Expected identifier after variable type in variable declaration", this.position()) as ParserError;
@@ -116,6 +117,10 @@ export class Parser {
         let defaultValue: ParserValue | undefined;
 
         if (this.at().type === TokenType.Colon) {
+            if (variableType.type === TokenType.Const) {
+                return Error.parser("Const properties cannot have a default value", this.at().position);
+            }
+
             this.next();
             defaultValue = this.parseExpression();
 
@@ -142,8 +147,17 @@ export class Parser {
 
         this.next();
 
+        function getVariableType() {
+            if (variableType.type === TokenType.Property) {
+                return VariableType.Property;
+            } else if (variableType.type === TokenType.Const) {
+                return VariableType.Const;
+            }
+        }
+
         return {
             type: NodeType.VariableDeclaration,
+            variableType: getVariableType(),
             identifier,
             value,
             default: defaultValue
