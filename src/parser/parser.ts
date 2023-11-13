@@ -1,8 +1,9 @@
 import { exit } from "process";
 import { Token, TokenType } from "../lexer/lexer.types";
-import { BinaryExpression, BooleanLiteral, CallExpression, ConditionalExpression, Identifier, LambdaExpression, LogicalExpression, MemberExpression, NodeType, NumericLiteral, ObjectDeclaration, ParserError, ParserValue, Program, Statement, UnaryExpression, VariableDeclaration, VariableType } from "./parser.types";
+import { BinaryExpression, BooleanLiteral, CallExpression, ConditionalExpression, Expression, Identifier, LambdaExpression, LogicalExpression, MemberExpression, NodeType, NumericLiteral, ObjectDeclaration, ParserError, ParserValue, Program, Statement, UnaryExpression, VariableDeclaration } from "./parser.types";
 import { Error } from "../utils/error";
 import { Position } from "../symbolizer/symbolizer.types";
+import { getProgram } from "./optimizer";
 
 export class Parser {
 
@@ -25,7 +26,13 @@ export class Parser {
             program.body.push(statement as Statement);
         }
 
-        return program;
+        const updated: Program | ParserError = getProgram(program);
+
+        if (updated.type === NodeType.Error) {
+            return updated as ParserError;
+        }
+
+        return updated;
     }
 
     private parseStatement(): ParserValue {
@@ -66,7 +73,7 @@ export class Parser {
 
         while (this.at().type !== TokenType.CloseBrace) {
             switch (this.at().type) {
-                case TokenType.VariableType:
+                case TokenType.Property:
                     const declaration: ParserValue = this.parseVariableDeclaration();
 
                     if (this.isError(declaration)) {
@@ -95,11 +102,11 @@ export class Parser {
     }
 
     private parseVariableDeclaration(): ParserValue {
-        if (this.isNotOf(TokenType.VariableType)) {
-            return Error.parser("Expected variable type at the beginning of variable declaration", this.position()) as ParserError;
+        if (this.isNotOf(TokenType.Property)) {
+            return Error.parser("Expected prop keyword at the beginning of variable declaration", this.position()) as ParserError;
         }
 
-        const variableType = this.next().value;
+        this.next();
 
         if (this.isNotOf(TokenType.Identifier)) {
             return Error.parser("Expected identifier after variable type in variable declaration", this.position()) as ParserError;
@@ -108,13 +115,8 @@ export class Parser {
         const identifier = this.next().value;
         let defaultValue: ParserValue | undefined;
 
-        if (variableType === "variable") {
-            if (this.isNotOf(TokenType.Colon)) {
-                return Error.parser("Expected a colon after identifier in variable type declaration", this.position()) as ParserError;
-            }
-
+        if (this.at().type === TokenType.Colon) {
             this.next();
-            
             defaultValue = this.parseExpression();
 
             if (this.isError(defaultValue)) {
@@ -130,10 +132,6 @@ export class Parser {
 
         const value: ParserValue = this.parseExpression();
 
-        if (variableType === "const" && !this.isConstValueValid(value)) {
-            return Error.parser("Const cannot contain identifiers", this.position());
-        }
-
         if (this.isError(value)) {
             return value as ParserError;
         }
@@ -144,22 +142,11 @@ export class Parser {
 
         this.next();
 
-        function getVariableType() {
-            if (variableType === "variable") {
-                return VariableType.Variable;
-            } else if (variableType === "dynamic") {
-                return VariableType.Dynamic;
-            } else {
-                return VariableType.Const;
-            }
-        }
-
         return {
             type: NodeType.VariableDeclaration,
-            variableType: getVariableType(),
             identifier,
-            default: defaultValue,
-            value
+            value,
+            default: defaultValue
         } as VariableDeclaration;
     }
 
@@ -549,44 +536,5 @@ export class Parser {
 
     private createEmptyProgram(): Program {
         return { type: NodeType.Program, body: [] };
-    }
-
-    private isConstValueValid(value: ParserValue): boolean {
-        if (value.type === NodeType.Identifier) {
-            return false;
-        }
-
-        if (value.type === NodeType.BinaryExpression) {
-            const left = this.isConstValueValid((value as BinaryExpression).left);
-            const right = this.isConstValueValid((value as BinaryExpression).right);
-            return left && right;
-        }
-
-        if (value.type === NodeType.LogicalExpression) {
-            const left = this.isConstValueValid((value as LogicalExpression).left);
-            const right = this.isConstValueValid((value as LogicalExpression).right);
-            return left && right;
-        }
-
-        if (value.type === NodeType.ConditionalExpression) {
-            const condition = this.isConstValueValid((value as ConditionalExpression).condition);
-            const consequent = this.isConstValueValid((value as ConditionalExpression).consequent);
-            const alternate = this.isConstValueValid((value as ConditionalExpression).alternate);
-            return condition && consequent && alternate;
-        }
-
-        if (value.type === NodeType.CallExpression) {
-            for (const arg of (value as CallExpression).args) {
-                const result = this.isConstValueValid(arg as ParserValue);
-                
-                if (!result) {
-                    return false;
-                }
-            }
-
-            return true;
-        }
-
-        return true;
     }
 }

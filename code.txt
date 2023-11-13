@@ -1,4 +1,4 @@
-agent person 10 {
-    
-    const i = index();
+agent person 1 {
+
+    property x: round(random(0, 10)) = x + choice(-1, 1);
 }

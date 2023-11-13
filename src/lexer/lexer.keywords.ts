@@ -3,9 +3,7 @@ import { TokenType } from "./lexer.types";
 export const ReservedKeywords: Record<string, TokenType> = {
     "agent": TokenType.Agent,
 
-    "variable": TokenType.VariableType,
-    "const": TokenType.VariableType,
-    "dynamic": TokenType.VariableType,
+    "property": TokenType.Property,
     
     "if": TokenType.If,
     "then": TokenType.Then,

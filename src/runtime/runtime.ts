@@ -14,7 +14,6 @@ import {
     Program,
     UnaryExpression,
     VariableDeclaration,
-    VariableType
 } from "../parser/parser.types";
 import {
     AgentsValue,
@@ -137,44 +136,11 @@ export class Runtime {
     }
 
     private evaluateVariableDeclaration(declaration: VariableDeclaration, id: string): RuntimeValue {
-        switch (declaration.variableType) {
-            case VariableType.Variable: {
-                if (declaration.default && this.output.step === 0) {
-                    return this.evaluateRuntimeValue(declaration.default, id);
-                }
-
-                return this.evaluateRuntimeValue(declaration.value, id);
-            }
-            case VariableType.Dynamic: {
-                if (this.output.step === 0) {
-                    return { type: ValueType.Void } as VoidValue;
-                }
-
-                return this.evaluateRuntimeValue(declaration.value, id);
-            }
-            case VariableType.Const: {
-                if (this.output.step === 0) {
-                    return this.evaluateRuntimeValue(declaration.value, id);
-                }
-
-                const agent = this.getAgent(id, this.output);
-
-                if (!agent) {
-                    return Error.runtime("Agent with the provided id not found");
-                }
-
-                const previousConstValue: RuntimeValue | undefined = agent.variables.get(declaration.identifier);
-
-                if (!previousConstValue) {
-                    return Error.runtime("Previous agent value does not exist");
-                }
-
-                return previousConstValue;
-            }
-            default: {
-                return Error.runtime("Unrecognized variable type in variable declaration") as RuntimeError;
-            }
+        if (declaration.default && this.output.step === 0) {
+            return this.evaluateRuntimeValue(declaration.default, id);
         }
+
+        return this.evaluateRuntimeValue(declaration.value, id);
     }
 
     private evaluateRuntimeValue(node: ParserValue, id: string): RuntimeValue {

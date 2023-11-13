@@ -19,12 +19,6 @@ export enum NodeType {
     MemberExpression = "MemberExpression",
 }
 
-export enum VariableType {
-    Const = "Const",
-    Variable = "Variable",
-    Dynamic = "Dynamic"
-}
-
 export interface ParserValue {
     type: NodeType;
 }
@@ -43,19 +37,18 @@ export interface Program extends Statement {
     body: Statement[];
 }
 
-export interface VariableDeclaration extends Statement {
-    type: NodeType.VariableDeclaration;
-    variableType: VariableType;
-    identifier: string;
-    default?: Expression;
-    value: Expression;
-}
-
 export interface ObjectDeclaration extends Statement {
     type: NodeType.ObjectDeclaration;
     identifier: string;
     count: number;
     body: Expression[];
+}
+
+export interface VariableDeclaration extends Statement {
+    type: NodeType.VariableDeclaration;
+    identifier: string;
+    value: Expression;
+    default?: Expression;
 }
 
 export interface BinaryExpression extends Expression {
