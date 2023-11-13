@@ -2,7 +2,14 @@ import { BinaryExpression, CallExpression, ConditionalExpression, Expression, Id
 import { Error } from "../utils/error";
 import { DependencyGraph, Node, topologicalSort } from "./topology";
 
+const agentIdentifiers: string[] = [];
+
 export function getProgram(program: Program): Program | ParserError {
+    for (let i = 0; i < program.body.length; i++) {
+        const declaration: ObjectDeclaration = program.body[i] as ObjectDeclaration;
+        agentIdentifiers.push(declaration.identifier);
+    }
+
     for (let i = 0; i < program.body.length; i++) {
         const declaration: ObjectDeclaration | ParserError = getObjectDeclaration(program.body[i] as ObjectDeclaration);
 
@@ -74,6 +81,7 @@ function getSortedDependencies(identifiers: string[], dependencies: string[][]):
 
 function getVariableDependencies(variableDeclaration: VariableDeclaration): string[] {
     const dependencies: string[] = [];
+    let lambdaKey: string | undefined = undefined;
 
     function getDependencies(expression: Expression): void {
         switch (expression.type) {
@@ -104,17 +112,26 @@ function getVariableDependencies(variableDeclaration: VariableDeclaration): stri
                 break;
             }
             case NodeType.LambdaExpression: {
+                lambdaKey = (expression as LambdaExpression).param;
                 getDependencies((expression as LambdaExpression).base);
                 getDependencies((expression as LambdaExpression).value);
+                lambdaKey = undefined;
                 break;
             }
             case NodeType.MemberExpression: {
-                getDependencies((expression as MemberExpression).caller);
-                getDependencies((expression as MemberExpression).value);
+                if (lambdaKey && (expression as MemberExpression).caller.type === NodeType.Identifier && ((expression as MemberExpression).caller as Identifier).identifier === lambdaKey) {
+                    break;
+                } else {
+                    getDependencies((expression as MemberExpression).caller);
+                }
                 break;
             }
             case NodeType.Identifier: {
-                dependencies.push((expression as Identifier).identifier);
+                const identifier = (expression as Identifier).identifier;
+
+                if (!dependencies.includes(identifier) && !agentIdentifiers.includes(identifier)) {
+                    dependencies.push((expression as Identifier).identifier);
+                }
                 break;
             }
         }
