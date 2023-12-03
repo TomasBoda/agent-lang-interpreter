@@ -41,8 +41,3 @@ export interface Token {
     type: TokenType;
     position: Position;
 }
-
-export interface LexerOutput {
-    status: ExitStatus;
-    tokens?: Token[];
-}
