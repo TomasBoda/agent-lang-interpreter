@@ -10,6 +10,8 @@ export const ReservedKeywords: Record<string, TokenType> = {
     "then": TokenType.Then,
     "else": TokenType.Else,
 
+    "otherwise": TokenType.Otherwise,
+
     "and": TokenType.RelationalOperator,
     "or": TokenType.RelationalOperator,
 

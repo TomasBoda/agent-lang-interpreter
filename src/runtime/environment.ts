@@ -1,4 +1,4 @@
-import { RuntimeError, RuntimeValue, ValueType } from "./runtime.types";
+import { RuntimeValue } from "./runtime.types";
 import {
     ABS,
     CEIL,
@@ -18,7 +18,7 @@ import {
     createGlobalFunction,
     MIN, MAX
 } from "../utils/functions";
-import { Error } from "../utils/error";
+import { ErrorRuntime } from "../utils/errors";
 
 export class Environment {
 
@@ -69,18 +69,18 @@ export class Environment {
         const env = this.resolve(identifier);
 
         if (!env) {
-            return Error.runtime(`Variable ${identifier} does not exist`) as RuntimeError;
+            throw new ErrorRuntime(`Variable ${identifier} does not exist`);
         }
 
         env.variables.set(identifier, value);
         return value;
     }
 
-    public lookupVariable(identifier: string): RuntimeValue {
+    public lookupVariable(identifier: string): RuntimeValue | undefined {
         const env = this.resolve(identifier);
 
         if (!env) {
-            return Error.runtime(`Variable ${identifier} does not exist`) as RuntimeError;
+            return undefined;
         }
 
         return env.variables.get(identifier) as RuntimeValue;

@@ -1,5 +1,4 @@
-import { ParserError } from "./parser.types";
-import { Error } from "../utils/error";
+import { ErrorParser } from "../utils/errors";
 
 export type DependencyGraph = { [key: string]: Node };
 
@@ -17,7 +16,7 @@ export class Node {
     }
 }
 
-export function topologicalSort(graph: DependencyGraph): Node[] | ParserError {
+export function topologicalSort(graph: DependencyGraph): Node[] {
     const visited: { [key: string]: boolean } = {};
     const recursionStack: { [key: string]: boolean } = {};
     const result: Node[] = [];
@@ -56,7 +55,7 @@ export function topologicalSort(graph: DependencyGraph): Node[] | ParserError {
     }
 
     if (containsCycle) {
-        return Error.parser("Agent variables contain a dependency loop");
+        throw new ErrorParser("Agent variables contain a dependency loop");
     }
 
     return result;

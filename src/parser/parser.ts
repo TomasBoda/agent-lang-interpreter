@@ -1,9 +1,9 @@
 import { exit } from "process";
 import { Token, TokenType } from "../lexer/lexer.types";
-import { BinaryExpression, BooleanLiteral, CallExpression, ConditionalExpression, Expression, Identifier, LambdaExpression, LogicalExpression, MemberExpression, NodeType, NumericLiteral, ObjectDeclaration, ParserError, ParserValue, Program, Statement, UnaryExpression, VariableDeclaration, VariableType } from "./parser.types";
-import { Error } from "../utils/error";
+import { BinaryExpression, BooleanLiteral, CallExpression, ConditionalExpression, Expression, Identifier, LambdaExpression, LogicalExpression, MemberExpression, NodeType, NumericLiteral, ObjectDeclaration, ParserValue, Program, Statement, UnaryExpression, VariableDeclaration, VariableType } from "./parser.types";
 import { Position } from "../symbolizer/symbolizer.types";
 import { getProgram } from "./optimizer";
+import { ErrorParser } from "../utils/errors";
 
 export class Parser {
 
@@ -18,21 +18,10 @@ export class Parser {
 
         while (this.notEndOfFile()) {
             const statement: ParserValue = this.parseStatement();
-
-            if (this.isError(statement)) {
-                return statement as ParserError;
-            }
-
             program.body.push(statement as Statement);
         }
 
-        const updated: Program | ParserError = getProgram(program);
-
-        if (updated.type === NodeType.Error) {
-            return updated as ParserError;
-        }
-
-        return updated;
+        return getProgram(program);
     }
 
     private parseStatement(): ParserValue {
@@ -40,31 +29,31 @@ export class Parser {
             case TokenType.Agent:
                 return this.parseObjectDeclaration();
             default:
-                return Error.parser("Only agent declarations are allowed in program scope", this.position());
+                throw new ErrorParser("Only agent declarations are allowed in program scope", this.position());
         }
     }
 
     private parseObjectDeclaration(): ParserValue {
         if (this.isNotOf(TokenType.Agent)) {
-            return Error.parser("Expected agent keyword in program scope", this.position()) as ParserError;
+            throw new ErrorParser("Expected agent keyword in program scope", this.position());
         }
 
         this.next();
 
         if (this.isNotOf(TokenType.Identifier)) {
-            return Error.parser("Expected agent identifier after agent keyword", this.position()) as ParserError;
+            throw new ErrorParser("Expected agent identifier after agent keyword", this.position());
         }
 
         const identifier = this.next().value;
 
         if (this.isNotOf(TokenType.Number)) {
-            return Error.parser("Expected number of agents after agent identifier", this.position()) as ParserError;
+            throw new ErrorParser("Expected number of agents after agent identifier", this.position());
         }
 
         const count = this.next().value;
 
         if (this.isNotOf(TokenType.OpenBrace)) {
-            return Error.parser("Expected an open brace after number of agents in agent declaration", this.position()) as ParserError;
+            throw new ErrorParser("Expected an open brace after number of agents in agent declaration", this.position());
         }
 
         this.next();
@@ -76,20 +65,15 @@ export class Parser {
                 case TokenType.Property:
                 case TokenType.Const:
                     const declaration: ParserValue = this.parseVariableDeclaration();
-
-                    if (this.isError(declaration)) {
-                        return declaration as ParserError;
-                    }
-
                     body.push(declaration as VariableDeclaration);
                     break;
                 default:
-                    return Error.parser("Only variable declarations are allowed in agent body", this.position()) as ParserError;
+                    throw new ErrorParser("Only variable declarations are allowed in agent body", this.position());
             }
         }
 
         if (this.isNotOf(TokenType.CloseBrace)) {
-            return Error.parser("Expected a close brace after agent body declaration", this.position()) as ParserError;
+            throw new ErrorParser("Expected a close brace after agent body declaration", this.position());
         }
 
         this.next();
@@ -104,13 +88,13 @@ export class Parser {
 
     private parseVariableDeclaration(): ParserValue {
         if (this.isNotOf(TokenType.Property) && this.isNotOf(TokenType.Const)) {
-            return Error.parser("Expected property or const keyword at the beginning of variable declaration", this.position()) as ParserError;
+            throw new ErrorParser("Expected property or const keyword at the beginning of variable declaration", this.position());
         }
 
         const variableType = this.next();
 
         if (this.isNotOf(TokenType.Identifier)) {
-            return Error.parser("Expected identifier after variable type in variable declaration", this.position()) as ParserError;
+            throw new ErrorParser("Expected identifier after variable type in variable declaration", this.position());
         }
         
         const identifier = this.next().value;
@@ -118,31 +102,23 @@ export class Parser {
 
         if (this.at().type === TokenType.Colon) {
             if (variableType.type === TokenType.Const) {
-                return Error.parser("Const properties cannot have a default value", this.at().position);
+                throw new ErrorParser("Const properties cannot have a default value", this.at().position);
             }
 
             this.next();
             defaultValue = this.parseExpression();
-
-            if (this.isError(defaultValue)) {
-                return defaultValue as ParserError;
-            }
         }
 
         if (this.isNotOf(TokenType.AssignmentOperator)) {
-            return Error.parser("Expected equals sign after identifier in variable declaration", this.position()) as ParserError;
+            throw new ErrorParser("Expected equals sign after identifier in variable declaration", this.position());
         }
 
         this.next();
 
         const value: ParserValue = this.parseExpression();
 
-        if (this.isError(value)) {
-            return value as ParserError;
-        }
-
         if (this.isNotOf(TokenType.Semicolon)) {
-            return Error.parser("Expected a semicolon after variable declaration", this.position()) as ParserError;
+            throw new ErrorParser("Expected a semicolon after variable declaration", this.position());
         }
 
         this.next();
@@ -176,7 +152,7 @@ export class Parser {
             const param = this.next().value;
 
             if (this.isNotOf(TokenType.LambdaArrow)) {
-                return Error.parser("Expected a lambda arrow after param in lambda expression", this.position());
+                throw new ErrorParser("Expected a lambda arrow after param in lambda expression", this.position());
             }
 
             this.next();
@@ -200,33 +176,21 @@ export class Parser {
 
             const condition = this.parseExpression();
 
-            if (this.isError(condition)) {
-                return condition as ParserError;
-            }
-
             if (this.isNotOf(TokenType.Then)) {
-                return Error.parser("Expected then keyword after if condition", this.position()) as ParserError;
+                throw new ErrorParser("Expected then keyword after if condition", this.position());
             }
 
             this.next();
 
             const consequent = this.parseExpression();
 
-            if (this.isError(consequent)) {
-                return consequent as ParserError;
-            }
-
             if (this.isNotOf(TokenType.Else)) {
-                return Error.parser("Expected else keyword after then consequent", this.position());
+                throw new ErrorParser("Expected else keyword after then consequent", this.position());
             }
 
             this.next();
 
             const alternate = this.parseExpression();
-
-            if (this.isError(alternate)) {
-                return alternate as ParserError;
-            }
 
             return {
                 type: NodeType.ConditionalExpression,
@@ -242,17 +206,9 @@ export class Parser {
     private parseLogicalExpression(): ParserValue {
         let left = this.parseComparisonExpression();
 
-        if (this.isError(left)) {
-            return left as ParserError;
-        }
-
         while (this.at().type === TokenType.RelationalOperator && (this.at().value === "and" || this.at().value === "or")) {
             const operator = this.next().value;
             const right = this.parseComparisonExpression();
-
-            if (this.isError(right)) {
-                return right as ParserError;
-            }
 
             left = {
                 type: NodeType.LogicalExpression,
@@ -268,17 +224,9 @@ export class Parser {
     private parseComparisonExpression(): ParserValue {
         let left = this.parseAdditiveExpression();
 
-        if (this.isError(left)) {
-            return left as ParserError;
-        }
-
         while (this.at().type === TokenType.RelationalOperator && this.at().value !== "and" && this.at().value !== "or") {
             const operator = this.next().value;
             const right = this.parseAdditiveExpression();
-
-            if (this.isError(right)) {
-                return right as ParserError;
-            }
 
             left = {
                 type: NodeType.BinaryExpression,
@@ -294,17 +242,9 @@ export class Parser {
     private parseAdditiveExpression(): ParserValue {
         let left = this.parseMultiplicativeExpression();
 
-        if (this.isError(left)) {
-            return left as ParserError;
-        }
-
         while (this.at().value === "+" || this.at().value === "-") {
             const operator = this.next().value;
             const right = this.parseMultiplicativeExpression();
-
-            if (this.isError(right)) {
-                return right as ParserError;
-            }
 
             left = {
                 type: NodeType.BinaryExpression,
@@ -320,17 +260,9 @@ export class Parser {
     private parseMultiplicativeExpression(): ParserValue {
         let left = this.parseMemberExpression();
 
-        if (this.isError(left)) {
-            return left as ParserError;
-        }
-
         while (this.at().value === "*" || this.at().value === "/" || this.at().value === "%") {
             const operator = this.next().value;
             const right = this.parseMemberExpression();
-
-            if (this.isError(right)) {
-                return right as ParserError;
-            }
 
             left = {
                 type: NodeType.BinaryExpression,
@@ -364,16 +296,8 @@ export class Parser {
     private parseCallExpression(): ParserValue {
         const caller = this.parsePrimaryExpression();
 
-        if (this.isError(caller)) {
-            return caller as ParserError;
-        }
-
         if (this.at().type === TokenType.OpenParen) {
             const args: ParserValue[] = this.parseArguments();
-
-            if (args.length === 1 && this.isError(args[0])) {
-                return args[0] as ParserError;
-            }
 
             return {
                 type: NodeType.CallExpression,
@@ -387,7 +311,7 @@ export class Parser {
 
     private parseArguments(): ParserValue[] {
         if (this.isNotOf(TokenType.OpenParen)) {
-            return [Error.parser("Expected an open parenthesis before function arguments", this.position()) as ParserError];
+            throw new ErrorParser("Expected an open parenthesis before function arguments", this.position());
         }
 
         this.next();
@@ -398,16 +322,11 @@ export class Parser {
             args = [];
         } else {
             const argsList = this.parseArgumentsList();
-
-            if (argsList.length === 1 && this.isError(argsList[0])) {
-                return [argsList[0] as ParserError];
-            }
-
             args = argsList;
         }
 
         if (this.isNotOf(TokenType.CloseParen)) {
-            return [Error.parser("Expected a closing parenthesis after function arguments", this.position()) as ParserError];
+            throw new ErrorParser("Expected a closing parenthesis after function arguments", this.position());
         }
 
         this.next();
@@ -418,18 +337,10 @@ export class Parser {
     private parseArgumentsList(): ParserValue[] {
         const firstArg = this.parseExpression();
 
-        if (this.isError(firstArg)) {
-            return [firstArg as ParserError];
-        }
-
         const args = [firstArg];
 
         while (this.at().type === TokenType.Comma && this.next()) {
             const nextArg = this.parseExpression();
-
-            if (this.isError(nextArg)) {
-                return [nextArg as ParserError];
-            }
 
             args.push(nextArg);
         }
@@ -456,11 +367,11 @@ export class Parser {
             // parse negative numbers
             case TokenType.BinaryOperator:
                 if (token.value !== "+" && token.value !== "-") {
-                    return Error.parser("Unary expression requires operator + or -.", this.position());
+                    throw new ErrorParser("Unary expression requires operator + or -.", this.position());
                 }
 
                 if (this.getNext().type !== TokenType.Number && this.getNext().type !== TokenType.Identifier) {
-                    return Error.parser("Unary expression requires value of type number or identifier", this.position());
+                    throw new ErrorParser("Unary expression requires value of type number or identifier", this.position());
                 }
 
                 this.next();
@@ -473,11 +384,11 @@ export class Parser {
             
             case TokenType.UnaryOperator:
                 if (token.value !== "!") {
-                    return Error.parser("Unary expression requires operator !.", this.position());
+                    throw new ErrorParser("Unary expression requires operator !.", this.position());
                 }
 
                 if (this.getNext().type !== TokenType.Boolean && this.getNext().type !== TokenType.Identifier) {
-                    return Error.parser("Unary expression requires value of type boolean or identifier", this.position());
+                    throw new ErrorParser("Unary expression requires value of type boolean or identifier", this.position());
                 }
 
                 this.next();
@@ -498,12 +409,8 @@ export class Parser {
                 this.next();
                 const value: ParserValue = this.parseExpression();
 
-                if (this.isError(value)) {
-                    return value as ParserError;
-                }
-
                 if (this.isNotOf(TokenType.CloseParen)) {
-                    return Error.parser("Expected a closing parenthesis after an opening parenthesis", this.position()) as ParserError;
+                    throw new ErrorParser("Expected a closing parenthesis after an opening parenthesis", this.position());
                 }
 
                 this.next();
@@ -511,7 +418,7 @@ export class Parser {
                 return value;
             
             default:
-                return Error.parser("Unexpected token found during parsing: " + this.at().value, this.position()) as ParserError;
+                throw new ErrorParser("Unexpected token found during parsing: " + this.at().value, this.position());
         }
     }
 
@@ -538,10 +445,6 @@ export class Parser {
 
     private isNotOf(type: TokenType): boolean {
         return this.at().type !== type;
-    }
-
-    private isError(node: ParserValue): boolean {
-        return node.type === NodeType.Error;
     }
 
     private notEndOfFile() {

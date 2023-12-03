@@ -1,29 +1,23 @@
-import { BinaryExpression, CallExpression, ConditionalExpression, Expression, Identifier, LambdaExpression, LogicalExpression, MemberExpression, NodeType, ObjectDeclaration, ParserError, ParserValue, Program, UnaryExpression, VariableDeclaration } from "./parser.types";
-import { Error } from "../utils/error";
+import { BinaryExpression, CallExpression, ConditionalExpression, Expression, Identifier, LambdaExpression, LogicalExpression, MemberExpression, NodeType, ObjectDeclaration, ParserValue, Program, UnaryExpression, VariableDeclaration } from "./parser.types";
 import { DependencyGraph, Node, topologicalSort } from "./topology";
+import { ErrorParser } from "../utils/errors";
 
 const agentIdentifiers: string[] = [];
 
-export function getProgram(program: Program): Program | ParserError {
+export function getProgram(program: Program): Program {
     for (let i = 0; i < program.body.length; i++) {
         const declaration: ObjectDeclaration = program.body[i] as ObjectDeclaration;
         agentIdentifiers.push(declaration.identifier);
     }
 
     for (let i = 0; i < program.body.length; i++) {
-        const declaration: ObjectDeclaration | ParserError = getObjectDeclaration(program.body[i] as ObjectDeclaration);
-
-        if (declaration.type === NodeType.Error) {
-            return declaration as ParserError;
-        }
-
-        program.body[i] = declaration;
+        program.body[i] = getObjectDeclaration(program.body[i] as ObjectDeclaration);
     }
 
     return program;
 }
 
-function getObjectDeclaration(declaration: ObjectDeclaration): ObjectDeclaration | ParserError {
+function getObjectDeclaration(declaration: ObjectDeclaration): ObjectDeclaration {
     const objectIdentifiers: string[] = [];
     const objectDependencies: string[][] = [];
 
@@ -34,18 +28,14 @@ function getObjectDeclaration(declaration: ObjectDeclaration): ObjectDeclaration
         const dependencies: string[] = getVariableDependencies(variableDeclaration);
 
         if (dependencies.includes(identifier) && variableDeclaration.default === undefined) {
-            return Error.parser("Agent variable depends on itself, but has no default value provided");
+            throw new ErrorParser("Agent variable depends on itself, but has no default value provided");
         }
 
         objectIdentifiers.push(identifier);
         objectDependencies.push(dependencies);
     }
 
-    const nodes: Node[] | ParserError = getSortedDependencies(objectIdentifiers, objectDependencies);
-
-    if (!Array.isArray(nodes)) {
-        return nodes as ParserError;
-    }
+    const nodes: Node[] = getSortedDependencies(objectIdentifiers, objectDependencies);
 
     const sortedBody: Expression[] = [];
 
@@ -61,7 +51,7 @@ function getObjectDeclaration(declaration: ObjectDeclaration): ObjectDeclaration
     return { ...declaration, body: sortedBody } as ObjectDeclaration;
 }
 
-function getSortedDependencies(identifiers: string[], dependencies: string[][]): Node[] | ParserError {
+function getSortedDependencies(identifiers: string[], dependencies: string[][]): Node[] {
     const graph: DependencyGraph = {};
 
     for (const identifier of identifiers) {

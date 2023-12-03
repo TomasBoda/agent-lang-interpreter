@@ -5,8 +5,6 @@ export enum VariableType {
 }
 
 export enum NodeType {
-    // Errors
-    Error = "Error",
     // Statements
     Program = "Program",
     ObjectDeclaration = "ObjectDeclaration",
@@ -26,11 +24,6 @@ export enum NodeType {
 
 export interface ParserValue {
     type: NodeType;
-}
-
-export interface ParserError extends ParserValue {
-    type: NodeType.Error;
-    message: string;
 }
 
 export interface Statement extends ParserValue {}

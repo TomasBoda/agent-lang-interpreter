@@ -1,7 +1,5 @@
 
 export enum ValueType {
-    Error = "Error",
-    
     Number = "Number",
     Boolean = "Boolean",
     Function = "Function",
@@ -15,16 +13,6 @@ export enum ValueType {
 
 export interface RuntimeValue {
     type: ValueType;
-}
-
-export interface RuntimeError extends RuntimeValue {
-    type: ValueType.Error;
-    message: string;
-}
-
-export interface VoidValue extends RuntimeValue {
-    type: ValueType.Void;
-    value: void;
 }
 
 export interface NumberValue extends RuntimeValue {

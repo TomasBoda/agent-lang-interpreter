@@ -10,6 +10,8 @@ export enum TokenType {
     Then = "Then",
     Else = "Else",
 
+    Otherwise = "Otherwise",
+
     Identifier = "Identifier",
     Number = "Number",
     Boolean = "Boolean",

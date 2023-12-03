@@ -2,6 +2,7 @@ import { LexerOutput, Token, TokenType } from "./lexer.types";
 import { Symbol, Position } from "../symbolizer/symbolizer.types";
 import { Error } from "../utils/error";
 import { ReservedKeywords } from "./lexer.keywords";
+import { ErrorLexer } from "../utils/errors";
 
 export class Lexer {
 
@@ -12,7 +13,7 @@ export class Lexer {
         this.symbols = symbols;
     }
 
-    public tokenize(): LexerOutput {
+    public tokenize(): Token[] {
         this.clearTokens();
 
         while (this.hasNext()) {
@@ -100,7 +101,7 @@ export class Lexer {
                         while (this.hasNext() && (this.isNumber() || this.isNext("."))) {
                             if (this.isNext(".")) {
                                 if (foundDecimalPoint) {
-                                    return Error.lexer("Number cannot contain more than one decimal point", position);
+                                    throw new ErrorLexer("Number cannot contain more than one decimal point", position);
                                 }
     
                                 foundDecimalPoint = true;
@@ -129,17 +130,14 @@ export class Lexer {
                         break;
                     }
     
-                    return Error.lexer("Unrecognized character found in source: " + this.getNext().value, this.getNext().position);
+                    throw new ErrorLexer(`Unrecognized character found in source: ${this.getNext().value}`, this.getNext().position);
                 }
             }
         }
 
         this.generateEOFToken();
 
-        return {
-            status: { code: 0 },
-            tokens: this.tokens
-        } as LexerOutput;
+        return this.tokens;
     }
 
     private hasNext(): boolean {

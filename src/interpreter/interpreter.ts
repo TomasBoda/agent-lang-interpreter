@@ -1,86 +1,91 @@
-import { Observable, interval, map, of, take } from "rxjs";
+import { Observable, interval, map, of, take, takeWhile } from "rxjs";
 import { Lexer } from "../lexer/lexer";
-import { LexerOutput } from "../lexer/lexer.types";
-import { NodeType, ParserError, ParserValue, Program } from "../parser/parser.types";
+import { Token } from "../lexer/lexer.types";
+import { ParserValue, Program } from "../parser/parser.types";
 import { Parser } from "../parser/parser";
 import { Runtime } from "../runtime/runtime";
 import { Agent, InterpreterConfiguration, InterpreterOutput } from "./interpreter.types";
-import {
-    FunctionCall, NumberValue,
-    RuntimeAgent,
-    RuntimeError,
-    RuntimeOutput,
-    RuntimeValue,
-    ValueType
-} from "../runtime/runtime.types";
+import { FunctionCall, NumberValue, RuntimeAgent, RuntimeOutput, RuntimeValue, ValueType } from "../runtime/runtime.types";
 import { Environment } from "../runtime/environment";
-import { Error } from "../utils/error";
 import { createGlobalFunction } from "../utils/functions";
 import { Symbolizer } from "../symbolizer/symbolizer";
 import { Symbol } from "../symbolizer/symbolizer.types";
+import { ErrorLexer, ErrorModel, ErrorParser, ErrorRuntime } from "../utils/errors";
 
 export class Interpreter {
-
-    private environment: Environment = Environment.createGlobalEnvironment();
 
     public interpret(sourceCode: string, config: InterpreterConfiguration): Observable<InterpreterOutput> {
         const symbolizer: Symbolizer = new Symbolizer(sourceCode);
         const symbols: Symbol[] = symbolizer.symbolize();
 
         const lexer: Lexer = new Lexer(symbols);
-        const lexerOutput: LexerOutput = lexer.tokenize();
+        let tokens: Token[];
 
-        if (lexerOutput.status.code !== 0 || !lexerOutput.tokens) {
-            return of(Error.interpreter(lexerOutput.status.message ?? ""));
+        try { tokens = lexer.tokenize(); } catch (error) {
+            return of(this.getRuntimeError(error as ErrorLexer));
         }
 
-        const parser: Parser = new Parser(lexerOutput.tokens);
-        const program: ParserValue = parser.parse();
+        const parser: Parser = new Parser(tokens);
+        let program: ParserValue;
 
-        if (program.type === NodeType.Error) {
-            return of(Error.interpreter((program as ParserError).message));
+        try { program = parser.parse(); } catch (error) {
+            return of(this.getRuntimeError(error as ErrorParser));
         }
 
-        this.environment.declareVariable("width", createGlobalFunction(this.createWidthFunction(config.width)));
-        this.environment.declareVariable("height", createGlobalFunction(this.createHeightFunction(config.height)));
+        const environment: Environment = Environment.createGlobalEnvironment();
+        environment.declareVariable("width", createGlobalFunction(this.createWidthFunction(config.width)));
+        environment.declareVariable("height", createGlobalFunction(this.createHeightFunction(config.height)));
 
-        const runtime: Runtime = new Runtime(program as Program, this.environment);
+        const runtime: Runtime = new Runtime(program as Program, environment);
 
         return interval(config.delay).pipe(
             take(config.steps),
             map(step => {
-                const value: RuntimeValue = runtime.run(step);
-
-                if (value.type === ValueType.Error) {
-                    return Error.interpreter((value as RuntimeError).message);
+                try {
+                    const value: RuntimeValue = runtime.run(step);
+                    return this.getRuntimeOutput(value as RuntimeOutput);
+                } catch (error) {
+                    return this.getRuntimeError(error as ErrorRuntime)
                 }
-
-                return this.mapRuntimeOutput(value as RuntimeOutput);
-            })
+            }),
+            takeWhile(output => output.status.code === 0),
         );
     }
-    
-    private mapRuntimeAgent(agent: RuntimeAgent): Agent {
+
+    private getRuntimeOutput(output: RuntimeOutput): InterpreterOutput {
+        return {
+            status: { code: 0 },
+            output: {
+                step: output.step,
+                agents: this.getAgents(output.agents)
+            }
+        } as InterpreterOutput;
+    }
+
+    private getRuntimeError(error: ErrorModel): InterpreterOutput {
+        return {
+            status: {
+                code: 1,
+                message: (error as ErrorRuntime).toString()
+            }
+        };
+    }
+
+    private getAgents(agents: RuntimeAgent[]): Agent[] {
+        return agents.map((agent: RuntimeAgent) => this.getAgent(agent));
+    }
+
+    private getAgent(agent: RuntimeAgent): Agent {
         const variables: { [key: string]: RuntimeValue } = {};
         agent.variables.forEach((value, key) => variables[key] = value);
     
         return { identifier: agent.identifier, variables } as Agent;
     }
-    
-    private mapRuntimeOutput(output: RuntimeOutput): InterpreterOutput {
-        return {
-            status: { code: 0 },
-            output: {
-                step: output.step,
-                agents: output.agents.map((agent: RuntimeAgent) => this.mapRuntimeAgent(agent))
-            }
-        } as InterpreterOutput;
-    }
 
     private createWidthFunction(width: number): FunctionCall {
         function widthFunction(args: RuntimeValue[]): RuntimeValue {
             if (args.length !== 0) {
-                return Error.runtime(`Function 'width' requires 0 arguments, ${args.length} provided`);
+                throw new ErrorRuntime(`Function 'width' requires 0 arguments, ${args.length} provided`);
             }
 
             return { type: ValueType.Number, value: width } as NumberValue;
@@ -92,7 +97,7 @@ export class Interpreter {
     private createHeightFunction(height: number): FunctionCall {
         function heightFunction(args: RuntimeValue[]): RuntimeValue {
             if (args.length !== 0) {
-                return Error.runtime(`Function 'height' requires 0 arguments, ${args.length} provided`);
+                throw new ErrorRuntime(`Function 'height' requires 0 arguments, ${args.length} provided`);
             }
 
             return { type: ValueType.Number, value: height } as NumberValue;
