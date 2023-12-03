@@ -3,7 +3,7 @@ export enum ValueType {
     Number = "Number",
     Boolean = "Boolean",
     Function = "Function",
-    Void = "Void",
+    Null = "Null",
     Agent = "Agent",
     Agents = "Agents",
     Lambda = "Lambda",
@@ -41,6 +41,10 @@ export interface RuntimeAgent {
     id: string;
     identifier: string;
     variables: Map<string, RuntimeValue>;
+}
+
+export interface NullValue extends RuntimeValue {
+    type: ValueType.Null;
 }
 
 export interface AgentValue extends RuntimeValue {

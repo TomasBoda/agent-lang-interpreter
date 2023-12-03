@@ -20,6 +20,7 @@ export enum NodeType {
     CallExpression = "CallExpression",
     LambdaExpression = "LambdaExpression",
     MemberExpression = "MemberExpression",
+    OtherwiseExpression = "OtherwiseExpression",
 }
 
 export interface ParserValue {
@@ -94,6 +95,12 @@ export interface MemberExpression extends Expression {
     type: NodeType.MemberExpression;
     caller: Expression;
     value: Expression;
+}
+
+export interface OtherwiseExpression extends Expression {
+    type: NodeType.OtherwiseExpression;
+    left: Expression;
+    right: Expression;
 }
 
 export interface Identifier extends Expression {

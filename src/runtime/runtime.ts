@@ -10,6 +10,7 @@ import {
     NodeType,
     NumericLiteral,
     ObjectDeclaration,
+    OtherwiseExpression,
     ParserValue,
     Program,
     UnaryExpression,
@@ -42,6 +43,8 @@ export class Runtime {
     private lambdaEnv: Environment;
 
     private output: RuntimeOutput = { type: ValueType.Output, step: 0, agents: [] };
+
+    private inOtherwiseExpression = false;
 
     constructor(program: Program, environment: Environment) {
         this.program = program;
@@ -167,6 +170,8 @@ export class Runtime {
                 return this.evaluateLambdaExpression(node as LambdaExpression, id);
             case NodeType.MemberExpression:
                 return this.evaluateMemberExpression(node as MemberExpression, id);
+            case NodeType.OtherwiseExpression:
+                return this.evaluateOtherwiseExpression(node as OtherwiseExpression, id);
             default:
                 throw new ErrorRuntime(`Unknown runtime node '${node.type}'`);
         }
@@ -213,6 +218,16 @@ export class Runtime {
         const leftHandSide = this.evaluateRuntimeValue(expression.left, id);
         const rightHandSide = this.evaluateRuntimeValue(expression.right, id);
 
+        // handle otherwise expression
+        if (this.inOtherwiseExpression && leftHandSide.type === ValueType.Null) {
+            return leftHandSide;
+        }
+
+        // handle otherwise expression
+        if (this.inOtherwiseExpression && rightHandSide.type === ValueType.Null) {
+            return rightHandSide;
+        }
+
         const isValid = (
             (expression.operator === "==" || expression.operator === "!=") &&
             (
@@ -238,6 +253,11 @@ export class Runtime {
     private evaluateUnaryExpression(expression: UnaryExpression, id: string): RuntimeValue {
         const operator = expression.operator;
         const value = this.evaluateRuntimeValue(expression.value, id);
+
+        // handle otherwise expression
+        if (this.inOtherwiseExpression && value.type === ValueType.Null) {
+            return value;
+        }
 
         if (operator === "-") {
             if (value.type !== ValueType.Number) {
@@ -308,6 +328,16 @@ export class Runtime {
         const leftHandSide = this.evaluateRuntimeValue(expression.left, id);
         const rightHandSide = this.evaluateRuntimeValue(expression.right, id);
 
+        // handle otherwise expression
+        if (this.inOtherwiseExpression && leftHandSide.type === ValueType.Null) {
+            return leftHandSide;
+        }
+
+        // handle otherwise expression
+        if (this.inOtherwiseExpression && rightHandSide.type === ValueType.Null) {
+            return rightHandSide;
+        }
+
         if (leftHandSide.type === ValueType.Boolean && rightHandSide.type === ValueType.Boolean) {
             let result;
 
@@ -329,6 +359,11 @@ export class Runtime {
 
     private evaluateConditionalExpression(expression: ConditionalExpression, id: string): RuntimeValue {
         const condition = this.evaluateRuntimeValue(expression.condition, id);
+
+        // handle otherwise expression
+        if (this.inOtherwiseExpression && condition.type === ValueType.Null) {
+            return condition;
+        }
 
         if (condition.type !== ValueType.Boolean) {
             throw new ErrorRuntime("Conditional expression requires a boolean expression as its condition");
@@ -385,6 +420,11 @@ export class Runtime {
     private evaluateMemberExpression(expression: MemberExpression, id: string): RuntimeValue {
         const caller = this.evaluateRuntimeValue(expression.caller, id);
 
+        // handle otherwise expression
+        if (this.inOtherwiseExpression && caller.type === ValueType.Null) {
+            return caller;
+        }
+
         if (caller.type !== ValueType.Agent) {
             throw new ErrorRuntime("The caller of member expression must be of type 'agent'");
         }
@@ -403,6 +443,18 @@ export class Runtime {
         }
 
         return value;
+    }
+
+    private evaluateOtherwiseExpression(expression: OtherwiseExpression, id: string): RuntimeValue {
+        this.inOtherwiseExpression = true;
+        const left = this.evaluateRuntimeValue(expression.left, id);
+        this.inOtherwiseExpression = false;
+
+        if (left.type === ValueType.Null) {
+            return this.evaluateRuntimeValue(expression.right, id);
+        }
+
+        return left;
     }
 
     private customModulo(a: number, b: number): number {

@@ -1,6 +1,6 @@
-import { BinaryExpression, CallExpression, ConditionalExpression, Expression, Identifier, LambdaExpression, LogicalExpression, MemberExpression, NodeType, ObjectDeclaration, ParserValue, Program, UnaryExpression, VariableDeclaration } from "./parser.types";
+import { BinaryExpression, CallExpression, ConditionalExpression, Expression, Identifier, LambdaExpression, LogicalExpression, MemberExpression, NodeType, ObjectDeclaration, ParserValue, Program, UnaryExpression, VariableDeclaration } from "../parser.types";
 import { DependencyGraph, Node, topologicalSort } from "./topology";
-import { ErrorParser } from "../utils/errors";
+import { ErrorParser } from "../../utils/errors";
 
 const agentIdentifiers: string[] = [];
 

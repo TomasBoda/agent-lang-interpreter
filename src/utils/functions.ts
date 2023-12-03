@@ -5,13 +5,12 @@ import {
     FunctionCall,
     FunctionValue,
     LambdaValue,
+    NullValue,
     NumberValue,
     RuntimeAgent,
-    RuntimeError,
     RuntimeValue,
     ValueType
 } from "../runtime/runtime.types";
-import {Error} from "./error";
 import { ErrorRuntime } from "./errors";
 
 export function createGlobalFunction(call: FunctionCall): FunctionValue {
@@ -113,7 +112,7 @@ export function MIN(args: RuntimeValue[]): RuntimeValue {
         }
     }
 
-    return { type: ValueType.Agent, value: {} } as AgentValue;
+    return { type: ValueType.Null, value: {} } as NullValue;
 }
 
 export function MAX(args: RuntimeValue[]): RuntimeValue {
@@ -150,7 +149,7 @@ export function MAX(args: RuntimeValue[]): RuntimeValue {
         }
     }
 
-    return { type: ValueType.Agent, value: {} } as AgentValue;
+    return { type: ValueType.Null, value: {} } as NullValue;
 }
 
 export function FILTER(args: RuntimeValue[]): RuntimeValue {
@@ -202,10 +201,6 @@ export function COUNT(args: RuntimeValue[]): RuntimeValue {
 
 export function RANDOM(args: RuntimeValue[]): RuntimeValue {
     const numericArgs: RuntimeValue[] = expectNumericArgs(args, 2);
-
-    if (numericArgs.length === 1 && numericArgs[0].type === ValueType.Error) {
-        return numericArgs[0] as RuntimeError;
-    }
 
     const min: NumberValue = numericArgs[0] as NumberValue;
     const max: NumberValue = numericArgs[1] as NumberValue;
