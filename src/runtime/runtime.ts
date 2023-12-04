@@ -37,7 +37,7 @@ import { ErrorRuntime } from "../utils/errors";
 
 export class Runtime {
 
-    private readonly program: Program;
+    private program: Program;
 
     private environment: Environment;
     private lambdaEnv: Environment;
@@ -58,6 +58,7 @@ export class Runtime {
         this.lambdaEnv = new Environment();
     }
 
+    // run code
     public run(step: number): RuntimeValue {
         this.output.step = step;
         this.provideDataToStepFunction(step);
@@ -65,6 +66,12 @@ export class Runtime {
         return this.evaluateProgram(this.program);
     }
 
+    // set new program
+    public setProgram(program: Program): void {
+        this.program = program;
+    }
+
+    // reset output
     public reset(): void {
         this.output = { type: ValueType.Output, step: 0, agents: [] };
     }

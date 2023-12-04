@@ -86,7 +86,7 @@ export class Parser {
         } as ObjectDeclaration;
     }
 
-    private parseVariableDeclaration(): ParserValue {
+    public parseVariableDeclaration(): ParserValue {
         if (this.isNotOf(TokenType.Property) && this.isNotOf(TokenType.Const)) {
             throw new ErrorParser("Expected property or const keyword at the beginning of variable declaration", this.position());
         }

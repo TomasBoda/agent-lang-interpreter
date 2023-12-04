@@ -1,1 +1,206 @@
-{"type":"Program","body":[{"type":"ObjectDeclaration","identifier":"person","count":10,"body":[{"type":"VariableDeclaration","variableType":"Const","identifier":"x","value":{"type":"CallExpression","caller":{"type":"Identifier","identifier":"random"},"args":[{"type":"NumericLiteral","value":0},{"type":"CallExpression","caller":{"type":"Identifier","identifier":"width"},"args":[]}]}},{"type":"VariableDeclaration","variableType":"Const","identifier":"y","value":{"type":"CallExpression","caller":{"type":"Identifier","identifier":"random"},"args":[{"type":"NumericLiteral","value":0},{"type":"CallExpression","caller":{"type":"Identifier","identifier":"height"},"args":[]}]}},{"type":"VariableDeclaration","variableType":"Property","identifier":"close","value":{"type":"CallExpression","caller":{"type":"Identifier","identifier":"filter"},"args":[{"type":"LambdaExpression","base":{"type":"CallExpression","caller":{"type":"Identifier","identifier":"agents"},"args":[{"type":"Identifier","identifier":"person"}]},"param":"p","value":{"type":"LogicalExpression","left":{"type":"BinaryExpression","left":{"type":"MemberExpression","caller":{"type":"Identifier","identifier":"p"},"value":{"type":"Identifier","identifier":"x"}},"right":{"type":"NumericLiteral","value":0},"operator":">="},"right":{"type":"BinaryExpression","left":{"type":"MemberExpression","caller":{"type":"Identifier","identifier":"p"},"value":{"type":"Identifier","identifier":"x"}},"right":{"type":"CallExpression","caller":{"type":"Identifier","identifier":"width"},"args":[]},"operator":"<="},"operator":"and"}}]}},{"type":"VariableDeclaration","variableType":"Property","identifier":"closest","value":{"type":"CallExpression","caller":{"type":"Identifier","identifier":"min"},"args":[{"type":"LambdaExpression","base":{"type":"Identifier","identifier":"close"},"param":"c","value":{"type":"MemberExpression","caller":{"type":"Identifier","identifier":"c"},"value":{"type":"Identifier","identifier":"x"}}}]}},{"type":"VariableDeclaration","variableType":"Property","identifier":"color","value":{"type":"BooleanLiteral","value":true}},{"type":"VariableDeclaration","variableType":"Property","identifier":"coloured","value":{"type":"OtherwiseExpression","left":{"type":"MemberExpression","caller":{"type":"Identifier","identifier":"closest"},"value":{"type":"Identifier","identifier":"color"}},"right":{"type":"BooleanLiteral","value":false}}}]}]}
+{
+    "type": "Program",
+    "body": [
+        {
+            "type": "ObjectDeclaration",
+            "identifier": "person",
+            "count": 10,
+            "body": [
+                {
+                    "type": "VariableDeclaration",
+                    "variableType": "Const",
+                    "identifier": "x",
+                    "value": {
+                        "type": "CallExpression",
+                        "caller": {
+                            "type": "Identifier",
+                            "identifier": "random"
+                        },
+                        "args": [
+                            {
+                                "type": "NumericLiteral",
+                                "value": 0
+                            },
+                            {
+                                "type": "CallExpression",
+                                "caller": {
+                                    "type": "Identifier",
+                                    "identifier": "width"
+                                },
+                                "args": []
+                            }
+                        ]
+                    }
+                },
+                {
+                    "type": "VariableDeclaration",
+                    "variableType": "Const",
+                    "identifier": "y",
+                    "value": {
+                        "type": "CallExpression",
+                        "caller": {
+                            "type": "Identifier",
+                            "identifier": "random"
+                        },
+                        "args": [
+                            {
+                                "type": "NumericLiteral",
+                                "value": 0
+                            },
+                            {
+                                "type": "CallExpression",
+                                "caller": {
+                                    "type": "Identifier",
+                                    "identifier": "height"
+                                },
+                                "args": []
+                            }
+                        ]
+                    }
+                },
+                {
+                    "type": "VariableDeclaration",
+                    "variableType": "Property",
+                    "identifier": "close",
+                    "value": {
+                        "type": "CallExpression",
+                        "caller": {
+                            "type": "Identifier",
+                            "identifier": "filter"
+                        },
+                        "args": [
+                            {
+                                "type": "LambdaExpression",
+                                "base": {
+                                    "type": "CallExpression",
+                                    "caller": {
+                                        "type": "Identifier",
+                                        "identifier": "agents"
+                                    },
+                                    "args": [
+                                        {
+                                            "type": "Identifier",
+                                            "identifier": "person"
+                                        }
+                                    ]
+                                },
+                                "param": "p",
+                                "value": {
+                                    "type": "LogicalExpression",
+                                    "left": {
+                                        "type": "BinaryExpression",
+                                        "left": {
+                                            "type": "MemberExpression",
+                                            "caller": {
+                                                "type": "Identifier",
+                                                "identifier": "p"
+                                            },
+                                            "value": {
+                                                "type": "Identifier",
+                                                "identifier": "x"
+                                            }
+                                        },
+                                        "right": {
+                                            "type": "NumericLiteral",
+                                            "value": 0
+                                        },
+                                        "operator": ">="
+                                    },
+                                    "right": {
+                                        "type": "BinaryExpression",
+                                        "left": {
+                                            "type": "MemberExpression",
+                                            "caller": {
+                                                "type": "Identifier",
+                                                "identifier": "p"
+                                            },
+                                            "value": {
+                                                "type": "Identifier",
+                                                "identifier": "x"
+                                            }
+                                        },
+                                        "right": {
+                                            "type": "CallExpression",
+                                            "caller": {
+                                                "type": "Identifier",
+                                                "identifier": "width"
+                                            },
+                                            "args": []
+                                        },
+                                        "operator": "<="
+                                    },
+                                    "operator": "and"
+                                }
+                            }
+                        ]
+                    }
+                },
+                {
+                    "type": "VariableDeclaration",
+                    "variableType": "Property",
+                    "identifier": "closest",
+                    "value": {
+                        "type": "CallExpression",
+                        "caller": {
+                            "type": "Identifier",
+                            "identifier": "min"
+                        },
+                        "args": [
+                            {
+                                "type": "LambdaExpression",
+                                "base": {
+                                    "type": "Identifier",
+                                    "identifier": "close"
+                                },
+                                "param": "c",
+                                "value": {
+                                    "type": "MemberExpression",
+                                    "caller": {
+                                        "type": "Identifier",
+                                        "identifier": "c"
+                                    },
+                                    "value": {
+                                        "type": "Identifier",
+                                        "identifier": "x"
+                                    }
+                                }
+                            }
+                        ]
+                    }
+                },
+                {
+                    "type": "VariableDeclaration",
+                    "variableType": "Property",
+                    "identifier": "color",
+                    "value": {
+                        "type": "BooleanLiteral",
+                        "value": true
+                    }
+                },
+                {
+                    "type": "VariableDeclaration",
+                    "variableType": "Property",
+                    "identifier": "coloured",
+                    "value": {
+                        "type": "OtherwiseExpression",
+                        "left": {
+                            "type": "MemberExpression",
+                            "caller": {
+                                "type": "Identifier",
+                                "identifier": "closest"
+                            },
+                            "value": {
+                                "type": "Identifier",
+                                "identifier": "color"
+                            }
+                        },
+                        "right": {
+                            "type": "BooleanLiteral",
+                            "value": false
+                        }
+                    }
+                }
+            ]
+        }
+    ]
+}

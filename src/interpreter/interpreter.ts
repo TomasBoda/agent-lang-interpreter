@@ -1,7 +1,7 @@
 import { Observable, Subject, Subscription, interval, map, of, take, takeWhile } from "rxjs";
 import { Lexer } from "../lexer/lexer";
 import { Token } from "../lexer/lexer.types";
-import { ParserValue, Program } from "../parser/parser.types";
+import { NodeType, ObjectDeclaration, ParserValue, Program, VariableDeclaration } from "../parser/parser.types";
 import { Parser } from "../parser/parser";
 import { Runtime } from "../runtime/runtime";
 import { Agent, InterpreterConfiguration, InterpreterOutput } from "./interpreter.types";
@@ -19,20 +19,24 @@ export class Interpreter {
     private currentStep = 0;
     private dataSubject: Subject<InterpreterOutput> = new Subject();
     private subscription?: Subscription;
-    private running = false;
 
     private symbolizer?: Symbolizer;
     private lexer?: Lexer;
     private parser?: Parser;
     private runtime?: Runtime;
 
-    get(sourceCode: string, config: InterpreterConfiguration): Observable<InterpreterOutput> {
+    private program?: Program;
+
+    // subscribes to interpreter output
+    public get(sourceCode: string, config: InterpreterConfiguration): Observable<InterpreterOutput> {
         this.sourceCode = sourceCode;
         this.config = config;
 
+        // generate source code symbols
         this.symbolizer = new Symbolizer(this.sourceCode);
         const symbols: Symbol[] = this.symbolizer.symbolize();
 
+        // generate source code tokens
         this.lexer = new Lexer(symbols);
         let tokens: Token[];
 
@@ -40,6 +44,7 @@ export class Interpreter {
             return of(this.getRuntimeError(error as ErrorLexer));
         }
 
+        // generate source code abstract syntax tree
         this.parser = new Parser(tokens);
         let program: ParserValue;
 
@@ -47,39 +52,62 @@ export class Interpreter {
             return of(this.getRuntimeError(error as ErrorParser));
         }
 
+        // save abstract syntax tree
+        this.program = program as Program;
+
+        // initialize default global environment
         const environment: Environment = Environment.createGlobalEnvironment();
         environment.declareVariable("width", createGlobalFunction(this.createWidthFunction(this.config.width)));
         environment.declareVariable("height", createGlobalFunction(this.createHeightFunction(this.config.height)));
 
+        // save runtime
         this.runtime = new Runtime(program as Program, environment);
 
         return this.dataSubject.asObservable();
     }
-    
-    start() {
-        this.currentStep = 0;
-        this.subscribe();
-        this.running = true;
+
+    // returns current program
+    public getProgram(): Program {
+        return this.program!;
+    }
+
+    // sets new program
+    public setProgram(program: Program): void {
+        this.program = program;
+    }
+
+    // rebuilds current interpreter step
+    public rebuild(): void {
+        this.runtime?.setProgram(this.program!);
+        this.currentStep--;
+        this.step();
     }
     
-    reset() {
+    // starts the interpreter
+    public start() {
+        this.currentStep = 0;
+        this.subscribe();
+    }
+    
+    // resets the interpreter
+    public reset() {
         this.unsubscribe();
         this.currentStep = 0;
-        this.running = false;
         this.runtime?.reset();
     }
     
-    pause() {
+    // pauses the interpreter
+    public pause() {
         this.unsubscribe();
-        this.running = false;
     }
     
-    resume() {
+    // resumes the interpreter
+    public resume() {
         this.subscribe();
-        this.running = true;
     }
     
-    step() {
+    // steps manually through the interpreter
+    public step() {
         if (this.currentStep >= this.config.steps + 1) {
           return;
         }
