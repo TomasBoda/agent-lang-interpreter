@@ -65,6 +65,10 @@ export class Runtime {
         return this.evaluateProgram(this.program);
     }
 
+    public reset(): void {
+        this.output = { type: ValueType.Output, step: 0, agents: [] };
+    }
+
     private evaluateProgram(program: Program): RuntimeValue {
         for (const statement of program.body) {
             if (statement.type !== NodeType.ObjectDeclaration) {
