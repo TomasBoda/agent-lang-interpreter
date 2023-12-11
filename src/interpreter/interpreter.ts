@@ -1,4 +1,4 @@
-import { Observable, Subject, Subscription, interval, map, of, take, takeWhile } from "rxjs";
+import { Observable, Subject, Subscription, finalize, interval, map, of, take, takeWhile } from "rxjs";
 import { Lexer } from "../lexer/lexer";
 import { Token } from "../lexer/lexer.types";
 import { NodeType, ObjectDeclaration, ParserValue, Program, VariableDeclaration } from "../parser/parser.types";
