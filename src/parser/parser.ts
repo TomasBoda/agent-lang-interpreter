@@ -38,7 +38,7 @@ export class Parser {
             throw new ErrorParser("Expected agent keyword in program scope", this.position());
         }
 
-        this.next();
+        const { position } = this.next();
 
         if (this.isNotOf(TokenType.Identifier)) {
             throw new ErrorParser("Expected agent identifier after agent keyword", this.position());
@@ -82,7 +82,8 @@ export class Parser {
             type: NodeType.ObjectDeclaration,
             identifier,
             count: parseFloat(count),
-            body
+            body,
+            position
         } as ObjectDeclaration;
     }
 
@@ -91,7 +92,7 @@ export class Parser {
             throw new ErrorParser("Expected property or const keyword at the beginning of variable declaration", this.position());
         }
 
-        const variableType = this.next();
+        const { position, type } = this.next();
 
         if (this.isNotOf(TokenType.Identifier)) {
             throw new ErrorParser("Expected identifier after variable type in variable declaration", this.position());
@@ -101,7 +102,7 @@ export class Parser {
         let defaultValue: ParserValue | undefined;
 
         if (this.at().type === TokenType.Colon) {
-            if (variableType.type === TokenType.Const) {
+            if (type === TokenType.Const) {
                 throw new ErrorParser("Const properties cannot have a default value", this.at().position);
             }
 
@@ -124,9 +125,9 @@ export class Parser {
         this.next();
 
         function getVariableType() {
-            if (variableType.type === TokenType.Property) {
+            if (type === TokenType.Property) {
                 return VariableType.Property;
-            } else if (variableType.type === TokenType.Const) {
+            } else if (type === TokenType.Const) {
                 return VariableType.Const;
             }
         }
@@ -136,7 +137,8 @@ export class Parser {
             variableType: getVariableType(),
             identifier,
             value,
-            default: defaultValue
+            default: defaultValue,
+            position
         } as VariableDeclaration;
     }
 
@@ -148,14 +150,15 @@ export class Parser {
         const left = this.parseLambdaExpression();
 
         if (this.at().type === TokenType.Otherwise) {
-            this.next();
+            const { position } = this.next();
 
             const right = this.parseLambdaExpression();
 
             return {
                 type: NodeType.OtherwiseExpression,
                 left,
-                right
+                right,
+                position
             } as OtherwiseExpression;
         }
 
@@ -173,7 +176,7 @@ export class Parser {
                 throw new ErrorParser("Expected a lambda arrow after param in lambda expression", this.position());
             }
 
-            this.next();
+            const { position } = this.next();
 
             const value = this.parseConditionalExpression();
 
@@ -181,7 +184,8 @@ export class Parser {
                 type: NodeType.LambdaExpression,
                 base,
                 param,
-                value
+                value,
+                position,
             } as LambdaExpression;
         }
 
@@ -190,7 +194,7 @@ export class Parser {
 
     private parseConditionalExpression(): ParserValue {
         if (this.at().type === TokenType.If) {
-            this.next();
+            const { position } = this.next();
 
             const condition = this.parseExpression();
 
@@ -214,7 +218,8 @@ export class Parser {
                 type: NodeType.ConditionalExpression,
                 condition,
                 consequent,
-                alternate
+                alternate,
+                position
             } as ConditionalExpression;
         }
 
@@ -225,14 +230,18 @@ export class Parser {
         let left = this.parseComparisonExpression();
 
         while (this.at().type === TokenType.RelationalOperator && (this.at().value === "and" || this.at().value === "or")) {
-            const operator = this.next().value;
+            const token = this.next();
+            const operator = token.value;
+            const position = token.position;
+
             const right = this.parseComparisonExpression();
 
             left = {
                 type: NodeType.LogicalExpression,
                 left,
                 right,
-                operator
+                operator,
+                position,
             } as LogicalExpression;
         }
 
@@ -243,14 +252,18 @@ export class Parser {
         let left = this.parseAdditiveExpression();
 
         while (this.at().type === TokenType.RelationalOperator && this.at().value !== "and" && this.at().value !== "or") {
-            const operator = this.next().value;
+            const token = this.next();
+            const operator = token.value;
+            const position = token.position;
+
             const right = this.parseAdditiveExpression();
 
             left = {
                 type: NodeType.BinaryExpression,
                 left,
                 right,
-                operator
+                operator,
+                position
             } as BinaryExpression;
         }
 
@@ -261,14 +274,18 @@ export class Parser {
         let left = this.parseMultiplicativeExpression();
 
         while (this.at().value === "+" || this.at().value === "-") {
-            const operator = this.next().value;
+            const token = this.next();
+            const operator = token.value;
+            const position = token.position;
+
             const right = this.parseMultiplicativeExpression();
 
             left = {
                 type: NodeType.BinaryExpression,
                 left,
                 right,
-                operator
+                operator,
+                position
             } as BinaryExpression;
         }
 
@@ -279,14 +296,18 @@ export class Parser {
         let left = this.parseMemberExpression();
 
         while (this.at().value === "*" || this.at().value === "/" || this.at().value === "%") {
-            const operator = this.next().value;
+            const token = this.next();
+            const operator = token.value;
+            const position = token.position;
+
             const right = this.parseMemberExpression();
 
             left = {
                 type: NodeType.BinaryExpression,
                 left,
                 right,
-                operator
+                operator,
+                position
             } as BinaryExpression;
         }
 
@@ -297,14 +318,15 @@ export class Parser {
         const caller = this.parseCallExpression();
 
         if (this.at().type === TokenType.Dot) {
-            this.next();
+            const { position } = this.next();
 
             const value = this.parseCallExpression();
 
             return {
                 type: NodeType.MemberExpression,
                 caller,
-                value
+                value,
+                position
             } as MemberExpression;
         }
 
@@ -320,7 +342,8 @@ export class Parser {
             return {
                 type: NodeType.CallExpression,
                 caller,
-                args
+                args,
+                position: caller.position
             } as CallExpression;
         }
 
@@ -370,20 +393,26 @@ export class Parser {
         const token = this.at();
 
         switch (token.type) {
-            case TokenType.Identifier:
+            case TokenType.Identifier: {
+                this.next();
+
                 return {
                     type: NodeType.Identifier,
-                    identifier: this.next().value
+                    identifier: token.value,
+                    position: token.position,
                 } as Identifier;
-            
-            case TokenType.Number:
+            }
+            case TokenType.Number: {
+                this.next();
+
                 return {
                     type: NodeType.NumericLiteral,
-                    value: parseFloat(this.next().value)
+                    value: parseFloat(token.value),
+                    position: token.position
                 } as NumericLiteral;
-            
+            }
             // parse negative numbers
-            case TokenType.BinaryOperator:
+            case TokenType.BinaryOperator: {
                 if (token.value !== "+" && token.value !== "-") {
                     throw new ErrorParser("Unary expression requires operator + or -.", this.position());
                 }
@@ -398,9 +427,10 @@ export class Parser {
                     type: NodeType.UnaryExpression,
                     operator: token.value,
                     value: this.parsePrimaryExpression(),
+                    position: token.position
                 } as UnaryExpression;
-            
-            case TokenType.UnaryOperator:
+            }
+            case TokenType.UnaryOperator: {
                 if (token.value !== "!") {
                     throw new ErrorParser("Unary expression requires operator !.", this.position());
                 }
@@ -415,15 +445,19 @@ export class Parser {
                     type: NodeType.UnaryExpression,
                     operator: token.value,
                     value: this.parsePrimaryExpression(),
+                    position: token.position
                 } as UnaryExpression;
+            }
+            case TokenType.Boolean: {
+                this.next();
 
-            case TokenType.Boolean:
                 return {
                     type: NodeType.BooleanLiteral,
-                    value: this.next().value === "true"
+                    value: token.value === "true",
+                    position: token.position
                 } as BooleanLiteral;
-
-            case TokenType.OpenParen:
+            }
+            case TokenType.OpenParen: {
                 this.next();
                 const value: ParserValue = this.parseExpression();
 
@@ -434,7 +468,7 @@ export class Parser {
                 this.next();
                 
                 return value;
-            
+            }
             default:
                 throw new ErrorParser("Unexpected token found during parsing: " + this.at().value, this.position());
         }
@@ -470,6 +504,6 @@ export class Parser {
     }
 
     private createEmptyProgram(): Program {
-        return { type: NodeType.Program, body: [] };
+        return { type: NodeType.Program, body: [], position: { line: 0, character: 0 } };
     }
 }

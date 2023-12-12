@@ -1,3 +1,4 @@
+import { Position } from "../symbolizer/symbolizer.types";
 
 export enum VariableType {
     Const = "Const",
@@ -25,11 +26,16 @@ export enum NodeType {
 
 export interface ParserValue {
     type: NodeType;
+    position: Position;
 }
 
-export interface Statement extends ParserValue {}
+export interface Statement extends ParserValue {
+    position: Position;
+}
 
-export interface Expression extends Statement {}
+export interface Expression extends Statement {
+    position: Position;
+}
 
 export interface Program extends Statement {
     type: NodeType.Program;

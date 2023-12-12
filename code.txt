@@ -1,3 +1,7 @@
-agent snowflake 200 {
-    const boolean = prob(0.5);
+agent person 10 {
+
+    const x = 20 + 5;
+    const y = 30 * 2 - 3;
+
+    const coloured = false;
 }

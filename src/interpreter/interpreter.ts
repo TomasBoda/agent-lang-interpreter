@@ -11,6 +11,7 @@ import { createGlobalFunction } from "../utils/functions";
 import { Symbolizer } from "../symbolizer/symbolizer";
 import { Symbol } from "../symbolizer/symbolizer.types";
 import { ErrorLexer, ErrorModel, ErrorParser, ErrorRuntime } from "../utils/errors";
+import { writeFileSync } from "fs";
 
 export class Interpreter {
 
@@ -51,6 +52,8 @@ export class Interpreter {
         try { program = this.parser.parse(); } catch (error) {
             return of(this.getRuntimeError(error as ErrorParser));
         }
+
+        writeFileSync("ast.json", JSON.stringify(program));
 
         // save abstract syntax tree
         this.program = program as Program;
