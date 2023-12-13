@@ -1,9 +1,4 @@
 agent person 10 {
 
-    const a = print(10 + 5 * 3);
-    const b = 10 + (5 * 3);
-    const c = print((10 + 5) * 3);
-    const d = 10 * 5 + 3;
-    const e = (10 * 5) + 3;
-    const f = 10 * (5 + 3);
+    property x = random(1, 100);
 }

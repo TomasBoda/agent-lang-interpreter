@@ -15,10 +15,10 @@ export class Formatter {
         Formatter.line = 1;
 
         const program: Program = Formatter.getProgram(sourceCode);
-        return Formatter.programToSourceCode(program)
+        return Formatter.nodeToSourceCode(program)
     }
 
-    private static programToSourceCode(ast: ParserValue): string {
+    private static nodeToSourceCode(ast: ParserValue): string {
         let sourceCode = "";
 
         switch (ast.type) {
@@ -28,7 +28,7 @@ export class Formatter {
                 for (const statement of program.body) {
                     const objectDeclaration = statement as ObjectDeclaration;
                     sourceCode += Formatter.align(objectDeclaration.position.line);
-                    sourceCode += Formatter.programToSourceCode(objectDeclaration);
+                    sourceCode += Formatter.nodeToSourceCode(objectDeclaration);
                 }
 
                 break;
@@ -42,7 +42,7 @@ export class Formatter {
                 for (const statement of objectDeclaration.body) {
                     const variableDeclaration = statement as VariableDeclaration;
                     sourceCode += Formatter.align(variableDeclaration.position.line);
-                    sourceCode += `    ${Formatter.programToSourceCode(variableDeclaration)}`;
+                    sourceCode += `    ${Formatter.nodeToSourceCode(variableDeclaration)}`;
                 }
 
                 sourceCode += `\n}`
@@ -56,10 +56,10 @@ export class Formatter {
                 sourceCode += `${variableType} ${identifier}`;
                 
                 if (variableDeclaration.default) {
-                    sourceCode += `: ${Formatter.programToSourceCode(variableDeclaration.default)}`
+                    sourceCode += `: ${Formatter.nodeToSourceCode(variableDeclaration.default)}`
                 }
 
-                sourceCode += ` = ${Formatter.programToSourceCode(variableDeclaration.value)};`;
+                sourceCode += ` = ${Formatter.nodeToSourceCode(variableDeclaration.value)};`;
 
                 break;
             }
@@ -67,8 +67,8 @@ export class Formatter {
                 const binaryExpression = ast as BinaryExpression;
                 const { operator } = binaryExpression;
 
-                let left = Formatter.programToSourceCode(binaryExpression.left);
-                let right = Formatter.programToSourceCode(binaryExpression.right);
+                let left = Formatter.nodeToSourceCode(binaryExpression.left);
+                let right = Formatter.nodeToSourceCode(binaryExpression.right);
 
                 // handle left parentheses
                 if (binaryExpression.left.type === NodeType.BinaryExpression) {
@@ -89,7 +89,7 @@ export class Formatter {
                 const unaryExpression = ast as UnaryExpression;
                 const { operator } = unaryExpression;
 
-                const value = Formatter.programToSourceCode(unaryExpression.value);
+                const value = Formatter.nodeToSourceCode(unaryExpression.value);
 
                 sourceCode += `${operator}${value}`;
                 break;
@@ -98,8 +98,8 @@ export class Formatter {
                 const logicalExpression = ast as LogicalExpression;
                 const { operator } = logicalExpression;
 
-                let left = Formatter.programToSourceCode(logicalExpression.left);
-                let right = Formatter.programToSourceCode(logicalExpression.right);
+                let left = Formatter.nodeToSourceCode(logicalExpression.left);
+                let right = Formatter.nodeToSourceCode(logicalExpression.right);
 
                 if (logicalExpression.left.type !== NodeType.LogicalExpression && logicalExpression.right.type === NodeType.LogicalExpression) {
                     right = `(${right})`;
@@ -125,9 +125,9 @@ export class Formatter {
             case NodeType.ConditionalExpression: {
                 const conditionalExpression = ast as ConditionalExpression;
 
-                const condition = Formatter.programToSourceCode(conditionalExpression.condition);
-                const consequent = Formatter.programToSourceCode(conditionalExpression.consequent);
-                const alternate = Formatter.programToSourceCode(conditionalExpression.alternate);
+                const condition = Formatter.nodeToSourceCode(conditionalExpression.condition);
+                const consequent = Formatter.nodeToSourceCode(conditionalExpression.consequent);
+                const alternate = Formatter.nodeToSourceCode(conditionalExpression.alternate);
 
                 sourceCode += `if ${condition} then ${consequent} else ${alternate}`;
                 break;
@@ -135,8 +135,8 @@ export class Formatter {
             case NodeType.CallExpression: {
                 const callExpression = ast as CallExpression;
 
-                const caller = Formatter.programToSourceCode(callExpression.caller);
-                const args = callExpression.args.map(arg => Formatter.programToSourceCode(arg));
+                const caller = Formatter.nodeToSourceCode(callExpression.caller);
+                const args = callExpression.args.map(arg => Formatter.nodeToSourceCode(arg));
 
                 sourceCode += `${caller}(${args.join(", ")})`;
                 break;
@@ -144,9 +144,9 @@ export class Formatter {
             case NodeType.LambdaExpression: {
                 const lambdaExpression = ast as LambdaExpression;
                 
-                const base = Formatter.programToSourceCode(lambdaExpression.base);
+                const base = Formatter.nodeToSourceCode(lambdaExpression.base);
                 const param = lambdaExpression.param;
-                const value = Formatter.programToSourceCode(lambdaExpression.value);
+                const value = Formatter.nodeToSourceCode(lambdaExpression.value);
 
                 sourceCode += `${base} => ${param} => ${value}`;
                 break;
@@ -154,8 +154,8 @@ export class Formatter {
             case NodeType.MemberExpression: {
                 const memberExpression = ast as MemberExpression;
                 
-                const caller = Formatter.programToSourceCode(memberExpression.caller);
-                const value = Formatter.programToSourceCode(memberExpression.value);
+                const caller = Formatter.nodeToSourceCode(memberExpression.caller);
+                const value = Formatter.nodeToSourceCode(memberExpression.value);
 
                 sourceCode += `${caller}.${value}`;
                 break;
@@ -163,8 +163,8 @@ export class Formatter {
             case NodeType.OtherwiseExpression: {
                 const otherwiseExpression = ast as OtherwiseExpression;
 
-                let left = Formatter.programToSourceCode(otherwiseExpression.left);
-                let right = Formatter.programToSourceCode(otherwiseExpression.right);
+                let left = Formatter.nodeToSourceCode(otherwiseExpression.left);
+                let right = Formatter.nodeToSourceCode(otherwiseExpression.right);
 
                 sourceCode += `${left} otherwise ${right}`;
                 break;

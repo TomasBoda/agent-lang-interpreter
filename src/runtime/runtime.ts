@@ -34,6 +34,7 @@ import {
 import { Environment } from "./environment";
 import { createGlobalFunction, normalizeNumber } from "../utils/functions";
 import { ErrorRuntime } from "../utils/errors";
+import { Position } from "../symbolizer/symbolizer.types";
 
 export class Runtime {
 
@@ -79,7 +80,7 @@ export class Runtime {
     private evaluateProgram(program: Program): RuntimeValue {
         for (const statement of program.body) {
             if (statement.type !== NodeType.ObjectDeclaration) {
-                throw new ErrorRuntime("Only object declarations are allowed in program body");
+                throw new ErrorRuntime("Only object declarations are allowed in program body", statement.position);
             }
 
             const objectDeclaration: ObjectDeclaration = statement as ObjectDeclaration;
@@ -110,7 +111,7 @@ export class Runtime {
 
         for (const statement of declaration.body) {
             if (statement.type !== NodeType.VariableDeclaration) {
-                throw new ErrorRuntime("Only variable declarations are allowed in object declaration body");
+                throw new ErrorRuntime("Only variable declarations are allowed in object declaration body", statement.position);
             }
 
             const variableDeclaration: VariableDeclaration = statement as VariableDeclaration;
@@ -148,13 +149,13 @@ export class Runtime {
                 const previousConstValue: RuntimeValue | undefined = agent.variables.get(declaration.identifier);
 
                 if (!previousConstValue) {
-                    throw new ErrorRuntime("Previous value of const `${declaration.identifier}` in agent `${id}` not found");
+                    throw new ErrorRuntime("Previous value of const `${declaration.identifier}` in agent `${id}` not found", declaration.position);
                 }
 
                 return previousConstValue;
             }
             default: {
-                throw new ErrorRuntime("Unrecognized variable type in variable declaration");
+                throw new ErrorRuntime("Unrecognized variable type in variable declaration", declaration.position);
             }
         }
     }
@@ -184,7 +185,7 @@ export class Runtime {
             case NodeType.OtherwiseExpression:
                 return this.evaluateOtherwiseExpression(node as OtherwiseExpression, id);
             default:
-                throw new ErrorRuntime(`Unknown runtime node '${node.type}'`);
+                throw new ErrorRuntime(`Unknown runtime node '${node.type}'`, node.position);
         }
     }
 
@@ -219,7 +220,7 @@ export class Runtime {
         const variableValue: RuntimeValue | undefined = agent.variables.get(identifier.identifier);
 
         if (!variableValue) {
-            throw new ErrorRuntime(`Variable '${identifier.identifier}' in agent '${id}' does not exist`);
+            throw new ErrorRuntime(`Variable '${identifier.identifier}' in agent '${id}' does not exist`, identifier.position);
         }
 
         return variableValue;
@@ -249,7 +250,7 @@ export class Runtime {
             || (leftHandSide.type === ValueType.Number && rightHandSide.type === ValueType.Number);
 
         if (!isValid) {
-            throw new ErrorRuntime("Binary expression requires numeric or boolean operands");
+            throw new ErrorRuntime("Binary expression requires numeric or boolean operands", expression.position);
         }
     
         // comparison binary expression
@@ -258,7 +259,7 @@ export class Runtime {
         }
         
         // numeric binary expression
-        return this.evaluateNumericBinaryExpression(leftHandSide as NumberValue, rightHandSide as NumberValue, expression.operator);
+        return this.evaluateNumericBinaryExpression(leftHandSide as NumberValue, rightHandSide as NumberValue, expression.operator, expression.position);
     }
 
     private evaluateUnaryExpression(expression: UnaryExpression, id: string): RuntimeValue {
@@ -272,7 +273,7 @@ export class Runtime {
 
         if (operator === "-") {
             if (value.type !== ValueType.Number) {
-                throw new ErrorRuntime("Unary expression with '-' operator requires numeric value as operand");
+                throw new ErrorRuntime("Unary expression with '-' operator requires numeric value as operand", expression.position);
             }
 
             return { type: ValueType.Number, value: -(value as NumberValue).value } as NumberValue;
@@ -280,13 +281,13 @@ export class Runtime {
 
         if (operator === "!") {
             if (value.type !== ValueType.Boolean) {
-                throw new ErrorRuntime("Unary expression with '!' requires boolean value as operand");
+                throw new ErrorRuntime("Unary expression with '!' requires boolean value as operand", expression.position);
             }
 
             return { type: ValueType.Boolean, value: !(value as BooleanValue).value } as BooleanValue;
         }
 
-        throw new ErrorRuntime("Unary expression requires operator '-' or '!', but '${operator}' was provided");
+        throw new ErrorRuntime("Unary expression requires operator '-' or '!', but '${operator}' was provided", expression.position);
     }
 
     private evaluateComparisonBinaryExpression(leftHandSide: NumberValue, rightHandSide: NumberValue, operator: string): RuntimeValue {
@@ -309,7 +310,7 @@ export class Runtime {
         return { type: ValueType.Boolean, value: result } as BooleanValue;
     }
 
-    private evaluateNumericBinaryExpression(leftHandSide: NumberValue, rightHandSide: NumberValue, operator: string): RuntimeValue {
+    private evaluateNumericBinaryExpression(leftHandSide: NumberValue, rightHandSide: NumberValue, operator: string, position: Position): RuntimeValue {
         let result = 0;
     
         if (operator === "+") {
@@ -320,13 +321,13 @@ export class Runtime {
             result = leftHandSide.value * rightHandSide.value;
         } else if (operator === "/") {
             if (rightHandSide.value === 0) {
-                throw new ErrorRuntime("Division by zero not allowed");
+                throw new ErrorRuntime("Division by zero not allowed", position);
             }
 
             result = leftHandSide.value / rightHandSide.value;
         } else {
             if (rightHandSide.value === 0) {
-                throw new ErrorRuntime("Modulo by zero not allowed");
+                throw new ErrorRuntime("Modulo by zero not allowed", position);
             }
 
             result = this.customModulo(leftHandSide.value, rightHandSide.value);
@@ -365,7 +366,7 @@ export class Runtime {
             return { type: ValueType.Boolean, value: result } as BooleanValue;
         }
 
-        throw new ErrorRuntime("Logical expression requires boolean operands");
+        throw new ErrorRuntime("Logical expression requires boolean operands", expression.position);
     }
 
     private evaluateConditionalExpression(expression: ConditionalExpression, id: string): RuntimeValue {
@@ -377,7 +378,7 @@ export class Runtime {
         }
 
         if (condition.type !== ValueType.Boolean) {
-            throw new ErrorRuntime("Conditional expression requires a boolean expression as its condition");
+            throw new ErrorRuntime("Conditional expression requires a boolean expression as its condition", expression.position);
         }
 
         const result = (condition as BooleanValue).value ? expression.consequent : expression.alternate;
@@ -386,18 +387,18 @@ export class Runtime {
 
     private evaluateCallExpression(expression: CallExpression, id: string): RuntimeValue {
         if (expression.caller.type !== NodeType.Identifier) {
-            throw new ErrorRuntime("Function call must be an identifier");
+            throw new ErrorRuntime("Function call must be an identifier", expression.position);
         }
 
         const identifier = (expression.caller as Identifier).identifier;
         const func = this.environment.lookupVariable(identifier);
 
         if (!func) {
-            throw new ErrorRuntime(`Function with identifier '${identifier}' does not exist`);
+            throw new ErrorRuntime(`Function with identifier '${identifier}' does not exist`, expression.position);
         }
 
         if (func.type !== ValueType.Function) {
-            throw new ErrorRuntime(`Identifier '${identifier}' is not a function`);
+            throw new ErrorRuntime(`Identifier '${identifier}' is not a function`, expression.position);
         }
 
         const args: RuntimeValue[] = expression.args.map(expression => this.evaluateRuntimeValue(expression, id));
@@ -410,7 +411,7 @@ export class Runtime {
         const param: IdentifierValue = { type: ValueType.Identifier, value: expression.param } as IdentifierValue;
 
         if (agents.type !== ValueType.Agents) {
-            throw new ErrorRuntime("Lambda expression requires base argument of type 'agents'");
+            throw new ErrorRuntime("Lambda expression requires base argument of type 'agents'", expression.position);
         }
 
         const runtimeAgents = (agents as AgentsValue).value.filter((agent: RuntimeAgent) => agent.id !== id);
@@ -437,11 +438,11 @@ export class Runtime {
         }
 
         if (caller.type !== ValueType.Agent) {
-            throw new ErrorRuntime("The caller of member expression must be of type 'agent'");
+            throw new ErrorRuntime("The caller of member expression must be of type 'agent'", expression.position);
         }
 
         if (expression.value.type !== NodeType.Identifier) {
-            throw new ErrorRuntime("The value of member expression must be of type 'identifier'");
+            throw new ErrorRuntime("The value of member expression must be of type 'identifier'", expression.position);
         }
 
         const agent = (caller as AgentValue).value;
@@ -450,7 +451,7 @@ export class Runtime {
         const value = agent.variables.get(member);
 
         if (!value) {
-            throw new ErrorRuntime(`Agent does not have variable with identifier '${member}' in member expression`);
+            throw new ErrorRuntime(`Agent does not have variable with identifier '${member}' in member expression`, expression.position);
         }
 
         return value;
