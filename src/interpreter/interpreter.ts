@@ -1,7 +1,7 @@
-import { Observable, Subject, Subscription, finalize, interval, map, of, take, takeWhile } from "rxjs";
+import { Observable, Subject, Subscription, interval, of, takeWhile } from "rxjs";
 import { Lexer } from "../lexer/lexer";
 import { Token } from "../lexer/lexer.types";
-import { NodeType, ObjectDeclaration, ParserValue, Program, VariableDeclaration } from "../parser/parser.types";
+import { ParserValue, Program } from "../parser/parser.types";
 import { Parser } from "../parser/parser";
 import { Runtime } from "../runtime/runtime";
 import { Agent, InterpreterConfiguration, InterpreterOutput } from "./interpreter.types";
@@ -11,7 +11,6 @@ import { createGlobalFunction } from "../utils/functions";
 import { Symbolizer } from "../symbolizer/symbolizer";
 import { Symbol } from "../symbolizer/symbolizer.types";
 import { ErrorLexer, ErrorModel, ErrorParser, ErrorRuntime } from "../utils/errors";
-import { Formatter } from "../utils/formatter";
 
 export class Interpreter {
 
