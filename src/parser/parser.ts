@@ -13,7 +13,7 @@ export class Parser {
         this.tokens = tokens;
     }
 
-    public parse(): ParserValue {
+    public parse(): Program {
         const program: Program = this.createEmptyProgram();
 
         while (this.notEndOfFile()) {

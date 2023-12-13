@@ -1,8 +1,8 @@
 import { Position } from "../symbolizer/symbolizer.types";
 
 export enum VariableType {
-    Const = "Const",
-    Property = "Property"
+    Const = "const",
+    Property = "property"
 }
 
 export enum NodeType {

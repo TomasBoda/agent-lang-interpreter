@@ -1,7 +1,9 @@
 agent person 10 {
 
-    const x = 20 + 5;
-    const y = 30 * 2 - 3;
-
-    const coloured = false;
+    const a = print(10 + 5 * 3);
+    const b = 10 + (5 * 3);
+    const c = print((10 + 5) * 3);
+    const d = 10 * 5 + 3;
+    const e = (10 * 5) + 3;
+    const f = 10 * (5 + 3);
 }

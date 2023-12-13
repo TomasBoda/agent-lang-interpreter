@@ -8,30 +8,63 @@
             "body": [
                 {
                     "type": "VariableDeclaration",
-                    "variableType": "Const",
-                    "identifier": "x",
+                    "variableType": "const",
+                    "identifier": "a",
                     "value": {
-                        "type": "BinaryExpression",
-                        "left": {
-                            "type": "NumericLiteral",
-                            "value": 20,
+                        "type": "CallExpression",
+                        "caller": {
+                            "type": "Identifier",
+                            "identifier": "print",
                             "position": {
                                 "line": 3,
                                 "character": 15
                             }
                         },
-                        "right": {
-                            "type": "NumericLiteral",
-                            "value": 5,
-                            "position": {
-                                "line": 3,
-                                "character": 20
+                        "args": [
+                            {
+                                "type": "BinaryExpression",
+                                "left": {
+                                    "type": "NumericLiteral",
+                                    "value": 10,
+                                    "position": {
+                                        "line": 3,
+                                        "character": 21
+                                    }
+                                },
+                                "right": {
+                                    "type": "BinaryExpression",
+                                    "left": {
+                                        "type": "NumericLiteral",
+                                        "value": 5,
+                                        "position": {
+                                            "line": 3,
+                                            "character": 26
+                                        }
+                                    },
+                                    "right": {
+                                        "type": "NumericLiteral",
+                                        "value": 3,
+                                        "position": {
+                                            "line": 3,
+                                            "character": 30
+                                        }
+                                    },
+                                    "operator": "*",
+                                    "position": {
+                                        "line": 3,
+                                        "character": 28
+                                    }
+                                },
+                                "operator": "+",
+                                "position": {
+                                    "line": 3,
+                                    "character": 24
+                                }
                             }
-                        },
-                        "operator": "+",
+                        ],
                         "position": {
                             "line": 3,
-                            "character": 18
+                            "character": 15
                         }
                     },
                     "position": {
@@ -41,46 +74,46 @@
                 },
                 {
                     "type": "VariableDeclaration",
-                    "variableType": "Const",
-                    "identifier": "y",
+                    "variableType": "const",
+                    "identifier": "b",
                     "value": {
                         "type": "BinaryExpression",
                         "left": {
+                            "type": "NumericLiteral",
+                            "value": 10,
+                            "position": {
+                                "line": 4,
+                                "character": 15
+                            }
+                        },
+                        "right": {
                             "type": "BinaryExpression",
                             "left": {
                                 "type": "NumericLiteral",
-                                "value": 30,
+                                "value": 5,
                                 "position": {
                                     "line": 4,
-                                    "character": 15
+                                    "character": 21
                                 }
                             },
                             "right": {
                                 "type": "NumericLiteral",
-                                "value": 2,
+                                "value": 3,
                                 "position": {
                                     "line": 4,
-                                    "character": 20
+                                    "character": 25
                                 }
                             },
                             "operator": "*",
                             "position": {
                                 "line": 4,
-                                "character": 18
+                                "character": 23
                             }
                         },
-                        "right": {
-                            "type": "NumericLiteral",
-                            "value": 3,
-                            "position": {
-                                "line": 4,
-                                "character": 24
-                            }
-                        },
-                        "operator": "-",
+                        "operator": "+",
                         "position": {
                             "line": 4,
-                            "character": 22
+                            "character": 18
                         }
                     },
                     "position": {
@@ -90,11 +123,109 @@
                 },
                 {
                     "type": "VariableDeclaration",
-                    "variableType": "Const",
-                    "identifier": "coloured",
+                    "variableType": "const",
+                    "identifier": "c",
                     "value": {
-                        "type": "BooleanLiteral",
-                        "value": false,
+                        "type": "CallExpression",
+                        "caller": {
+                            "type": "Identifier",
+                            "identifier": "print",
+                            "position": {
+                                "line": 5,
+                                "character": 15
+                            }
+                        },
+                        "args": [
+                            {
+                                "type": "BinaryExpression",
+                                "left": {
+                                    "type": "BinaryExpression",
+                                    "left": {
+                                        "type": "NumericLiteral",
+                                        "value": 10,
+                                        "position": {
+                                            "line": 5,
+                                            "character": 22
+                                        }
+                                    },
+                                    "right": {
+                                        "type": "NumericLiteral",
+                                        "value": 5,
+                                        "position": {
+                                            "line": 5,
+                                            "character": 27
+                                        }
+                                    },
+                                    "operator": "+",
+                                    "position": {
+                                        "line": 5,
+                                        "character": 25
+                                    }
+                                },
+                                "right": {
+                                    "type": "NumericLiteral",
+                                    "value": 3,
+                                    "position": {
+                                        "line": 5,
+                                        "character": 32
+                                    }
+                                },
+                                "operator": "*",
+                                "position": {
+                                    "line": 5,
+                                    "character": 30
+                                }
+                            }
+                        ],
+                        "position": {
+                            "line": 5,
+                            "character": 15
+                        }
+                    },
+                    "position": {
+                        "line": 5,
+                        "character": 5
+                    }
+                },
+                {
+                    "type": "VariableDeclaration",
+                    "variableType": "const",
+                    "identifier": "d",
+                    "value": {
+                        "type": "BinaryExpression",
+                        "left": {
+                            "type": "BinaryExpression",
+                            "left": {
+                                "type": "NumericLiteral",
+                                "value": 10,
+                                "position": {
+                                    "line": 6,
+                                    "character": 15
+                                }
+                            },
+                            "right": {
+                                "type": "NumericLiteral",
+                                "value": 5,
+                                "position": {
+                                    "line": 6,
+                                    "character": 20
+                                }
+                            },
+                            "operator": "*",
+                            "position": {
+                                "line": 6,
+                                "character": 18
+                            }
+                        },
+                        "right": {
+                            "type": "NumericLiteral",
+                            "value": 3,
+                            "position": {
+                                "line": 6,
+                                "character": 24
+                            }
+                        },
+                        "operator": "+",
                         "position": {
                             "line": 6,
                             "character": 22
@@ -102,6 +233,403 @@
                     },
                     "position": {
                         "line": 6,
+                        "character": 5
+                    }
+                },
+                {
+                    "type": "VariableDeclaration",
+                    "variableType": "const",
+                    "identifier": "e",
+                    "value": {
+                        "type": "BinaryExpression",
+                        "left": {
+                            "type": "BinaryExpression",
+                            "left": {
+                                "type": "NumericLiteral",
+                                "value": 10,
+                                "position": {
+                                    "line": 7,
+                                    "character": 16
+                                }
+                            },
+                            "right": {
+                                "type": "NumericLiteral",
+                                "value": 5,
+                                "position": {
+                                    "line": 7,
+                                    "character": 21
+                                }
+                            },
+                            "operator": "*",
+                            "position": {
+                                "line": 7,
+                                "character": 19
+                            }
+                        },
+                        "right": {
+                            "type": "NumericLiteral",
+                            "value": 3,
+                            "position": {
+                                "line": 7,
+                                "character": 26
+                            }
+                        },
+                        "operator": "+",
+                        "position": {
+                            "line": 7,
+                            "character": 24
+                        }
+                    },
+                    "position": {
+                        "line": 7,
+                        "character": 5
+                    }
+                },
+                {
+                    "type": "VariableDeclaration",
+                    "variableType": "const",
+                    "identifier": "f",
+                    "value": {
+                        "type": "BinaryExpression",
+                        "left": {
+                            "type": "NumericLiteral",
+                            "value": 10,
+                            "position": {
+                                "line": 8,
+                                "character": 15
+                            }
+                        },
+                        "right": {
+                            "type": "BinaryExpression",
+                            "left": {
+                                "type": "NumericLiteral",
+                                "value": 5,
+                                "position": {
+                                    "line": 8,
+                                    "character": 21
+                                }
+                            },
+                            "right": {
+                                "type": "NumericLiteral",
+                                "value": 3,
+                                "position": {
+                                    "line": 8,
+                                    "character": 25
+                                }
+                            },
+                            "operator": "+",
+                            "position": {
+                                "line": 8,
+                                "character": 23
+                            }
+                        },
+                        "operator": "*",
+                        "position": {
+                            "line": 8,
+                            "character": 18
+                        }
+                    },
+                    "position": {
+                        "line": 8,
+                        "character": 5
+                    }
+                },
+                {
+                    "type": "VariableDeclaration",
+                    "variableType": "const",
+                    "identifier": "g",
+                    "value": {
+                        "type": "CallExpression",
+                        "caller": {
+                            "type": "Identifier",
+                            "identifier": "print",
+                            "position": {
+                                "line": 10,
+                                "character": 15
+                            }
+                        },
+                        "args": [
+                            {
+                                "type": "LogicalExpression",
+                                "left": {
+                                    "type": "BinaryExpression",
+                                    "left": {
+                                        "type": "NumericLiteral",
+                                        "value": 10,
+                                        "position": {
+                                            "line": 10,
+                                            "character": 21
+                                        }
+                                    },
+                                    "right": {
+                                        "type": "NumericLiteral",
+                                        "value": 5,
+                                        "position": {
+                                            "line": 10,
+                                            "character": 26
+                                        }
+                                    },
+                                    "operator": ">",
+                                    "position": {
+                                        "line": 10,
+                                        "character": 24
+                                    }
+                                },
+                                "right": {
+                                    "type": "LogicalExpression",
+                                    "left": {
+                                        "type": "BinaryExpression",
+                                        "left": {
+                                            "type": "BinaryExpression",
+                                            "left": {
+                                                "type": "NumericLiteral",
+                                                "value": 5,
+                                                "position": {
+                                                    "line": 10,
+                                                    "character": 33
+                                                }
+                                            },
+                                            "right": {
+                                                "type": "NumericLiteral",
+                                                "value": 3,
+                                                "position": {
+                                                    "line": 10,
+                                                    "character": 37
+                                                }
+                                            },
+                                            "operator": "+",
+                                            "position": {
+                                                "line": 10,
+                                                "character": 35
+                                            }
+                                        },
+                                        "right": {
+                                            "type": "NumericLiteral",
+                                            "value": 8,
+                                            "position": {
+                                                "line": 10,
+                                                "character": 42
+                                            }
+                                        },
+                                        "operator": "==",
+                                        "position": {
+                                            "line": 10,
+                                            "character": 39
+                                        }
+                                    },
+                                    "right": {
+                                        "type": "BinaryExpression",
+                                        "left": {
+                                            "type": "BinaryExpression",
+                                            "left": {
+                                                "type": "NumericLiteral",
+                                                "value": 4,
+                                                "position": {
+                                                    "line": 10,
+                                                    "character": 47
+                                                }
+                                            },
+                                            "right": {
+                                                "type": "NumericLiteral",
+                                                "value": 2,
+                                                "position": {
+                                                    "line": 10,
+                                                    "character": 51
+                                                }
+                                            },
+                                            "operator": "*",
+                                            "position": {
+                                                "line": 10,
+                                                "character": 49
+                                            }
+                                        },
+                                        "right": {
+                                            "type": "NumericLiteral",
+                                            "value": 8,
+                                            "position": {
+                                                "line": 10,
+                                                "character": 56
+                                            }
+                                        },
+                                        "operator": "==",
+                                        "position": {
+                                            "line": 10,
+                                            "character": 53
+                                        }
+                                    },
+                                    "operator": "or",
+                                    "position": {
+                                        "line": 10,
+                                        "character": 44
+                                    }
+                                },
+                                "operator": "and",
+                                "position": {
+                                    "line": 10,
+                                    "character": 28
+                                }
+                            }
+                        ],
+                        "position": {
+                            "line": 10,
+                            "character": 15
+                        }
+                    },
+                    "position": {
+                        "line": 10,
+                        "character": 5
+                    }
+                },
+                {
+                    "type": "VariableDeclaration",
+                    "variableType": "const",
+                    "identifier": "h",
+                    "value": {
+                        "type": "NumericLiteral",
+                        "value": 0,
+                        "position": {
+                            "line": 11,
+                            "character": 15
+                        }
+                    },
+                    "position": {
+                        "line": 11,
+                        "character": 5
+                    }
+                },
+                {
+                    "type": "VariableDeclaration",
+                    "variableType": "const",
+                    "identifier": "i",
+                    "value": {
+                        "type": "NumericLiteral",
+                        "value": 0,
+                        "position": {
+                            "line": 12,
+                            "character": 15
+                        }
+                    },
+                    "position": {
+                        "line": 12,
+                        "character": 5
+                    }
+                },
+                {
+                    "type": "VariableDeclaration",
+                    "variableType": "const",
+                    "identifier": "j",
+                    "value": {
+                        "type": "NumericLiteral",
+                        "value": 0,
+                        "position": {
+                            "line": 13,
+                            "character": 15
+                        }
+                    },
+                    "position": {
+                        "line": 13,
+                        "character": 5
+                    }
+                },
+                {
+                    "type": "VariableDeclaration",
+                    "variableType": "const",
+                    "identifier": "k",
+                    "value": {
+                        "type": "NumericLiteral",
+                        "value": 0,
+                        "position": {
+                            "line": 14,
+                            "character": 15
+                        }
+                    },
+                    "position": {
+                        "line": 14,
+                        "character": 5
+                    }
+                },
+                {
+                    "type": "VariableDeclaration",
+                    "variableType": "const",
+                    "identifier": "l",
+                    "value": {
+                        "type": "NumericLiteral",
+                        "value": 0,
+                        "position": {
+                            "line": 15,
+                            "character": 15
+                        }
+                    },
+                    "position": {
+                        "line": 15,
+                        "character": 5
+                    }
+                },
+                {
+                    "type": "VariableDeclaration",
+                    "variableType": "const",
+                    "identifier": "m",
+                    "value": {
+                        "type": "NumericLiteral",
+                        "value": 0,
+                        "position": {
+                            "line": 16,
+                            "character": 15
+                        }
+                    },
+                    "position": {
+                        "line": 16,
+                        "character": 5
+                    }
+                },
+                {
+                    "type": "VariableDeclaration",
+                    "variableType": "const",
+                    "identifier": "n",
+                    "value": {
+                        "type": "NumericLiteral",
+                        "value": 0,
+                        "position": {
+                            "line": 17,
+                            "character": 15
+                        }
+                    },
+                    "position": {
+                        "line": 17,
+                        "character": 5
+                    }
+                },
+                {
+                    "type": "VariableDeclaration",
+                    "variableType": "const",
+                    "identifier": "o",
+                    "value": {
+                        "type": "NumericLiteral",
+                        "value": 0,
+                        "position": {
+                            "line": 18,
+                            "character": 15
+                        }
+                    },
+                    "position": {
+                        "line": 18,
+                        "character": 5
+                    }
+                },
+                {
+                    "type": "VariableDeclaration",
+                    "variableType": "const",
+                    "identifier": "p",
+                    "value": {
+                        "type": "NumericLiteral",
+                        "value": 0,
+                        "position": {
+                            "line": 19,
+                            "character": 15
+                        }
+                    },
+                    "position": {
+                        "line": 19,
                         "character": 5
                     }
                 }
