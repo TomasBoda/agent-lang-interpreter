@@ -18,7 +18,7 @@ export class Formatter {
         return Formatter.nodeToSourceCode(program)
     }
 
-    private static nodeToSourceCode(ast: ParserValue): string {
+    public static nodeToSourceCode(ast: ParserValue): string {
         let sourceCode = "";
 
         switch (ast.type) {

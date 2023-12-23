@@ -1,4 +1,5 @@
-agent person 10 {
+agent person 1 {
 
-    property x = random(1, 100);
+    property x = 10;
+    property y = 20;
 }
