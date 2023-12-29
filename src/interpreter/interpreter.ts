@@ -27,8 +27,7 @@ export class Interpreter {
 
     private program?: Program;
 
-    // subscribes to interpreter output
-    public get(sourceCode: string, config: InterpreterConfiguration): Observable<InterpreterOutput> {
+    public build(sourceCode: string, config: InterpreterConfiguration): void {
         this.sourceCode = sourceCode;
         this.config = config;
 
@@ -38,19 +37,11 @@ export class Interpreter {
 
         // generate source code tokens
         this.lexer = new Lexer(symbols);
-        let tokens: Token[];
-
-        try { tokens = this.lexer.tokenize(); } catch (error) {
-            return of(this.getRuntimeError(error as ErrorLexer));
-        }
+        let tokens: Token[] =this.lexer.tokenize();
 
         // generate source code abstract syntax tree
         this.parser = new Parser(tokens);
-        let program: ParserValue;
-
-        try { program = this.parser.parse(); } catch (error) {
-            return of(this.getRuntimeError(error as ErrorParser));
-        }
+        let program: ParserValue = this.parser.parse();
 
         // save abstract syntax tree
         this.program = program as Program;
@@ -63,6 +54,12 @@ export class Interpreter {
         // save runtime
         this.runtime = new Runtime(program as Program, environment);
 
+        this.reset();
+    }
+
+    // subscribes to interpreter output
+    public get(sourceCode: string, config: InterpreterConfiguration): Observable<InterpreterOutput> {
+        this.build(sourceCode, config);
         return this.dataSubject.asObservable();
     }
 
