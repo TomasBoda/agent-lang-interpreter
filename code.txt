@@ -1,5 +1,6 @@
 agent person 1 {
 
-    property x = 10;
-    property y = 20;
+    const speed = 10;
+    property x: 100 = x + 10;
+    property y: 100 = y + 10;
 }

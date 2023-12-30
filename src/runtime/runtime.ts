@@ -36,7 +36,7 @@ import { Environment } from "./environment";
 import { createGlobalFunction, normalizeNumber } from "../utils/functions";
 import { ErrorRuntime } from "../utils/errors";
 import { Position } from "../symbolizer/symbolizer.types";
-import { Agent } from "../interpreter/interpreter.types";
+import { Agent, InterpreterOutput } from "../interpreter/interpreter.types";
 
 export class Runtime {
 
@@ -45,7 +45,7 @@ export class Runtime {
     private globalEnvironment: Environment;
     private lambdaEnvironment: Environment;
 
-    //private previousAgents: RuntimeAgent[] = [];
+    private previousAgents: RuntimeAgent[] = [];
     private output: RuntimeOutput = { type: ValueType.Output, step: 0, agents: [] };
 
     private inOtherwiseExpression = false;
@@ -66,10 +66,12 @@ export class Runtime {
         this.output.step = step;
         this.provideDataToStepFunction(step);
 
-        const result: RuntimeValue = this.evaluateProgram(this.program);
+        const result: RuntimeValue = { ...this.evaluateProgram(this.program) };
 
-        //this.previousAgents = [ ...this.output.agents ];
-        //this.output.agents = [];
+        if (step > 0) {
+            this.previousAgents = [ ...this.output.agents ];
+            this.output.agents = [];
+        }
 
         return result;
     }
@@ -92,7 +94,7 @@ export class Runtime {
                 const agentId = this.generateAgentId(objectDeclaration.identifier, i);
 
                 this.provideDataToIndexFunction(i);
-                this.provideDataToAgentsFunction(this.output.agents, agentId);
+                this.provideDataToAgentsFunction(this.previousAgents, agentId);
 
                 this.evaluateObjectDeclaration(objectDeclaration, agentId);
             }
@@ -109,6 +111,8 @@ export class Runtime {
         this.globalEnvironment.declareVariable(identifier, { type: ValueType.Identifier, value: identifier } as IdentifierValue);
 
         if (this.output.step === 0) {
+            this.previousAgents.push({ id, identifier, variables } as RuntimeAgent);
+        } else {
             this.output.agents.push({ id, identifier, variables } as RuntimeAgent);
         }
 
@@ -118,13 +122,7 @@ export class Runtime {
             const variableIdentifier = variableDeclaration.identifier;
             const variableValue = this.evaluateVariableDeclaration(variableDeclaration, id);
 
-            if (this.output.step === 0) {
-                variables.set(variableIdentifier, variableValue);
-                continue;
-            }
-
-            const agent = this.findAgent(id);
-            agent.variables.set(variableIdentifier, variableValue);
+            variables.set(variableIdentifier, variableValue);
         }
     }
 
@@ -492,7 +490,7 @@ export class Runtime {
 
     // find agent by identifier
     private findAgent(id: string): RuntimeAgent {
-        const agent = this.output.agents.find((agent: RuntimeAgent) => agent.id === id);
+        const agent = this.previousAgents.find((agent: RuntimeAgent) => agent.id === id);
 
         if (!agent) {
             throw new ErrorRuntime(`Agent with id '${id}' not found`);
