@@ -13,6 +13,7 @@ import {
     OtherwiseExpression,
     ParserValue,
     Program,
+    Statement,
     UnaryExpression,
     VariableDeclaration,
     VariableType,
@@ -35,28 +36,29 @@ import { Environment } from "./environment";
 import { createGlobalFunction, normalizeNumber } from "../utils/functions";
 import { ErrorRuntime } from "../utils/errors";
 import { Position } from "../symbolizer/symbolizer.types";
+import { Agent } from "../interpreter/interpreter.types";
 
 export class Runtime {
 
     private program: Program;
 
-    private environment: Environment;
-    private lambdaEnv: Environment;
+    private globalEnvironment: Environment;
+    private lambdaEnvironment: Environment;
 
+    //private previousAgents: RuntimeAgent[] = [];
     private output: RuntimeOutput = { type: ValueType.Output, step: 0, agents: [] };
 
     private inOtherwiseExpression = false;
 
     constructor(program: Program, environment: Environment) {
         this.program = program;
+        this.globalEnvironment = environment;
 
-        this.environment = environment;
+        this.globalEnvironment.declareVariable("step", createGlobalFunction(this.createStepFunction(0)));
+        this.globalEnvironment.declareVariable("agents", createGlobalFunction(this.createAgentsFunction([], "")));
+        this.globalEnvironment.declareVariable("index", createGlobalFunction(this.createIndexFunction(0)));
 
-        this.environment.declareVariable("step", createGlobalFunction(this.createStepFunction(0)));
-        this.environment.declareVariable("agents", createGlobalFunction(this.createAgentsFunction([], "")));
-        this.environment.declareVariable("index", createGlobalFunction(this.createIndexFunction(0)));
-
-        this.lambdaEnv = new Environment();
+        this.lambdaEnvironment = new Environment();
     }
 
     // run code
@@ -64,7 +66,12 @@ export class Runtime {
         this.output.step = step;
         this.provideDataToStepFunction(step);
 
-        return this.evaluateProgram(this.program);
+        const result: RuntimeValue = this.evaluateProgram(this.program);
+
+        //this.previousAgents = [ ...this.output.agents ];
+        //this.output.agents = [];
+
+        return result;
     }
 
     // set new program
@@ -79,14 +86,10 @@ export class Runtime {
 
     private evaluateProgram(program: Program): RuntimeValue {
         for (const statement of program.body) {
-            if (statement.type !== NodeType.ObjectDeclaration) {
-                throw new ErrorRuntime("Only object declarations are allowed in program body", statement.position);
-            }
-
-            const objectDeclaration: ObjectDeclaration = statement as ObjectDeclaration;
+            const objectDeclaration: ObjectDeclaration = this.getObjectDeclaration(statement);
 
             for (let i = 0; i < objectDeclaration.count; i++) {
-                const agentId = this.getAgentId(objectDeclaration.identifier, i);
+                const agentId = this.generateAgentId(objectDeclaration.identifier, i);
 
                 this.provideDataToIndexFunction(i);
                 this.provideDataToAgentsFunction(this.output.agents, agentId);
@@ -103,18 +106,14 @@ export class Runtime {
         const variables = new Map<string, RuntimeValue>();
 
         // declare agent identifier as global variable for later use in 'agents' method
-        this.environment.declareVariable(identifier, { type: ValueType.Identifier, value: identifier } as IdentifierValue);
+        this.globalEnvironment.declareVariable(identifier, { type: ValueType.Identifier, value: identifier } as IdentifierValue);
 
         if (this.output.step === 0) {
             this.output.agents.push({ id, identifier, variables } as RuntimeAgent);
         }
 
         for (const statement of declaration.body) {
-            if (statement.type !== NodeType.VariableDeclaration) {
-                throw new ErrorRuntime("Only variable declarations are allowed in object declaration body", statement.position);
-            }
-
-            const variableDeclaration: VariableDeclaration = statement as VariableDeclaration;
+            const variableDeclaration: VariableDeclaration = this.getVariableDeclaration(statement);
 
             const variableIdentifier = variableDeclaration.identifier;
             const variableValue = this.evaluateVariableDeclaration(variableDeclaration, id);
@@ -205,13 +204,13 @@ export class Runtime {
 
     private evaluateIdentifier(identifier: Identifier, id: string): RuntimeValue {
         // check whether identifier is a lambda variable
-        const lambdaLookup = this.lambdaEnv.lookupVariable(identifier.identifier);
+        const lambdaLookup = this.lambdaEnvironment.lookupVariable(identifier.identifier);
         if (lambdaLookup) {
             return lambdaLookup;
         }
 
         // check whether identifier is an agent variable
-        const variableLookup = this.environment.lookupVariable(identifier.identifier);
+        const variableLookup = this.globalEnvironment.lookupVariable(identifier.identifier);
         if (variableLookup) {
             return variableLookup;
         }
@@ -391,7 +390,7 @@ export class Runtime {
         }
 
         const identifier = (expression.caller as Identifier).identifier;
-        const func = this.environment.lookupVariable(identifier);
+        const func = this.globalEnvironment.lookupVariable(identifier);
 
         if (!func) {
             throw new ErrorRuntime(`Function with identifier '${identifier}' does not exist`, expression.position);
@@ -418,7 +417,7 @@ export class Runtime {
         const results: RuntimeValue[] = [];
 
         for (const agent of runtimeAgents) {
-            this.lambdaEnv.declareVariable(param.value, { type: ValueType.Agent, value: agent } as AgentValue);
+            this.lambdaEnvironment.declareVariable(param.value, { type: ValueType.Agent, value: agent } as AgentValue);
             results.push(this.evaluateRuntimeValue(expression.value, id));
         }
 
@@ -469,10 +468,29 @@ export class Runtime {
         return left;
     }
 
+    // return ObjectDeclaration if possible, throw an error otherwise
+    private getObjectDeclaration(statement: Statement): ObjectDeclaration {
+        if (statement.type !== NodeType.ObjectDeclaration) {
+            throw new ErrorRuntime("Only object declarations are allowed in program body", statement.position);
+        }
+
+        return statement as ObjectDeclaration;
+    }
+
+    // return VariableDeclaration if possible, throw an error otherwise
+    private getVariableDeclaration(statement: Statement): VariableDeclaration {
+        if (statement.type !== NodeType.VariableDeclaration) {
+            throw new ErrorRuntime("Only variable declarations are allowed in object declaration body", statement.position);
+        }
+
+        return statement as VariableDeclaration;
+    }
+
     private customModulo(a: number, b: number): number {
         return ((a % b) + b) % b;
     }
 
+    // find agent by identifier
     private findAgent(id: string): RuntimeAgent {
         const agent = this.output.agents.find((agent: RuntimeAgent) => agent.id === id);
 
@@ -483,20 +501,23 @@ export class Runtime {
         return agent;
     }
 
-    private getAgentId(identifier: string, id: number): string {
+    // generate custom agent identifier
+    private generateAgentId(identifier: string, id: number): string {
         return `${identifier}-${id}`;
     }
 
+    // runtime functions
+
     private provideDataToIndexFunction(index: number): void {
-        this.environment.assignVariable("index", createGlobalFunction(this.createIndexFunction(index)));
+        this.globalEnvironment.assignVariable("index", createGlobalFunction(this.createIndexFunction(index)));
     }
 
     private provideDataToAgentsFunction(agents: RuntimeAgent[], id: string): void {
-        this.environment.assignVariable("agents", createGlobalFunction(this.createAgentsFunction(agents, id)));
+        this.globalEnvironment.assignVariable("agents", createGlobalFunction(this.createAgentsFunction(agents, id)));
     }
 
     private provideDataToStepFunction(step: number): void {
-        this.environment.assignVariable("step", createGlobalFunction(this.createStepFunction(step)));
+        this.globalEnvironment.assignVariable("step", createGlobalFunction(this.createStepFunction(step)));
     }
 
     private createIndexFunction(index: number): FunctionCall {
