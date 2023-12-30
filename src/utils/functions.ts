@@ -1,16 +1,4 @@
-import {
-    AgentsValue,
-    AgentValue,
-    BooleanValue,
-    FunctionCall,
-    FunctionValue,
-    LambdaValue,
-    NullValue,
-    NumberValue,
-    RuntimeAgent,
-    RuntimeValue,
-    ValueType
-} from "../runtime/runtime.types";
+import { AgentsValue, AgentValue, BooleanValue, FunctionCall, FunctionValue, LambdaValue, NullValue, NumberValue, RuntimeAgent, RuntimeValue, ValueType } from "../runtime";
 import { ErrorRuntime } from "./errors";
 
 export function createGlobalFunction(call: FunctionCall): FunctionValue {

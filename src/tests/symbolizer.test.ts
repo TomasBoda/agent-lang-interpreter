@@ -1,6 +1,5 @@
 import { describe, test, expect, beforeEach } from "bun:test";
-import { Symbolizer } from "../symbolizer/symbolizer";
-import { Symbol } from "../symbolizer/symbolizer.types";
+import { Symbol, Symbolizer } from "../symbolizer";
 
 describe("Symbolizer", () => {
   let symbolizer: Symbolizer;

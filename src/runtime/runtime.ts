@@ -1,42 +1,8 @@
-import {
-    BinaryExpression,
-    BooleanLiteral,
-    CallExpression,
-    ConditionalExpression,
-    Identifier,
-    LambdaExpression,
-    LogicalExpression,
-    MemberExpression,
-    NodeType,
-    NumericLiteral,
-    ObjectDeclaration,
-    OtherwiseExpression,
-    ParserValue,
-    Program,
-    Statement,
-    UnaryExpression,
-    VariableDeclaration,
-    VariableType,
-} from "../parser/parser.types";
-import {
-    AgentsValue,
-    AgentValue,
-    BooleanValue,
-    FunctionCall,
-    FunctionValue,
-    IdentifierValue,
-    LambdaValue,
-    NumberValue,
-    RuntimeAgent,
-    RuntimeOutput,
-    RuntimeValue,
-    ValueType,
-} from "./runtime.types";
+import { Position } from "../symbolizer";
+import { BinaryExpression, BooleanLiteral, CallExpression, ConditionalExpression, Identifier, LambdaExpression, LogicalExpression, MemberExpression, NodeType, NumericLiteral, ObjectDeclaration, OtherwiseExpression, ParserValue, Program, Statement, UnaryExpression, VariableDeclaration, VariableType } from "../parser";
+import { AgentsValue, AgentValue, BooleanValue, FunctionCall, FunctionValue, IdentifierValue, LambdaValue, NumberValue, RuntimeAgent, RuntimeOutput, RuntimeValue, ValueType } from "./runtime.types";
 import { Environment } from "./environment";
-import { createGlobalFunction, normalizeNumber } from "../utils/functions";
-import { ErrorRuntime } from "../utils/errors";
-import { Position } from "../symbolizer/symbolizer.types";
-import { Agent, InterpreterOutput } from "../interpreter/interpreter.types";
+import { ErrorRuntime, createGlobalFunction, normalizeNumber } from "../utils";
 
 export class Runtime {
 

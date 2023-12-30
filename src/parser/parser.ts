@@ -1,9 +1,9 @@
 import { exit } from "process";
-import { Token, TokenType } from "../lexer/lexer.types";
+import { Position } from "../symbolizer";
+import { Token, TokenType } from "../lexer";
 import { BinaryExpression, BooleanLiteral, CallExpression, ConditionalExpression, Expression, Identifier, LambdaExpression, LogicalExpression, MemberExpression, NodeType, NumericLiteral, ObjectDeclaration, OtherwiseExpression, ParserValue, Program, Statement, UnaryExpression, VariableDeclaration, VariableType } from "./parser.types";
-import { Position } from "../symbolizer/symbolizer.types";
-import { getProgram } from "./topology/optimizer";
-import { ErrorParser } from "../utils/errors";
+import { getProgram } from "./topology";
+import { ErrorParser } from "../utils";
 
 export class Parser {
 

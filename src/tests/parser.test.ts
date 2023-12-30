@@ -1,8 +1,7 @@
 import { describe, test, expect, beforeEach } from "bun:test";
-import { Lexer } from "../lexer/lexer";
-import { Symbolizer } from "../symbolizer/symbolizer";
-import { Parser } from "../parser/parser";
-import { NodeType, ObjectDeclaration, ParserValue, Program, VariableDeclaration, VariableType } from "../parser/parser.types";
+import { Symbolizer } from "../symbolizer";
+import { Lexer } from "../lexer";
+import { Parser, NodeType, ObjectDeclaration, ParserValue, Program, VariableDeclaration, VariableType } from "../parser";
 
 describe("Lexer", () => {
     let symbolizer: Symbolizer;

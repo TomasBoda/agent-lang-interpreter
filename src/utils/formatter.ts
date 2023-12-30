@@ -1,9 +1,6 @@
-import { Lexer } from "../lexer/lexer";
-import { Token } from "../lexer/lexer.types";
-import { Parser } from "../parser/parser";
-import { BinaryExpression, BooleanLiteral, CallExpression, ConditionalExpression, Identifier, LambdaExpression, LogicalExpression, MemberExpression, NodeType, NumericLiteral, ObjectDeclaration, OtherwiseExpression, ParserValue, Program, UnaryExpression, VariableDeclaration, VariableType } from "../parser/parser.types";
-import { Symbolizer } from "../symbolizer/symbolizer";
-import { Symbol } from "../symbolizer/symbolizer.types";
+import { Symbolizer, Symbol } from "../symbolizer";
+import { Lexer, Token } from "../lexer";
+import { Parser, BinaryExpression, BooleanLiteral, CallExpression, ConditionalExpression, Identifier, LambdaExpression, LogicalExpression, MemberExpression, NodeType, NumericLiteral, ObjectDeclaration, OtherwiseExpression, ParserValue, Program, UnaryExpression, VariableDeclaration, VariableType } from "../parser";
 
 export class Formatter {
 

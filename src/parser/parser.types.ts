@@ -1,4 +1,4 @@
-import { Position } from "../symbolizer/symbolizer.types";
+import { Position } from "../symbolizer";
 
 export enum VariableType {
     Const = "const",

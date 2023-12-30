@@ -1,2 +1,6 @@
-export { Interpreter } from "./interpreter/interpreter";
-export type { InterpreterConfiguration } from "./interpreter/interpreter.types";
+export * from "./interpreter";
+export * from "./lexer";
+export * from "./parser";
+export * from "./runtime";
+export * from "./symbolizer";
+export * from "./utils";

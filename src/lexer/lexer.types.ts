@@ -1,5 +1,4 @@
-import { ExitStatus } from "../interpreter/interpreter.types";
-import { Position } from "../symbolizer/symbolizer.types";
+import { Position } from "../symbolizer";
 
 export enum TokenType {
     Agent = "Agent",

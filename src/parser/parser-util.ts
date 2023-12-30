@@ -1,5 +1,5 @@
-import { Lexer } from "../lexer/lexer";
-import { Symbolizer } from "../symbolizer/symbolizer";
+import { Symbolizer } from "../symbolizer";
+import { Lexer } from "../lexer";
 import { Parser } from "./parser";
 import { BinaryExpression, BooleanLiteral, CallExpression, ConditionalExpression, Identifier, LambdaExpression, LogicalExpression, MemberExpression, NodeType, NumericLiteral, ObjectDeclaration, OtherwiseExpression, ParserValue, Program, UnaryExpression, VariableDeclaration, VariableType } from "./parser.types";
 

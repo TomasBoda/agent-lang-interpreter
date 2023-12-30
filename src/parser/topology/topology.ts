@@ -1,4 +1,4 @@
-import { ErrorParser } from "../../utils/errors";
+import { ErrorParser } from "../../utils";
 
 export type DependencyGraph = { [key: string]: Node };
 
