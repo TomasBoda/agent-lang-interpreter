@@ -1,10 +1,5 @@
 import { readFileSync } from "fs";
-import { Interpreter, InterpreterConfiguration } from "./src";
-import { InterpreterOutput } from "./src/interpreter/interpreter.types";
-import { Logger } from "./src/utils/logger";
-import { Symbolizer } from "./src/symbolizer/symbolizer";
-import { Program } from "./src/parser/parser.types";
-import { ParserUtil } from "./src/parser/parser-util";
+import { Interpreter, InterpreterConfiguration, InterpreterOutput, Logger } from "./src";
 
 const filename = "code.txt";
 const sourceCode = readFileSync(filename, "utf-8");
