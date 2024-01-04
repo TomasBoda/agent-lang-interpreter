@@ -2,6 +2,26 @@ import { ErrorRuntime } from "../../utils";
 import { AgentsValue, BooleanValue, LambdaValue, NumberValue, RuntimeAgent, RuntimeValue, ValueType } from "../model";
 import { createAgentValue, createAgentsValue, createBooleanValue, createNullValue, createNumberValue, expectArgumentCount, expectArgumentType } from "./utils";
 
+export function SUM(args: RuntimeValue[]): RuntimeValue {
+    expectArgumentCount("sum", 1, args.length);
+    expectArgumentType("sum", args[0], ValueType.Lambda);
+
+    const lambda: LambdaValue = args[0] as LambdaValue;
+
+    let sum = 0;
+
+    for (const result of lambda.results) {
+        if (result.type !== ValueType.Number) {
+            throw new ErrorRuntime(`Function 'sum' requires a lambda expression that returns numeric values`);
+        }
+
+        const number: NumberValue = result as NumberValue;
+        sum += number.value;
+    }
+
+    return createNumberValue(sum);
+}
+
 export function DIST(args: RuntimeValue[]): RuntimeValue {
     expectArgumentCount("dist", 4, args.length);
     expectArgumentType("dist", args[0], ValueType.Number);
@@ -260,6 +280,19 @@ export function TAN(args: RuntimeValue[]): RuntimeValue {
 
     const number: NumberValue = args[0] as NumberValue;
     const result = Math.tan(number.value);
+
+    return createNumberValue(result);
+}
+
+export function ATAN(args: RuntimeValue[]): RuntimeValue {
+    expectArgumentCount("atan", 2, args.length);
+    expectArgumentType("atan", args[0], ValueType.Number);
+    expectArgumentType("atan", args[1], ValueType.Number);
+
+    const number1: NumberValue = args[0] as NumberValue;
+    const number2: NumberValue = args[1] as NumberValue;
+
+    const result = Math.atan2(number1.value, number2.value);
 
     return createNumberValue(result);
 }
