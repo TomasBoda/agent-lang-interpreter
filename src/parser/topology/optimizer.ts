@@ -1,4 +1,4 @@
-import { BinaryExpression, CallExpression, ConditionalExpression, Expression, Identifier, LambdaExpression, LogicalExpression, MemberExpression, NodeType, ObjectDeclaration, ParserValue, Program, UnaryExpression, VariableDeclaration } from "../model/nodes";
+import { BinaryExpression, CallExpression, ConditionalExpression, Expression, Identifier, LambdaExpression, LogicalExpression, MemberExpression, NodeType, ObjectDeclaration, ParserValue, Program, UnaryExpression, VariableDeclaration } from "../model";
 import { DependencyGraph, Node, topologicalSort } from "./topology";
 import { ErrorParser } from "../../utils";
 
