@@ -1,5 +1,5 @@
 import { RuntimeValue } from "./runtime.types";
-import { ErrorRuntime, ABS, CEIL, CHOICE, COS, COUNT, EMPTY, FILTER, FLOOR, PI, PROB, RANDOM, ROUND, SIN, SQRT, TAN, createGlobalFunction, MIN, MAX } from "../utils";
+import { ErrorRuntime, ABS, CEIL, CHOICE, COS, COUNT, EMPTY, FILTER, FLOOR, PI, PROB, RANDOM, ROUND, SIN, SQRT, TAN, createGlobalFunction, MIN, MAX, DIST } from "../utils";
 
 export class Environment {
 
@@ -26,6 +26,7 @@ export class Environment {
         environment.declareVariable("tan", createGlobalFunction(TAN));
         environment.declareVariable("pi", createGlobalFunction(PI));
         environment.declareVariable("prob", createGlobalFunction(PROB));
+        environment.declareVariable("dist", createGlobalFunction(DIST));
 
         environment.declareVariable("count", createGlobalFunction(COUNT));
         environment.declareVariable("filter", createGlobalFunction(FILTER));

@@ -30,6 +30,37 @@ function expectNumericArgs(args: RuntimeValue[], count: number): RuntimeValue[] 
 
 // GLOBAL FUNCTIONS
 
+export function DIST(args: RuntimeValue[]): RuntimeValue {
+    if (args.length !== 4) {
+        throw new ErrorRuntime(`Function 'dist' expected 4 arguments, ${args.length} provided`);
+    }
+
+    if (args[0].type !== ValueType.Number) {
+        throw new ErrorRuntime(`Function 'dist' expected 1. argument of type 'number', type '${args[0].type}' provided`);
+    }
+
+    if (args[1].type !== ValueType.Number) {
+        throw new ErrorRuntime(`Function 'dist' expected 2. argument of type 'number', type '${args[1].type}' provided`);
+    }
+
+    if (args[2].type !== ValueType.Number) {
+        throw new ErrorRuntime(`Function 'dist' expected 3. argument of type 'number', type '${args[2].type}' provided`);
+    }
+
+    if (args[3].type !== ValueType.Number) {
+        throw new ErrorRuntime(`Function 'dist' expected 4. argument of type 'number', type '${args[3].type}' provided`);
+    }
+
+    const x1: NumberValue = args[0] as NumberValue;
+    const y1: NumberValue = args[1] as NumberValue;
+    const x2: NumberValue = args[2] as NumberValue;
+    const y2: NumberValue = args[3] as NumberValue;
+
+    const result = Math.sqrt((x1.value - x2.value) * (x1.value - x2.value) + (y1.value - y2.value) * (y1.value - y2.value));
+
+    return { type: ValueType.Number, value: result } as NumberValue;
+}
+
 export function PROB(args: RuntimeValue[]): RuntimeValue {
     if (args.length !== 1) {
         throw new ErrorRuntime(`Function 'prob' expected 1 argument, ${args.length} provided`);
