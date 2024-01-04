@@ -4,7 +4,8 @@ import { Lexer, Token } from "../lexer";
 import { Parser, ParserValue, Program } from "../parser";
 import { Runtime, Environment, FunctionCall, NumberValue, RuntimeAgent, RuntimeOutput, RuntimeValue, ValueType } from "../runtime";
 import { Agent, InterpreterConfiguration, InterpreterOutput } from "./model";
-import { ErrorModel, ErrorRuntime, createGlobalFunction } from "../utils";
+import { ErrorModel, ErrorRuntime } from "../utils";
+import { createGlobalFunction } from "../runtime/functions/utils";
 
 export class Interpreter {
 

@@ -2,7 +2,8 @@ import { Position } from "../symbolizer";
 import { BinaryExpression, BooleanLiteral, CallExpression, ConditionalExpression, Identifier, LambdaExpression, LogicalExpression, MemberExpression, NodeType, NumericLiteral, ObjectDeclaration, OtherwiseExpression, ParserValue, Program, Statement, UnaryExpression, VariableDeclaration, VariableType } from "../parser";
 import { AgentsValue, AgentValue, BooleanValue, FunctionCall, FunctionValue, IdentifierValue, LambdaValue, NumberValue, RuntimeAgent, RuntimeOutput, RuntimeValue, ValueType } from "./model";
 import { Environment } from "./environment";
-import { ErrorRuntime, createGlobalFunction, normalizeNumber } from "../utils";
+import { ErrorRuntime } from "../utils";
+import { createGlobalFunction, normalizeNumber } from "./functions";
 
 export class Runtime {
 

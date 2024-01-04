@@ -1,5 +1,6 @@
 import { RuntimeValue } from "./model/values";
-import { ErrorRuntime, ABS, CEIL, CHOICE, COS, COUNT, EMPTY, FILTER, FLOOR, PI, PROB, RANDOM, ROUND, SIN, SQRT, TAN, createGlobalFunction, MIN, MAX, DIST } from "../utils";
+import { ErrorRuntime } from "../utils";
+import { ABS, CEIL, CHOICE, COS, COUNT, EMPTY, FILTER, FLOOR, PI, PROB, RANDOM, ROUND, SIN, SQRT, TAN, createGlobalFunction, MIN, MAX, DIST } from "./functions";
 
 export class Environment {
 

@@ -1,4 +1,4 @@
-import { Position } from "../symbolizer";
+import { Position } from "../../symbolizer";
 
 type ErrorType = "Lexer" | "Parser" | "Runtime";
 
@@ -26,26 +26,5 @@ export class ErrorModel extends Error {
 
     public throw(): void {
         console.log(this.toString());
-    }
-}
-
-export class ErrorLexer extends ErrorModel {
-
-    constructor(about: string, position?: Position) {
-        super("Lexer", about, position);
-    }
-}
-
-export class ErrorParser extends ErrorModel {
-
-    constructor(about: string, position?: Position) {
-        super("Parser", about, position);
-    }
-}
-
-export class ErrorRuntime extends ErrorModel {
-
-    constructor(about: string, position?: Position) {
-        super("Runtime", about, position);
     }
 }
