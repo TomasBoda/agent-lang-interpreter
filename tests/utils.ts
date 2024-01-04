@@ -1,7 +1,4 @@
-import { expect } from "bun:test";
-import { Lexer, Token } from "../lexer";
-import { Parser, Program } from "../parser";
-import { Symbolizer, Symbol } from "../symbolizer";
+import { Symbolizer, Symbol, Parser, Program, Lexer, Token } from "../src";
 
 export function getTokens(sourceCode: string): Token[] {
     const symbolizer: Symbolizer = new Symbolizer(sourceCode);

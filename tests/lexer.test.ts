@@ -1,6 +1,6 @@
 import { describe, test, expect } from "bun:test";
 import { getTokens } from "./utils";
-import { TokenType } from "../lexer";
+import { TokenType } from "../src";
 
 describe("Lexer", () => {
     
