@@ -1,4 +1,3 @@
-import { Position } from "../symbolizer";
 
 export enum TokenType {
     Agent = "Agent",
@@ -33,10 +32,4 @@ export enum TokenType {
     Semicolon = "Semicolon",
 
     EOF = "EOF"
-}
-
-export interface Token {
-    value: string;
-    type: TokenType;
-    position: Position;
 }

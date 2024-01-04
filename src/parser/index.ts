@@ -1,4 +1,4 @@
 export * from "./parser";
-export * from "./parser.types";
+export * from "./model";
 export * from "./parser-util";
 export * from "./topology";

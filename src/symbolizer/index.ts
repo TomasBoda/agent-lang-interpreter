@@ -1,2 +1,2 @@
 export * from "./symbolizer";
-export * from "./symbolizer.types";
+export * from "./model";

@@ -1,3 +1,3 @@
 export * from "./runtime";
-export * from "./runtime.types";
+export * from "./model";
 export * from "./environment";

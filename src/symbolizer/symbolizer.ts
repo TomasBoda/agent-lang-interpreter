@@ -1,4 +1,4 @@
-import { Position, Symbol } from "./symbolizer.types";
+import { Position, Symbol } from "./model";
 
 export class Symbolizer {
 

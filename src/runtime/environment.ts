@@ -1,4 +1,4 @@
-import { RuntimeValue } from "./runtime.types";
+import { RuntimeValue } from "./model/values";
 import { ErrorRuntime, ABS, CEIL, CHOICE, COS, COUNT, EMPTY, FILTER, FLOOR, PI, PROB, RANDOM, ROUND, SIN, SQRT, TAN, createGlobalFunction, MIN, MAX, DIST } from "../utils";
 
 export class Environment {

@@ -1,6 +1,6 @@
-import { Token, TokenType } from "./lexer.types";
+import { Token, TokenType } from "./model";
 import { Symbol, Position } from "../symbolizer";
-import { ReservedKeywords } from "./lexer.keywords";
+import { ReservedKeywords } from "./keywords";
 import { ErrorLexer } from "../utils";
 
 export class Lexer {

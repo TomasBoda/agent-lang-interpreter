@@ -1,4 +1,4 @@
-import { TokenType } from "./lexer.types";
+import { TokenType } from "./model";
 
 export const ReservedKeywords: Record<string, TokenType> = {
     "agent": TokenType.Agent,

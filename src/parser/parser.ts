@@ -1,7 +1,6 @@
-import { exit } from "process";
 import { Position } from "../symbolizer";
 import { Token, TokenType } from "../lexer";
-import { BinaryExpression, BooleanLiteral, CallExpression, ConditionalExpression, Expression, Identifier, LambdaExpression, LogicalExpression, MemberExpression, NodeType, NumericLiteral, ObjectDeclaration, OtherwiseExpression, ParserValue, Program, Statement, UnaryExpression, VariableDeclaration, VariableType } from "./parser.types";
+import { BinaryExpression, BooleanLiteral, CallExpression, ConditionalExpression, Expression, Identifier, LambdaExpression, LogicalExpression, MemberExpression, NodeType, NumericLiteral, ObjectDeclaration, OtherwiseExpression, ParserValue, Program, Statement, UnaryExpression, VariableDeclaration, VariableType } from "./model";
 import { getProgram } from "./topology";
 import { ErrorParser } from "../utils";
 
@@ -24,7 +23,7 @@ export class Parser {
         return getProgram(program);
     }
 
-    private parseStatement(): ParserValue {
+    private parseStatement(): Statement {
         switch (this.at().type) {
             case TokenType.Agent:
                 return this.parseObjectDeclaration();
@@ -33,7 +32,7 @@ export class Parser {
         }
     }
 
-    private parseObjectDeclaration(): ParserValue {
+    private parseObjectDeclaration(): ObjectDeclaration {
         if (this.isNotOf(TokenType.Agent)) {
             throw new ErrorParser("Expected agent keyword in program scope", this.position());
         }
@@ -87,7 +86,7 @@ export class Parser {
         } as ObjectDeclaration;
     }
 
-    public parseVariableDeclaration(): ParserValue {
+    public parseVariableDeclaration(): VariableDeclaration {
         if (this.isNotOf(TokenType.Property) && this.isNotOf(TokenType.Const)) {
             throw new ErrorParser("Expected property or const keyword at the beginning of variable declaration", this.position());
         }
@@ -142,11 +141,11 @@ export class Parser {
         } as VariableDeclaration;
     }
 
-    private parseExpression(): ParserValue {
+    private parseExpression(): Expression {
         return this.parseOtherwiseExpression();
     }
 
-    private parseOtherwiseExpression(): ParserValue {
+    private parseOtherwiseExpression(): Expression {
         const left = this.parseLambdaExpression();
 
         if (this.at().type === TokenType.Otherwise) {
@@ -165,7 +164,7 @@ export class Parser {
         return left;
     }
 
-    private parseLambdaExpression(): ParserValue {
+    private parseLambdaExpression(): Expression {
         const base = this.parseConditionalExpression();
 
         if (this.at().type === TokenType.LambdaArrow) {
@@ -192,7 +191,7 @@ export class Parser {
         return base;
     }
 
-    private parseConditionalExpression(): ParserValue {
+    private parseConditionalExpression(): Expression {
         if (this.at().type === TokenType.If) {
             const { position } = this.next();
 
@@ -226,7 +225,7 @@ export class Parser {
         return this.parseLogicalExpression();
     }
 
-    private parseLogicalExpression(): ParserValue {
+    private parseLogicalExpression(): Expression {
         let left = this.parseComparisonExpression();
 
         while (this.at().type === TokenType.RelationalOperator && (this.at().value === "and" || this.at().value === "or")) {
@@ -248,7 +247,7 @@ export class Parser {
         return left;
     }
 
-    private parseComparisonExpression(): ParserValue {
+    private parseComparisonExpression(): Expression {
         let left = this.parseAdditiveExpression();
 
         while (this.at().type === TokenType.RelationalOperator && this.at().value !== "and" && this.at().value !== "or") {
@@ -270,7 +269,7 @@ export class Parser {
         return left;
     }
 
-    private parseAdditiveExpression(): ParserValue {
+    private parseAdditiveExpression(): Expression {
         let left = this.parseMultiplicativeExpression();
 
         while (this.at().value === "+" || this.at().value === "-") {
@@ -292,7 +291,7 @@ export class Parser {
         return left;
     }
 
-    private parseMultiplicativeExpression(): ParserValue {
+    private parseMultiplicativeExpression(): Expression {
         let left = this.parseMemberExpression();
 
         while (this.at().value === "*" || this.at().value === "/" || this.at().value === "%") {
@@ -314,7 +313,7 @@ export class Parser {
         return left;
     }
 
-    private parseMemberExpression(): ParserValue {
+    private parseMemberExpression(): Expression {
         const caller = this.parseCallExpression();
 
         if (this.at().type === TokenType.Dot) {
@@ -333,7 +332,7 @@ export class Parser {
         return caller;
     }
 
-    private parseCallExpression(): ParserValue {
+    private parseCallExpression(): Expression {
         const caller = this.parsePrimaryExpression();
 
         if (this.at().type === TokenType.OpenParen) {
@@ -350,7 +349,7 @@ export class Parser {
         return caller;
     }
 
-    private parseArguments(): ParserValue[] {
+    private parseArguments(): Expression[] {
         if (this.isNotOf(TokenType.OpenParen)) {
             throw new ErrorParser("Expected an open parenthesis before function arguments", this.position());
         }
@@ -375,7 +374,7 @@ export class Parser {
         return args;
     }
 
-    private parseArgumentsList(): ParserValue[] {
+    private parseArgumentsList(): Expression[] {
         const firstArg = this.parseExpression();
 
         const args = [firstArg];
@@ -389,7 +388,7 @@ export class Parser {
         return args;
     }
 
-    private parsePrimaryExpression(): ParserValue {
+    private parsePrimaryExpression(): Expression {
         const token = this.at();
 
         switch (token.type) {
@@ -484,8 +483,7 @@ export class Parser {
 
     private getNext(): Token {
         if (this.tokens.length <= 2) {
-            // TODO
-            exit(0);
+            throw new ErrorParser("No tokens left to parse");
         }
 
         return this.tokens[1];
