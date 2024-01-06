@@ -116,7 +116,7 @@ export class Lexer {
                     if (this.isAlpha()) {
                         let identifier = "";
     
-                        while (this.hasNext() && this.isAlpha()) {
+                        while (this.hasNext() && (this.isAlpha() || this.getNext().value === "_")) {
                             identifier += this.next().value;
                         }
     
