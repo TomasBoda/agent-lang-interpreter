@@ -1,5 +1,5 @@
 import { Position } from "../symbolizer";
-import { BinaryExpression, BooleanLiteral, CallExpression, ConditionalExpression, Identifier, LambdaExpression, LogicalExpression, MemberExpression, NodeType, NumericLiteral, ObjectDeclaration, OtherwiseExpression, ParserValue, Program, Statement, UnaryExpression, VariableDeclaration, VariableType } from "../parser";
+import { BinaryExpression, BooleanLiteral, CallExpression, ConditionalExpression, DefineDeclaration, Identifier, LambdaExpression, LogicalExpression, MemberExpression, NodeType, NumericLiteral, ObjectDeclaration, OtherwiseExpression, ParserValue, Program, Statement, UnaryExpression, VariableDeclaration, VariableType } from "../parser";
 import { AgentsValue, AgentValue, BooleanValue, FunctionCall, FunctionValue, IdentifierValue, LambdaValue, NumberValue, RuntimeAgent, RuntimeOutput, RuntimeValue, ValueType } from "./model";
 import { Environment } from "./environment";
 import { ErrorRuntime } from "../utils";
@@ -55,15 +55,49 @@ export class Runtime {
 
     private evaluateProgram(program: Program): RuntimeValue {
         for (const statement of program.body) {
-            const objectDeclaration: ObjectDeclaration = this.getObjectDeclaration(statement);
+            switch (statement.type) {
+                case NodeType.DefineDeclaration: {
+                    const defineDeclaration: DefineDeclaration = this.getDefineDeclaration(statement);
+                    const { identifier, value, position } = defineDeclaration;
 
-            for (let i = 0; i < objectDeclaration.count; i++) {
-                const agentId = this.generateAgentId(objectDeclaration.identifier, i);
+                    let result: RuntimeValue;
 
-                this.provideDataToIndexFunction(i);
-                this.provideDataToAgentsFunction(this.previousAgents, agentId);
+                    switch (value.type) {
+                        case NodeType.NumericLiteral:
+                            result = this.evaluateNumericLiteral(value as NumericLiteral);
+                            break
+                        case NodeType.BooleanLiteral:
+                            result = this.evaluateBooleanLiteral(value as BooleanLiteral);
+                            break;
+                        default:
+                            throw new ErrorRuntime(`Only numeric and boolean literals are allowed in define declaration`, position);
+                    }
 
-                this.evaluateObjectDeclaration(objectDeclaration, agentId);
+                    this.globalEnvironment.declareVariable(identifier, result);
+                    break;
+                }
+                case NodeType.ObjectDeclaration: {
+                    const objectDeclaration: ObjectDeclaration = this.getObjectDeclaration(statement);
+
+                    const count = this.evaluateAgentCount(objectDeclaration.count);
+
+                    if (count.type !== ValueType.Number) {
+                        throw new ErrorRuntime("Agent count is not a number", objectDeclaration.position);
+                    }
+
+                    for (let i = 0; i < (count as NumberValue).value; i++) {
+                        const agentId = this.generateAgentId(objectDeclaration.identifier, i);
+
+                        this.provideDataToIndexFunction(i);
+                        this.provideDataToAgentsFunction(this.previousAgents, agentId);
+
+                        this.evaluateObjectDeclaration(objectDeclaration, agentId);
+                    }
+
+                    break;
+                }
+                default:
+                    throw new ErrorRuntime(`Only object and define declarations are allowed in program body`, statement.position);
             }
         }
 
@@ -124,6 +158,7 @@ export class Runtime {
         }
     }
 
+    // main method
     private evaluateRuntimeValue(node: ParserValue, id: string): RuntimeValue {
         switch (node.type) {
             case NodeType.NumericLiteral:
@@ -150,6 +185,17 @@ export class Runtime {
                 return this.evaluateOtherwiseExpression(node as OtherwiseExpression, id);
             default:
                 throw new ErrorRuntime(`Unknown runtime node '${node.type}'`, node.position);
+        }
+    }
+
+    private evaluateAgentCount(node: ParserValue): RuntimeValue {
+        switch (node.type) {
+            case NodeType.NumericLiteral:
+                return this.evaluateNumericLiteral(node as NumericLiteral);
+            case NodeType.Identifier:
+                return this.evaluateGlobalIdentifier(node as Identifier);
+            default:
+                throw new ErrorRuntime(`Unknown runtime node '${node.type}' in agent count`, node.position);
         }
     }
 
@@ -188,6 +234,16 @@ export class Runtime {
         }
 
         return variableValue;
+    }
+
+    private evaluateGlobalIdentifier(identifier: Identifier): RuntimeValue {
+        const variableLookup = this.globalEnvironment.lookupVariable(identifier.identifier);
+
+        if (!variableLookup) {
+            throw new ErrorRuntime("Agent count identifier does not exist", identifier.position);
+        }
+
+        return variableLookup;
     }
 
     private evaluateBinaryExpression(expression: BinaryExpression, id: string): RuntimeValue {
@@ -433,10 +489,19 @@ export class Runtime {
         return left;
     }
 
+    // return DefineDeclaration if possible, throw an error otherwise
+    private getDefineDeclaration(statement: Statement): DefineDeclaration {
+        if (statement.type !== NodeType.DefineDeclaration) {
+            throw new ErrorRuntime("Only object or define declarations are allowed in program body", statement.position);
+        }
+
+        return statement as DefineDeclaration;
+    }
+
     // return ObjectDeclaration if possible, throw an error otherwise
     private getObjectDeclaration(statement: Statement): ObjectDeclaration {
         if (statement.type !== NodeType.ObjectDeclaration) {
-            throw new ErrorRuntime("Only object declarations are allowed in program body", statement.position);
+            throw new ErrorRuntime("Only object or define declarations are allowed in program body", statement.position);
         }
 
         return statement as ObjectDeclaration;

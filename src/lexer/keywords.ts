@@ -3,6 +3,8 @@ import { TokenType } from "./model";
 export const ReservedKeywords: Record<string, TokenType> = {
     "agent": TokenType.Agent,
 
+    "define": TokenType.Define,
+
     "property": TokenType.Property,
     "const": TokenType.Const,
     

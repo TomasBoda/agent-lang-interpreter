@@ -1,6 +1,6 @@
 import { Position } from "../symbolizer";
 import { Token, TokenType } from "../lexer";
-import { BinaryExpression, BooleanLiteral, CallExpression, ConditionalExpression, Expression, Identifier, LambdaExpression, LogicalExpression, MemberExpression, NodeType, NumericLiteral, ObjectDeclaration, OtherwiseExpression, ParserValue, Program, Statement, UnaryExpression, VariableDeclaration, VariableType } from "./model";
+import { BinaryExpression, BooleanLiteral, CallExpression, ConditionalExpression, DefineDeclaration, Expression, Identifier, LambdaExpression, LogicalExpression, MemberExpression, NodeType, NumericLiteral, ObjectDeclaration, OtherwiseExpression, ParserValue, Program, Statement, UnaryExpression, VariableDeclaration, VariableType } from "./model";
 import { getProgram } from "./topology";
 import { ErrorParser } from "../utils";
 
@@ -27,9 +27,46 @@ export class Parser {
         switch (this.at().type) {
             case TokenType.Agent:
                 return this.parseObjectDeclaration();
+            case TokenType.Define:
+                return this.parseDefineDeclaration();
             default:
-                throw new ErrorParser("Only agent declarations are allowed in program scope", this.position());
+                throw new ErrorParser("Only agent and define declarations are allowed in program scope", this.position());
         }
+    }
+
+    private parseDefineDeclaration(): DefineDeclaration {
+        if (this.isNotOf(TokenType.Define)) {
+            throw new ErrorParser("Expected define keyword in program scope", this.position());
+        }
+
+        const { position } = this.next();
+
+        if (this.isNotOf(TokenType.Identifier)) {
+            throw new ErrorParser("Expected define identifier after define keyword", this.position());
+        }
+
+        const identifier = this.next().value;
+
+        if (this.isNotOf(TokenType.AssignmentOperator)) {
+            throw new ErrorParser("Expected equals sign after identifier in define declaration", this.position());
+        }
+
+        this.next();
+
+        const value: ParserValue = this.parseExpression();
+
+        if (this.isNotOf(TokenType.Semicolon)) {
+            throw new ErrorParser("Expected a semicolon after variable declaration", this.position());
+        }
+
+        this.next();
+
+        return {
+            type: NodeType.DefineDeclaration,
+            identifier,
+            value,
+            position
+        } as DefineDeclaration;
     }
 
     private parseObjectDeclaration(): ObjectDeclaration {
@@ -45,11 +82,11 @@ export class Parser {
 
         const identifier = this.next().value;
 
-        if (this.isNotOf(TokenType.Number)) {
+        if (this.isNotOf(TokenType.Number) && this.isNotOf(TokenType.Identifier)) {
             throw new ErrorParser("Expected number of agents after agent identifier", this.position());
         }
 
-        const count = this.next().value;
+        const count = this.parseExpression();
 
         if (this.isNotOf(TokenType.OpenBrace)) {
             throw new ErrorParser("Expected an open brace after number of agents in agent declaration", this.position());
@@ -80,7 +117,7 @@ export class Parser {
         return {
             type: NodeType.ObjectDeclaration,
             identifier,
-            count: parseFloat(count),
+            count,
             body,
             position
         } as ObjectDeclaration;

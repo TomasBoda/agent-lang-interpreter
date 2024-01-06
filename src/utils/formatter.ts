@@ -1,6 +1,6 @@
 import { Symbolizer, Symbol } from "../symbolizer";
 import { Lexer, Token } from "../lexer";
-import { Parser, BinaryExpression, BooleanLiteral, CallExpression, ConditionalExpression, Identifier, LambdaExpression, LogicalExpression, MemberExpression, NodeType, NumericLiteral, ObjectDeclaration, OtherwiseExpression, ParserValue, Program, UnaryExpression, VariableDeclaration, VariableType } from "../parser";
+import { Parser, BinaryExpression, BooleanLiteral, CallExpression, ConditionalExpression, Identifier, LambdaExpression, LogicalExpression, MemberExpression, NodeType, NumericLiteral, ObjectDeclaration, OtherwiseExpression, ParserValue, Program, UnaryExpression, VariableDeclaration, VariableType, DefineDeclaration } from "../parser";
 
 export class Formatter {
 
@@ -30,11 +30,19 @@ export class Formatter {
 
                 break;
             }
+            case NodeType.DefineDeclaration: {
+                const defineDeclaration = ast as DefineDeclaration;
+                const { identifier } = defineDeclaration;
+
+                sourceCode += `define ${identifier} = ${Formatter.nodeToSourceCode(defineDeclaration.value)};`;
+
+                break;
+            }
             case NodeType.ObjectDeclaration: {
                 const objectDeclaration = ast as ObjectDeclaration;
                 const { identifier, count } = objectDeclaration;
 
-                sourceCode += `agent ${identifier} ${count} {`;
+                sourceCode += `agent ${identifier} ${Formatter.nodeToSourceCode(count)} {`;
 
                 for (const statement of objectDeclaration.body) {
                     const variableDeclaration = statement as VariableDeclaration;

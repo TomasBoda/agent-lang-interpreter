@@ -23,7 +23,7 @@ export interface Program extends Statement {
 export interface ObjectDeclaration extends Statement {
     type: NodeType.ObjectDeclaration;
     identifier: string;
-    count: number;
+    count: Expression;
     body: Expression[];
 }
 
@@ -33,6 +33,12 @@ export interface VariableDeclaration extends Statement {
     identifier: string;
     value: Expression;
     default?: Expression;
+}
+
+export interface DefineDeclaration extends Statement {
+    type: NodeType.DefineDeclaration;
+    identifier: string;
+    value: Expression;
 }
 
 export interface BinaryExpression extends Expression {

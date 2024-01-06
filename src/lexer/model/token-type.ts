@@ -1,6 +1,7 @@
 
 export enum TokenType {
     Agent = "Agent",
+    Define = "Define",
     Property = "Property",
     Const = "Const",
 

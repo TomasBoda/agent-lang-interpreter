@@ -1,11 +1,12 @@
-agent person 100 {
-    const offset = 1;
+define x_default = 250;
+define y_default = 250;
+define coloured_default = true;
 
-    property people = agents(person);
-    property distance = sum(people => p => p.offset);
+define people_count = 10;
 
-    property x = distance;
-    property y = 100;
+agent person people_count {
+    const x = x_default + random(-250, 250);
+    const y = y_default + random(-250, 250);
 
-    const coloured = false;
+    const coloured = coloured_default;
 }

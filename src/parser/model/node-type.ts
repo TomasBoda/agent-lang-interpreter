@@ -4,6 +4,7 @@ export enum NodeType {
     Program = "Program",
     ObjectDeclaration = "ObjectDeclaration",
     VariableDeclaration = "VariableDeclaration",
+    DefineDeclaration = "DefineDeclaration",
     // Expressions
     NumericLiteral = "NumericLiteral",
     BooleanLiteral = "BooleanLiteral",

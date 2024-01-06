@@ -1,4 +1,4 @@
-import { BinaryExpression, CallExpression, ConditionalExpression, Expression, Identifier, LambdaExpression, LogicalExpression, MemberExpression, NodeType, ObjectDeclaration, ParserValue, Program, UnaryExpression, VariableDeclaration } from "../model";
+import { BinaryExpression, CallExpression, ConditionalExpression, DefineDeclaration, Expression, Identifier, LambdaExpression, LogicalExpression, MemberExpression, NodeType, ObjectDeclaration, ParserValue, Program, UnaryExpression, VariableDeclaration } from "../model";
 import { DependencyGraph, Node, topologicalSort } from "./topology";
 import { ErrorParser } from "../../utils";
 
@@ -11,7 +11,16 @@ export function getProgram(program: Program): Program {
     }
 
     for (let i = 0; i < program.body.length; i++) {
-        program.body[i] = getObjectDeclaration(program.body[i] as ObjectDeclaration);
+        const node = program.body[i];
+
+        switch (node.type) {
+            case NodeType.DefineDeclaration:
+                program.body[i] = node as DefineDeclaration;
+                break;
+            case NodeType.ObjectDeclaration:
+                program.body[i] = getObjectDeclaration(node as ObjectDeclaration);
+                break;
+        }
     }
 
     return program;
