@@ -180,4 +180,8 @@ export class Interpreter {
 
         return heightFunction;
     }
+
+    public updateAgentValue(agentIndex: number, propertyIdentifier: string, value: number): void {
+        this.runtime?.updateAgentValue(agentIndex, propertyIdentifier, value);
+    }
 }

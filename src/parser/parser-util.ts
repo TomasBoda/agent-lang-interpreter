@@ -19,7 +19,7 @@ export class ParserUtil {
                 const objectDeclaration = ast as ObjectDeclaration;
 
                 const identifier = objectDeclaration.identifier;
-                const count = objectDeclaration.count;
+                const count = ParserUtil.astToCode(objectDeclaration.count);
 
                 code += `agent ${identifier} ${count} {\n`;
                 code += objectDeclaration.body.map(declaration => `\t${ParserUtil.astToCode(declaration)}`).join("\n");

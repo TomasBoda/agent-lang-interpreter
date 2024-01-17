@@ -53,6 +53,11 @@ export class Runtime {
         this.output = { type: ValueType.Output, step: 0, agents: [] };
     }
 
+    // update specific agent variable value
+    public updateAgentValue(agentIndex: number, propertyIdentifier: string, value: number): void {
+        this.previousAgents[agentIndex].variables.set(propertyIdentifier, { type: ValueType.Number, value } as NumberValue);
+    }
+
     private evaluateProgram(program: Program): RuntimeValue {
         for (const statement of program.body) {
             switch (statement.type) {
