@@ -4,9 +4,9 @@ type ErrorType = "Lexer" | "Parser" | "Runtime";
 
 export class ErrorModel extends Error {
 
+    private type: ErrorType;
     private about: string;
     private position?: Position;
-    private type: ErrorType;
 
     constructor(type: ErrorType, about: string, position?: Position) {
         super(about);
@@ -22,9 +22,5 @@ export class ErrorModel extends Error {
         }
 
         return `${this.type} Error (line ${this.position.line}, character ${this.position.character}): ${this.about}`;
-    }
-
-    public throw(): void {
-        console.log(this.toString());
     }
 }

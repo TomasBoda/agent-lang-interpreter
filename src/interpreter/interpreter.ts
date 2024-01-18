@@ -2,10 +2,9 @@ import { Observable, Subject, Subscription, interval, takeWhile } from "rxjs";
 import { Symbol, Symbolizer } from "../symbolizer";
 import { Lexer, Token } from "../lexer";
 import { Parser, ParserValue, Program } from "../parser";
-import { Runtime, Environment, FunctionCall, NumberValue, RuntimeAgent, RuntimeOutput, RuntimeValue, ValueType } from "../runtime";
+import { Runtime, Environment, FunctionCall, NumberValue, RuntimeAgent, RuntimeOutput, RuntimeValue, ValueType, createGlobalFunction } from "../runtime";
 import { Agent, InterpreterConfiguration, InterpreterOutput } from "./model";
 import { ErrorModel, ErrorRuntime } from "../utils";
-import { createGlobalFunction } from "../runtime/functions/utils";
 
 export class Interpreter {
 
@@ -22,6 +21,26 @@ export class Interpreter {
 
     private program?: Program;
 
+    // subscribes to interpreter output
+    public get(sourceCode: string, config: InterpreterConfiguration): Observable<InterpreterOutput> {
+        this.build(sourceCode, config);
+        return this.dataSubject.asObservable();
+    }
+
+    // returns current program
+    public getProgram(): Program {
+        return this.program!;
+    }
+
+    // sets new program
+    public setProgram(program: Program): void {
+        this.program = program;
+    }
+
+    public updateAgentValue(agentIndex: number, propertyIdentifier: string, value: number): void {
+        this.runtime?.updateAgentValue(agentIndex, propertyIdentifier, value);
+    }
+
     public build(sourceCode: string, config: InterpreterConfiguration): void {
         this.sourceCode = sourceCode;
         this.config = config;
@@ -32,7 +51,7 @@ export class Interpreter {
 
         // generate source code tokens
         this.lexer = new Lexer(symbols);
-        let tokens: Token[] =this.lexer.tokenize();
+        let tokens: Token[] = this.lexer.tokenize();
 
         // generate source code abstract syntax tree
         this.parser = new Parser(tokens);
@@ -50,22 +69,6 @@ export class Interpreter {
         this.runtime = new Runtime(program as Program, environment);
 
         this.reset();
-    }
-
-    // subscribes to interpreter output
-    public get(sourceCode: string, config: InterpreterConfiguration): Observable<InterpreterOutput> {
-        this.build(sourceCode, config);
-        return this.dataSubject.asObservable();
-    }
-
-    // returns current program
-    public getProgram(): Program {
-        return this.program!;
-    }
-
-    // sets new program
-    public setProgram(program: Program): void {
-        this.program = program;
     }
 
     // rebuilds current interpreter step
@@ -179,9 +182,5 @@ export class Interpreter {
         }
 
         return heightFunction;
-    }
-
-    public updateAgentValue(agentIndex: number, propertyIdentifier: string, value: number): void {
-        this.runtime?.updateAgentValue(agentIndex, propertyIdentifier, value);
     }
 }

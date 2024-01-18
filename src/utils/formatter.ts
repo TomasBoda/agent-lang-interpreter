@@ -11,7 +11,7 @@ export class Formatter {
     public static getFormatted(sourceCode: string): string {
         Formatter.line = 1;
 
-        const program: Program = Formatter.getProgram(sourceCode);
+        const program = Formatter.getProgram(sourceCode);
         return Formatter.nodeToSourceCode(program)
     }
 

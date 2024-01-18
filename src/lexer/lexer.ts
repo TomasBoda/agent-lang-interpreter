@@ -38,13 +38,21 @@ export class Lexer {
                     break;
                 case "<": {
                     const operator = this.next();
-                    if (this.isNext("=")) operator.value += this.next().value;
+
+                    if (this.isNext("=")) {
+                        operator.value += this.next().value;
+                    }
+
                     this.token(TokenType.RelationalOperator, operator);
                     break;
                 }
                 case ">": {
                     const operator = this.next();
-                    if (this.isNext("=")) operator.value += this.next().value;
+                    
+                    if (this.isNext("=")) {
+                        operator.value += this.next().value;
+                    }
+
                     this.token(TokenType.RelationalOperator, operator);
                     break;
                 }
@@ -94,33 +102,12 @@ export class Lexer {
                     const { position } = this.getNext();
     
                     if (this.isNumber()) {
-                        let number = "";
-                        let foundDecimalPoint = false;
-    
-                        while (this.hasNext() && (this.isNumber() || this.isNext("."))) {
-                            if (this.isNext(".")) {
-                                if (foundDecimalPoint) {
-                                    throw new ErrorLexer("Number cannot contain more than one decimal point", position);
-                                }
-    
-                                foundDecimalPoint = true;
-                            }
-    
-                            number += this.next().value;
-                        }
-    
-                        this.token(TokenType.Number, { value: number, position });
+                        this.tokenizeNumber(position);
                         break;
                     }
     
                     if (this.isAlpha()) {
-                        let identifier = "";
-    
-                        while (this.hasNext() && (this.isAlpha() || this.getNext().value === "_")) {
-                            identifier += this.next().value;
-                        }
-    
-                        this.token(this.getIdentifierTokenType(identifier), { value: identifier, position });
+                        this.tokenizeIdentifier(position);
                         break;
                     }
     
@@ -139,6 +126,35 @@ export class Lexer {
         return this.tokens;
     }
 
+    private tokenizeNumber(position: Position): void {
+        let number = "";
+        let foundDecimalPoint = false;
+
+        while (this.hasNext() && (this.isNumber() || this.isNext("."))) {
+            if (this.isNext(".")) {
+                if (foundDecimalPoint) {
+                    throw new ErrorLexer("Number cannot contain more than one decimal point", position);
+                }
+
+                foundDecimalPoint = true;
+            }
+
+            number += this.next().value;
+        }
+
+        this.token(TokenType.Number, { value: number, position });
+    }
+
+    private tokenizeIdentifier(position: Position): void {
+        let identifier = "";
+    
+        while (this.hasNext() && (this.isAlpha() || this.getNext().value === "_")) {
+            identifier += this.next().value;
+        }
+
+        this.token(this.getKeywordOrIdentifierTokenType(identifier), { value: identifier, position });
+    }
+
     private hasNext(): boolean {
         return this.symbols.length > 0;
     }
@@ -152,7 +168,13 @@ export class Lexer {
     }
 
     private next(): Symbol {
-        return this.symbols.shift() ?? {} as Symbol;
+        const symbol = this.symbols.shift();
+
+        if (!symbol) {
+            throw new ErrorLexer("Cannot retrieve next token, since it does not exist");
+        }
+
+        return symbol;
     }
 
     private token(type: TokenType, symbol = this.next()): void {
@@ -171,7 +193,7 @@ export class Lexer {
         this.token(TokenType.EOF, { value: "EOF", position: eofPosition });
     }
 
-    private getIdentifierTokenType(identifier: string): TokenType {
+    private getKeywordOrIdentifierTokenType(identifier: string): TokenType {
         const keyword = ReservedKeywords[identifier];
         return keyword ? keyword : TokenType.Identifier;
     }
@@ -181,13 +203,14 @@ export class Lexer {
     }
 
     private isNumber(): boolean {
-        const symbol: number = this.getNext().value.charCodeAt(0);
+        const symbol = this.getNext().value.charCodeAt(0);
         const bounds = { lower: "0".charCodeAt(0), upper: "9".charCodeAt(0) };
         return symbol >= bounds.lower && symbol <= bounds.upper;
     }
 
     private isSkippable(): boolean {
-        return this.getNext().value === " " || this.getNext().value === "\n" || this.getNext().value === "\t";
+        const skippableCharacters = [ " ", "\n", "\t" ];
+        return skippableCharacters.includes(this.getNext().value);
     }
 
     private clearTokens(): void {

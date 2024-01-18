@@ -28,7 +28,6 @@ export class Runtime {
         this.lambdaEnvironment = new Environment();
     }
 
-    // run code
     public run(step: number): RuntimeValue {
         this.output.step = step;
         this.provideDataToStepFunction(step);
@@ -43,64 +42,17 @@ export class Runtime {
         return result;
     }
 
-    // set new program
-    public setProgram(program: Program): void {
-        this.program = program;
-    }
-
-    // reset output
-    public reset(): void {
-        this.output = { type: ValueType.Output, step: 0, agents: [] };
-    }
-
-    // update specific agent variable value
-    public updateAgentValue(agentIndex: number, propertyIdentifier: string, value: number): void {
-        this.previousAgents[agentIndex].variables.set(propertyIdentifier, { type: ValueType.Number, value } as NumberValue);
-    }
-
     private evaluateProgram(program: Program): RuntimeValue {
         for (const statement of program.body) {
             switch (statement.type) {
-                case NodeType.DefineDeclaration: {
+                case NodeType.DefineDeclaration:
                     const defineDeclaration: DefineDeclaration = this.getDefineDeclaration(statement);
-                    const { identifier, value, position } = defineDeclaration;
-
-                    let result: RuntimeValue;
-
-                    switch (value.type) {
-                        case NodeType.NumericLiteral:
-                            result = this.evaluateNumericLiteral(value as NumericLiteral);
-                            break
-                        case NodeType.BooleanLiteral:
-                            result = this.evaluateBooleanLiteral(value as BooleanLiteral);
-                            break;
-                        default:
-                            throw new ErrorRuntime(`Only numeric and boolean literals are allowed in define declaration`, position);
-                    }
-
-                    this.globalEnvironment.declareVariable(identifier, result);
+                    this.evaluateDefineDeclaration(defineDeclaration);
                     break;
-                }
-                case NodeType.ObjectDeclaration: {
+                case NodeType.ObjectDeclaration:
                     const objectDeclaration: ObjectDeclaration = this.getObjectDeclaration(statement);
-
-                    const count = this.evaluateAgentCount(objectDeclaration.count);
-
-                    if (count.type !== ValueType.Number) {
-                        throw new ErrorRuntime("Agent count is not a number", objectDeclaration.position);
-                    }
-
-                    for (let i = 0; i < (count as NumberValue).value; i++) {
-                        const agentId = this.generateAgentId(objectDeclaration.identifier, i);
-
-                        this.provideDataToIndexFunction(i);
-                        this.provideDataToAgentsFunction(this.previousAgents, agentId);
-
-                        this.evaluateObjectDeclaration(objectDeclaration, agentId);
-                    }
-
+                    this.evaluateObjectDeclarationList(objectDeclaration);
                     break;
-                }
                 default:
                     throw new ErrorRuntime(`Only object and define declarations are allowed in program body`, statement.position);
             }
@@ -109,17 +61,63 @@ export class Runtime {
         return this.output;
     }
 
-    private evaluateObjectDeclaration(declaration: ObjectDeclaration, id: string): void {
-        const identifier = declaration.identifier;
-        const variables = new Map<string, RuntimeValue>();
+    private evaluateDefineDeclaration(declaration: DefineDeclaration): void {
+        const { identifier, value, position } = declaration;
 
-        // declare agent identifier as global variable for later use in 'agents' method
-        this.globalEnvironment.declareVariable(identifier, { type: ValueType.Identifier, value: identifier } as IdentifierValue);
+        let result: RuntimeValue;
+
+        switch (value.type) {
+            case NodeType.NumericLiteral:
+                result = this.evaluateNumericLiteral(value as NumericLiteral);
+                break;
+            case NodeType.BooleanLiteral:
+                result = this.evaluateBooleanLiteral(value as BooleanLiteral);
+                break;
+            default:
+                throw new ErrorRuntime(`Only numeric and boolean literals are allowed in define declaration`, position);
+        }
+
+        this.globalEnvironment.declareVariable(identifier, result);
+    }
+
+    private evaluateObjectDeclarationList(declaration: ObjectDeclaration): void {
+        let count: RuntimeValue;
+
+        switch (declaration.count.type) {
+            case NodeType.NumericLiteral:
+                count = this.evaluateNumericLiteral(declaration.count as NumericLiteral);
+                break;
+            case NodeType.Identifier:
+                count = this.evaluateGlobalIdentifier(declaration.count as Identifier);
+                break;
+            default:
+                throw new ErrorRuntime(`Unknown runtime node '${declaration.count.type}' in agent count`, declaration.count.position);
+        }
+
+        if (count.type !== ValueType.Number) {
+            throw new ErrorRuntime("Agent count is not a number", declaration.position);
+        }
+
+        for (let i = 0; i < (count as NumberValue).value; i++) {
+            const agentId = this.generateAgentId(declaration.identifier, i);
+
+            this.provideDataToIndexFunction(i);
+            this.provideDataToAgentsFunction(this.previousAgents, agentId);
+
+            this.evaluateObjectDeclaration(declaration, agentId);
+        }
+    }
+
+    private evaluateObjectDeclaration(declaration: ObjectDeclaration, id: string): void {
+        const objectIdentifier = declaration.identifier;
+        const objectVariables = new Map<string, RuntimeValue>();
+
+        this.globalEnvironment.declareVariable(objectIdentifier, { type: ValueType.Identifier, value: objectIdentifier } as IdentifierValue);
 
         if (this.output.step === 0) {
-            this.previousAgents.push({ id, identifier, variables } as RuntimeAgent);
+            this.previousAgents.push({ id, identifier: objectIdentifier, variables: objectVariables } as RuntimeAgent);
         } else {
-            this.output.agents.push({ id, identifier, variables } as RuntimeAgent);
+            this.output.agents.push({ id, identifier: objectIdentifier, variables: objectVariables } as RuntimeAgent);
         }
 
         for (const statement of declaration.body) {
@@ -128,50 +126,53 @@ export class Runtime {
             const variableIdentifier = variableDeclaration.identifier;
             const variableValue = this.evaluateVariableDeclaration(variableDeclaration, id);
 
-            variables.set(variableIdentifier, variableValue);
+            objectVariables.set(variableIdentifier, variableValue);
         }
     }
 
     private evaluateVariableDeclaration(declaration: VariableDeclaration, id: string): RuntimeValue {
         switch (declaration.variableType) {
-            case VariableType.Property: {
-                // handle default value in step 0
-                if (declaration.default && this.output.step === 0) {
-                    return this.evaluateRuntimeValue(declaration.default, id);
-                }
-        
-                return this.evaluateRuntimeValue(declaration.value, id);
-            }
-            case VariableType.Const: {
-                // evaluate const in step 0
-                if (this.output.step === 0) {
-                    return this.evaluateRuntimeValue(declaration.value, id);
-                }
-
-                const agent = this.findAgent(id);
-                const previousConstValue: RuntimeValue | undefined = agent.variables.get(declaration.identifier);
-
-                if (!previousConstValue) {
-                    throw new ErrorRuntime("Previous value of const `${declaration.identifier}` in agent `${id}` not found", declaration.position);
-                }
-
-                return previousConstValue;
-            }
+            case VariableType.Property:
+                return this.evaluatePropertyDeclaration(declaration, id);
+            case VariableType.Const:
+                return this.evaluateConstDeclaration(declaration, id);
             default: {
-                throw new ErrorRuntime("Unrecognized variable type in variable declaration", declaration.position);
+                throw new ErrorRuntime("Unrecognized property type in property declaration", declaration.position);
             }
         }
     }
 
-    // main method
+    private evaluatePropertyDeclaration(declaration: VariableDeclaration, id: string): RuntimeValue {
+        if (declaration.default && this.output.step === 0) {
+            return this.evaluateRuntimeValue(declaration.default, id);
+        }
+
+        return this.evaluateRuntimeValue(declaration.value, id);
+    }
+
+    private evaluateConstDeclaration(declaration: VariableDeclaration, id: string): RuntimeValue {
+        if (this.output.step === 0) {
+            return this.evaluateRuntimeValue(declaration.value, id);
+        }
+
+        const agent = this.findAgent(id);
+        const previousConstValue = agent.variables.get(declaration.identifier);
+
+        if (!previousConstValue) {
+            throw new ErrorRuntime(`Previous value of const '${declaration.identifier}' in agent '${id}' not found`, declaration.position);
+        }
+
+        return previousConstValue;
+    }
+
     private evaluateRuntimeValue(node: ParserValue, id: string): RuntimeValue {
         switch (node.type) {
+            case NodeType.Identifier:
+                return this.evaluateIdentifier(node as Identifier, id);
             case NodeType.NumericLiteral:
                 return this.evaluateNumericLiteral(node as NumericLiteral);
             case NodeType.BooleanLiteral:
                 return this.evaluateBooleanLiteral(node as BooleanLiteral);
-            case NodeType.Identifier:
-                return this.evaluateIdentifier(node as Identifier, id);
             case NodeType.BinaryExpression:
                 return this.evaluateBinaryExpression(node as BinaryExpression, id);
             case NodeType.UnaryExpression:
@@ -193,52 +194,42 @@ export class Runtime {
         }
     }
 
-    private evaluateAgentCount(node: ParserValue): RuntimeValue {
-        switch (node.type) {
-            case NodeType.NumericLiteral:
-                return this.evaluateNumericLiteral(node as NumericLiteral);
-            case NodeType.Identifier:
-                return this.evaluateGlobalIdentifier(node as Identifier);
-            default:
-                throw new ErrorRuntime(`Unknown runtime node '${node.type}' in agent count`, node.position);
-        }
-    }
-
     private evaluateNumericLiteral(numericLiteral: NumericLiteral): RuntimeValue {
-        return {
+        const numberValue: NumberValue = {
             type: ValueType.Number,
             value: normalizeNumber(numericLiteral.value)
-        } as NumberValue;
+        };
+
+        return numberValue;
     }
 
     private evaluateBooleanLiteral(booleanLiteral: BooleanLiteral): RuntimeValue {
-        return {
+        const booleanValue: BooleanValue = {
             type: ValueType.Boolean,
             value: booleanLiteral.value
-        } as BooleanValue;
+        };
+
+        return booleanValue;
     }
 
     private evaluateIdentifier(identifier: Identifier, id: string): RuntimeValue {
-        // check whether identifier is a lambda variable
         const lambdaLookup = this.lambdaEnvironment.lookupVariable(identifier.identifier);
         if (lambdaLookup) {
             return lambdaLookup;
         }
 
-        // check whether identifier is an agent variable
         const variableLookup = this.globalEnvironment.lookupVariable(identifier.identifier);
         if (variableLookup) {
             return variableLookup;
         }
 
         const agent = this.findAgent(id);
-        const variableValue: RuntimeValue | undefined = agent.variables.get(identifier.identifier);
-
-        if (!variableValue) {
-            throw new ErrorRuntime(`Variable '${identifier.identifier}' in agent '${id}' does not exist`, identifier.position);
+        const variableValue = agent.variables.get(identifier.identifier);
+        if (variableValue) {
+            return variableValue;
         }
 
-        return variableValue;
+        throw new ErrorRuntime(`Variable '${identifier.identifier}' in agent '${id}' does not exist`, identifier.position);
     }
 
     private evaluateGlobalIdentifier(identifier: Identifier): RuntimeValue {
@@ -255,14 +246,14 @@ export class Runtime {
         const leftHandSide = this.evaluateRuntimeValue(expression.left, id);
         const rightHandSide = this.evaluateRuntimeValue(expression.right, id);
 
-        // handle otherwise expression
         if (this.inOtherwiseExpression && leftHandSide.type === ValueType.Null) {
-            return leftHandSide;
-        }
-
-        // handle otherwise expression
-        if (this.inOtherwiseExpression && rightHandSide.type === ValueType.Null) {
-            return rightHandSide;
+            if (leftHandSide.type === ValueType.Null) {
+                return leftHandSide;
+            }
+        
+            if (rightHandSide.type === ValueType.Null) {
+                return rightHandSide;
+            }
         }
 
         const isValid = (
@@ -288,10 +279,9 @@ export class Runtime {
     }
 
     private evaluateUnaryExpression(expression: UnaryExpression, id: string): RuntimeValue {
-        const operator = expression.operator;
+        const { operator } = expression;
         const value = this.evaluateRuntimeValue(expression.value, id);
 
-        // handle otherwise expression
         if (this.inOtherwiseExpression && value.type === ValueType.Null) {
             return value;
         }
@@ -330,6 +320,8 @@ export class Runtime {
             result = leftHandSide.value === rightHandSide.value;
         } else if (operator === "!=") {
             result = leftHandSide.value !== rightHandSide.value;
+        } else {
+            throw new ErrorRuntime(`Unsupported operator '${operator}' in binary expression`);
         }
 
         return { type: ValueType.Boolean, value: result } as BooleanValue;
@@ -365,39 +357,38 @@ export class Runtime {
         const leftHandSide = this.evaluateRuntimeValue(expression.left, id);
         const rightHandSide = this.evaluateRuntimeValue(expression.right, id);
 
-        // handle otherwise expression
         if (this.inOtherwiseExpression && leftHandSide.type === ValueType.Null) {
-            return leftHandSide;
-        }
-
-        // handle otherwise expression
-        if (this.inOtherwiseExpression && rightHandSide.type === ValueType.Null) {
-            return rightHandSide;
-        }
-
-        if (leftHandSide.type === ValueType.Boolean && rightHandSide.type === ValueType.Boolean) {
-            let result;
-
-            if (expression.operator === "and") {
-                const leftValue = (leftHandSide as BooleanValue).value;
-                const rightValue = (rightHandSide as BooleanValue).value;
-                result = leftValue && rightValue;
-            } else if (expression.operator === "or") {
-                const leftValue = (leftHandSide as BooleanValue).value;
-                const rightValue = (rightHandSide as BooleanValue).value;
-                result = leftValue || rightValue;
+            if (leftHandSide.type === ValueType.Null) {
+                return leftHandSide;
             }
-
-            return { type: ValueType.Boolean, value: result } as BooleanValue;
+        
+            if (rightHandSide.type === ValueType.Null) {
+                return rightHandSide;
+            }
         }
 
-        throw new ErrorRuntime("Logical expression requires boolean operands", expression.position);
+        if (leftHandSide.type !== ValueType.Boolean || rightHandSide.type !== ValueType.Boolean) {
+            throw new ErrorRuntime("Logical expression requires boolean operands", expression.position);
+        }
+
+        let result;
+
+        if (expression.operator === "and") {
+            const leftValue = (leftHandSide as BooleanValue).value;
+            const rightValue = (rightHandSide as BooleanValue).value;
+            result = leftValue && rightValue;
+        } else if (expression.operator === "or") {
+            const leftValue = (leftHandSide as BooleanValue).value;
+            const rightValue = (rightHandSide as BooleanValue).value;
+            result = leftValue || rightValue;
+        }
+
+        return { type: ValueType.Boolean, value: result } as BooleanValue;
     }
 
     private evaluateConditionalExpression(expression: ConditionalExpression, id: string): RuntimeValue {
         const condition = this.evaluateRuntimeValue(expression.condition, id);
 
-        // handle otherwise expression
         if (this.inOtherwiseExpression && condition.type === ValueType.Null) {
             return condition;
         }
@@ -407,12 +398,13 @@ export class Runtime {
         }
 
         const result = (condition as BooleanValue).value ? expression.consequent : expression.alternate;
+
         return this.evaluateRuntimeValue(result, id);
     }
 
     private evaluateCallExpression(expression: CallExpression, id: string): RuntimeValue {
         if (expression.caller.type !== NodeType.Identifier) {
-            throw new ErrorRuntime("Function call must be an identifier", expression.position);
+            throw new ErrorRuntime("Function caller must be an identifier", expression.position);
         }
 
         const identifier = (expression.caller as Identifier).identifier;
@@ -447,17 +439,18 @@ export class Runtime {
             results.push(this.evaluateRuntimeValue(expression.value, id));
         }
 
-        return {
+        const lambdaValue: LambdaValue = {
             type: ValueType.Lambda,
             agents: runtimeAgents,
             results
-        } as LambdaValue;
+        };
+
+        return lambdaValue;
     }
 
     private evaluateMemberExpression(expression: MemberExpression, id: string): RuntimeValue {
         const caller = this.evaluateRuntimeValue(expression.caller, id);
 
-        // handle otherwise expression
         if (this.inOtherwiseExpression && caller.type === ValueType.Null) {
             return caller;
         }
@@ -539,6 +532,18 @@ export class Runtime {
     // generate custom agent identifier
     private generateAgentId(identifier: string, id: number): string {
         return `${identifier}-${id}`;
+    }
+
+    public setProgram(program: Program): void {
+        this.program = program;
+    }
+
+    public reset(): void {
+        this.output = { type: ValueType.Output, step: 0, agents: [] };
+    }
+    
+    public updateAgentValue(agentIndex: number, propertyIdentifier: string, value: number): void {
+        this.previousAgents[agentIndex].variables.set(propertyIdentifier, { type: ValueType.Number, value } as NumberValue);
     }
 
     // runtime functions
