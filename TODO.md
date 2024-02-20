@@ -1,5 +1,6 @@
 # TODO
-- round numbers to 2 decimal places only in the output, not during runtime calculations
-- fix property declaration validation in Parser module
-- debug the flocking simulation
-- check for possible speed optimisations
+- fix property declaration validation
+    - parser handles duplicate property identifiers by omitting them
+    - fix this in parser and add validation to the validation module
+- check for possible performance optimisations
+- debug the example flocking simulation 
