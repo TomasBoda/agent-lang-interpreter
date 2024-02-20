@@ -1,12 +1,11 @@
 import { Observable, Subject, Subscription, interval, takeWhile } from "rxjs";
 import { Symbol, Symbolizer } from "../symbolizer";
 import { Lexer, Token } from "../lexer";
-import { Parser, ParserValue, Program, Topology } from "../parser";
+import { Parser, Program, Topology } from "../parser";
 import { Runtime, Environment, FunctionCall, NumberValue, RuntimeAgent, RuntimeOutput, RuntimeValue, ValueType, createGlobalFunction, normalizeNumber } from "../runtime";
 import { Agent, InterpreterConfiguration, InterpreterOutput } from "./model";
 import { ErrorModel, ErrorRuntime } from "../utils";
 import { Validation } from "../parser/validation";
-import { writeFileSync } from "fs";
 
 export class Interpreter {
 
@@ -61,16 +60,14 @@ export class Interpreter {
         this.parser = new Parser(tokens);
         let program: Program = this.parser.parse();
 
+        Validation.validate(program);
+
         // sort program topologically
         this.topology = new Topology();
         let sortedProgram: Program = this.topology.getSortedProgram(program);
 
         // save abstract syntax tree
         this.program = sortedProgram;
-
-        writeFileSync("ast.json", JSON.stringify(this.program));
-
-        Validation.validate(this.program);
 
         // initialize default global environment
         const environment: Environment = Environment.createGlobalEnvironment();

@@ -2,6 +2,7 @@ import { Position } from "../symbolizer";
 import { Token, TokenType } from "../lexer";
 import { BinaryExpression, BooleanLiteral, CallExpression, ConditionalExpression, DefineDeclaration, Expression, Identifier, LambdaExpression, LogicalExpression, MemberExpression, NodeType, NumericLiteral, ObjectDeclaration, OtherwiseExpression, ParserValue, Program, Statement, UnaryExpression, VariableDeclaration, VariableType } from "./model";
 import { ErrorParser } from "../utils";
+import { writeFileSync } from "fs";
 
 export class Parser {
 

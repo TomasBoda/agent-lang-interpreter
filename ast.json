@@ -1,1 +1,61 @@
-{"type":"Program","body":[{"type":"DefineDeclaration","identifier":"b","value":{"type":"NumericLiteral","value":10,"position":{"line":1,"character":12}},"position":{"line":1,"character":1}},{"type":"ObjectDeclaration","identifier":"data","count":{"type":"NumericLiteral","value":1,"position":{"line":3,"character":12}},"body":[{"type":"VariableDeclaration","variableType":"property","identifier":"value","value":{"type":"BinaryExpression","left":{"type":"Identifier","identifier":"value","position":{"line":4,"character":26}},"right":{"type":"NumericLiteral","value":2,"position":{"line":4,"character":34}},"operator":"/","position":{"line":4,"character":32}},"default":{"type":"NumericLiteral","value":10,"position":{"line":4,"character":21}},"position":{"line":4,"character":5}}],"position":{"line":3,"character":1}}],"position":{"line":0,"character":0}}
+{
+    "type": "Program",
+    "body": [
+        {
+            "type": "ObjectDeclaration",
+            "identifier": "data",
+            "count": {
+                "type": "NumericLiteral",
+                "value": 1,
+                "position": {
+                    "line": 1,
+                    "character": 12
+                }
+            },
+            "body": [
+                {
+                    "type": "VariableDeclaration",
+                    "variableType": "property",
+                    "identifier": "a",
+                    "value": {
+                        "type": "NumericLiteral",
+                        "value": 1,
+                        "position": {
+                            "line": 3,
+                            "character": 18
+                        }
+                    },
+                    "position": {
+                        "line": 3,
+                        "character": 5
+                    }
+                },
+                {
+                    "type": "VariableDeclaration",
+                    "variableType": "property",
+                    "identifier": "a",
+                    "value": {
+                        "type": "NumericLiteral",
+                        "value": 2,
+                        "position": {
+                            "line": 4,
+                            "character": 18
+                        }
+                    },
+                    "position": {
+                        "line": 4,
+                        "character": 5
+                    }
+                }
+            ],
+            "position": {
+                "line": 1,
+                "character": 1
+            }
+        }
+    ],
+    "position": {
+        "line": 0,
+        "character": 0
+    }
+}
