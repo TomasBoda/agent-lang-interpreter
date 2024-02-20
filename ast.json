@@ -2,36 +2,52 @@
     "type": "Program",
     "body": [
         {
-            "type": "DefineDeclaration",
-            "identifier": "people_count",
-            "value": {
+            "type": "ObjectDeclaration",
+            "identifier": "data",
+            "count": {
                 "type": "NumericLiteral",
-                "value": 100,
+                "value": 1,
                 "position": {
                     "line": 1,
-                    "character": 23
+                    "character": 12
                 }
             },
-            "position": {
-                "line": 1,
-                "character": 1
-            }
-        },
-        {
-            "type": "ObjectDeclaration",
-            "identifier": "person",
-            "count": 100,
             "body": [
                 {
                     "type": "VariableDeclaration",
                     "variableType": "const",
-                    "identifier": "offset",
+                    "identifier": "a",
                     "value": {
-                        "type": "NumericLiteral",
-                        "value": 1,
+                        "type": "BooleanLiteral",
+                        "value": false,
+                        "position": {
+                            "line": 3,
+                            "character": 15
+                        }
+                    },
+                    "position": {
+                        "line": 3,
+                        "character": 5
+                    }
+                },
+                {
+                    "type": "VariableDeclaration",
+                    "variableType": "const",
+                    "identifier": "b",
+                    "value": {
+                        "type": "UnaryExpression",
+                        "operator": "!",
+                        "value": {
+                            "type": "Identifier",
+                            "identifier": "a",
+                            "position": {
+                                "line": 4,
+                                "character": 16
+                            }
+                        },
                         "position": {
                             "line": 4,
-                            "character": 20
+                            "character": 15
                         }
                     },
                     "position": {
@@ -41,96 +57,39 @@
                 },
                 {
                     "type": "VariableDeclaration",
-                    "variableType": "property",
-                    "identifier": "people",
+                    "variableType": "const",
+                    "identifier": "c",
                     "value": {
-                        "type": "CallExpression",
-                        "caller": {
-                            "type": "Identifier",
-                            "identifier": "agents",
+                        "type": "UnaryExpression",
+                        "operator": "!",
+                        "value": {
+                            "type": "BooleanLiteral",
+                            "value": false,
                             "position": {
-                                "line": 6,
-                                "character": 23
+                                "line": 5,
+                                "character": 16
                             }
                         },
-                        "args": [
-                            {
-                                "type": "Identifier",
-                                "identifier": "person",
-                                "position": {
-                                    "line": 6,
-                                    "character": 30
-                                }
-                            }
-                        ],
                         "position": {
-                            "line": 6,
-                            "character": 23
+                            "line": 5,
+                            "character": 15
                         }
                     },
                     "position": {
-                        "line": 6,
+                        "line": 5,
                         "character": 5
                     }
                 },
                 {
                     "type": "VariableDeclaration",
-                    "variableType": "property",
-                    "identifier": "distance",
+                    "variableType": "const",
+                    "identifier": "d",
                     "value": {
-                        "type": "CallExpression",
-                        "caller": {
-                            "type": "Identifier",
-                            "identifier": "sum",
-                            "position": {
-                                "line": 7,
-                                "character": 25
-                            }
-                        },
-                        "args": [
-                            {
-                                "type": "LambdaExpression",
-                                "base": {
-                                    "type": "Identifier",
-                                    "identifier": "people",
-                                    "position": {
-                                        "line": 7,
-                                        "character": 29
-                                    }
-                                },
-                                "param": "p",
-                                "value": {
-                                    "type": "MemberExpression",
-                                    "caller": {
-                                        "type": "Identifier",
-                                        "identifier": "p",
-                                        "position": {
-                                            "line": 7,
-                                            "character": 44
-                                        }
-                                    },
-                                    "value": {
-                                        "type": "Identifier",
-                                        "identifier": "offset",
-                                        "position": {
-                                            "line": 7,
-                                            "character": 46
-                                        }
-                                    },
-                                    "position": {
-                                        "line": 7,
-                                        "character": 45
-                                    }
-                                },
-                                "position": {
-                                    "line": 7,
-                                    "character": 41
-                                }
-                            }
-                        ],
+                        "type": "NumericLiteral",
+                        "value": 5,
                         "position": {
                             "line": 7,
-                            "character": 25
+                            "character": 15
                         }
                     },
                     "position": {
@@ -140,58 +99,57 @@
                 },
                 {
                     "type": "VariableDeclaration",
-                    "variableType": "property",
-                    "identifier": "x",
+                    "variableType": "const",
+                    "identifier": "e",
                     "value": {
-                        "type": "Identifier",
-                        "identifier": "distance",
+                        "type": "UnaryExpression",
+                        "operator": "-",
+                        "value": {
+                            "type": "Identifier",
+                            "identifier": "d",
+                            "position": {
+                                "line": 8,
+                                "character": 16
+                            }
+                        },
                         "position": {
-                            "line": 9,
-                            "character": 18
+                            "line": 8,
+                            "character": 15
                         }
                     },
                     "position": {
-                        "line": 9,
-                        "character": 5
-                    }
-                },
-                {
-                    "type": "VariableDeclaration",
-                    "variableType": "property",
-                    "identifier": "y",
-                    "value": {
-                        "type": "NumericLiteral",
-                        "value": 100,
-                        "position": {
-                            "line": 10,
-                            "character": 18
-                        }
-                    },
-                    "position": {
-                        "line": 10,
+                        "line": 8,
                         "character": 5
                     }
                 },
                 {
                     "type": "VariableDeclaration",
                     "variableType": "const",
-                    "identifier": "coloured",
+                    "identifier": "f",
                     "value": {
-                        "type": "BooleanLiteral",
-                        "value": false,
+                        "type": "UnaryExpression",
+                        "operator": "-",
+                        "value": {
+                            "type": "NumericLiteral",
+                            "value": 5,
+                            "position": {
+                                "line": 9,
+                                "character": 16
+                            }
+                        },
                         "position": {
-                            "line": 12,
-                            "character": 22
+                            "line": 9,
+                            "character": 15
                         }
                     },
                     "position": {
-                        "line": 12,
+                        "line": 9,
                         "character": 5
                     }
                 }
             ],
             "position": {
-                "line": 3,
+                "line": 1,
                 "character": 1
             }
         }

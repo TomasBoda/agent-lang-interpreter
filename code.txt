@@ -1,12 +1,5 @@
-define x_default = 250;
-define y_default = 250;
-define coloured_default = true;
+define b = 10;
 
-define people_count = 10;
+agent data 1 {
 
-agent person people_count {
-    const x = x_default + random(-250, 250);
-    const y = y_default + random(-250, 250);
-
-    const coloured = coloured_default;
 }

@@ -1,22 +1,26 @@
 import { Observable, Subject, Subscription, interval, takeWhile } from "rxjs";
 import { Symbol, Symbolizer } from "../symbolizer";
 import { Lexer, Token } from "../lexer";
-import { Parser, ParserValue, Program } from "../parser";
+import { Parser, ParserValue, Program, Topology } from "../parser";
 import { Runtime, Environment, FunctionCall, NumberValue, RuntimeAgent, RuntimeOutput, RuntimeValue, ValueType, createGlobalFunction } from "../runtime";
 import { Agent, InterpreterConfiguration, InterpreterOutput } from "./model";
 import { ErrorModel, ErrorRuntime } from "../utils";
+import { Validation } from "../parser/validation";
+import { writeFileSync } from "fs";
 
 export class Interpreter {
 
     private sourceCode: string = "";
     private config: InterpreterConfiguration = { steps: 10000, delay: 20, width: 500, height: 500 };
     private currentStep = 0;
+    
     private dataSubject: Subject<InterpreterOutput> = new Subject();
     private subscription?: Subscription;
 
     private symbolizer?: Symbolizer;
     private lexer?: Lexer;
     private parser?: Parser;
+    private topology?: Topology;
     private runtime?: Runtime;
 
     private program?: Program;
@@ -55,10 +59,18 @@ export class Interpreter {
 
         // generate source code abstract syntax tree
         this.parser = new Parser(tokens);
-        let program: ParserValue = this.parser.parse();
+        let program: Program = this.parser.parse();
+
+        // sort program topologically
+        this.topology = new Topology();
+        let sortedProgram: Program = this.topology.getSortedProgram(program);
 
         // save abstract syntax tree
-        this.program = program as Program;
+        this.program = sortedProgram;
+
+        writeFileSync("ast.json", JSON.stringify(this.program));
+
+        Validation.validate(this.program);
 
         // initialize default global environment
         const environment: Environment = Environment.createGlobalEnvironment();
@@ -66,7 +78,7 @@ export class Interpreter {
         environment.declareVariable("height", createGlobalFunction(this.createHeightFunction(this.config.height)));
 
         // save runtime
-        this.runtime = new Runtime(program as Program, environment);
+        this.runtime = new Runtime(this.program, environment);
 
         this.reset();
     }

@@ -1,7 +1,6 @@
 import { Position } from "../symbolizer";
 import { Token, TokenType } from "../lexer";
 import { BinaryExpression, BooleanLiteral, CallExpression, ConditionalExpression, DefineDeclaration, Expression, Identifier, LambdaExpression, LogicalExpression, MemberExpression, NodeType, NumericLiteral, ObjectDeclaration, OtherwiseExpression, ParserValue, Program, Statement, UnaryExpression, VariableDeclaration, VariableType } from "./model";
-import { getProgram } from "./topology";
 import { ErrorParser } from "../utils";
 
 export class Parser {
@@ -20,7 +19,7 @@ export class Parser {
             program.body.push(statement);
         }
 
-        return getProgram(program);
+        return program;
     }
 
     private parseStatement(): Statement {
