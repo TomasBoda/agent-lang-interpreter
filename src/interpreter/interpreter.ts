@@ -24,99 +24,96 @@ export class Interpreter {
 
     private program?: Program;
 
-    // subscribes to interpreter output
+    /**
+     * Generates an observable used for retrieving the interpreter's output
+     * 
+     * @param sourceCode - source code of the simulation
+     * @param config - configuration of the interpreter
+     * @returns observable holding the interpreter's output
+     */
     public get(sourceCode: string, config: InterpreterConfiguration): Observable<InterpreterOutput> {
         this.build(sourceCode, config);
         return this.dataSubject.asObservable();
     }
 
-    // returns current program
-    public getProgram(): Program {
-        return this.program!;
-    }
-
-    // sets new program
-    public setProgram(program: Program): void {
-        this.program = program;
-    }
-
-    public updateAgentValue(agentIndex: number, propertyIdentifier: string, value: number): void {
-        this.runtime?.updateAgentValue(agentIndex, propertyIdentifier, value);
-    }
-
+    /**
+     * Builds the interpreter and initializes the simulation
+     * 
+     * @param sourceCode - source code to be initialized and built upon
+     * @param config - configuration of the interpreter
+     */
     public build(sourceCode: string, config: InterpreterConfiguration): void {
         this.sourceCode = sourceCode;
         this.config = config;
 
-        // generate source code symbols
         this.symbolizer = new Symbolizer(this.sourceCode);
         const symbols: Symbol[] = this.symbolizer.symbolize();
 
-        // generate source code tokens
         this.lexer = new Lexer(symbols);
         let tokens: Token[] = this.lexer.tokenize();
 
-        // generate source code abstract syntax tree
         this.parser = new Parser(tokens);
         let program: Program = this.parser.parse();
 
         Validation.validate(program);
 
-        // sort program topologically
         this.topology = new Topology();
         let sortedProgram: Program = this.topology.getSortedProgram(program);
 
-        // save abstract syntax tree
         this.program = sortedProgram;
 
-        // initialize default global environment
         const environment: Environment = Environment.createGlobalEnvironment();
         environment.declareVariable("width", createGlobalFunction(this.createWidthFunction(this.config.width)));
         environment.declareVariable("height", createGlobalFunction(this.createHeightFunction(this.config.height)));
 
-        // save runtime
         this.runtime = new Runtime(this.program, environment);
 
         this.reset();
     }
 
-    // rebuilds current interpreter step
     public rebuild(): void {
         this.runtime?.setProgram(this.program!);
         this.currentStep--;
         this.step();
     }
     
-    // starts the interpreter
     public start() {
         this.currentStep = 0;
         this.subscribe();
     }
     
-    // resets the interpreter
     public reset() {
         this.unsubscribe();
         this.currentStep = 0;
         this.runtime?.reset();
     }
     
-    // pauses the interpreter
     public pause() {
         this.unsubscribe();
     }
     
-    // resumes the interpreter
     public resume() {
         this.subscribe();
     }
     
-    // steps manually through the interpreter
     public step() {
         if (this.currentStep >= this.config.steps + 1) {
           return;
         }
 
         this.dataSubject.next(this.getInterpreterOutput(this.currentStep++));
+    }
+
+    public getProgram(): Program {
+        return this.program!;
+    }
+
+    public setProgram(program: Program): void {
+        this.program = program;
+    }
+
+    public updateAgentValue(agentIndex: number, propertyIdentifier: string, value: number): void {
+        this.runtime?.updateAgentValue(agentIndex, propertyIdentifier, value);
     }
     
     private subscribe(): void {
@@ -174,6 +171,8 @@ export class Interpreter {
     
         return { identifier: agent.identifier, variables } as Agent;
     }
+
+    // interpreter's functions initialization
 
     private createWidthFunction(width: number): FunctionCall {
         function widthFunction(args: RuntimeValue[]): RuntimeValue {

@@ -12,6 +12,80 @@ export class Environment {
         this.variables = new Map();
     }
 
+    /**
+     * Declares a new variable in the current environment
+     * 
+     * @param identifier - identifier of the new variable
+     * @param value - value of the new variable
+     * @returns value that has been declared
+     */
+    public declareVariable(identifier: string, value: RuntimeValue): RuntimeValue {
+        if (this.variables?.has(identifier)) {
+            this.assignVariable(identifier, value);
+            return value;
+        }
+
+        this.variables.set(identifier, value);
+        return value;
+    }
+
+    /**
+     * Assing an existing variable in the current environment a new value
+     * 
+     * @param identifier - identifier of the existing variable
+     * @param value - value to be reassigned to the existing variable
+     * @returns value that has been reassigned
+     */
+    public assignVariable(identifier: string, value: RuntimeValue): RuntimeValue {
+        const env = this.resolve(identifier);
+
+        if (!env) {
+            throw new ErrorRuntime(`Variable ${identifier} does not exist`);
+        }
+
+        env.variables.set(identifier, value);
+        return value;
+    }
+
+    /**
+     * Retrieves the value of a variable from the current or any of the parent environments by its identifier
+     * 
+     * @param identifier - identifier of the variable
+     * @returns variable value or undefined if not found
+     */
+    public lookupVariable(identifier: string): RuntimeValue | undefined {
+        const env = this.resolve(identifier);
+
+        if (!env) {
+            return undefined;
+        }
+
+        return env.variables.get(identifier) as RuntimeValue;
+    }
+
+    /**
+     * Searches the current and all parent environments for a variable by its identifier and returns this environment if found
+     * 
+     * @param identifier - identifier of the searched variable
+     * @returns environment where the variable has been declared
+     */
+    public resolve(identifier: string): Environment | undefined {
+        if (this.variables.has(identifier)) {
+            return this;
+        }
+
+        if (this.parent === undefined) {
+            return undefined;
+        }
+
+        return this.parent.resolve(identifier);
+    }
+
+    /**
+     * Initializes a default global environment with all built-in functions
+     * 
+     * @returns environment with all built-in functions defined
+     */
     public static createGlobalEnvironment(): Environment {
         const environment = new Environment();
 
@@ -38,48 +112,5 @@ export class Environment {
         environment.declareVariable("sum", createGlobalFunction(SUM));
 
         return environment;
-    }
-
-    public declareVariable(identifier: string, value: RuntimeValue): RuntimeValue {
-        if (this.variables?.has(identifier)) {
-            this.assignVariable(identifier, value);
-            return value;
-        }
-
-        this.variables.set(identifier, value);
-        return value;
-    }
-
-    public assignVariable(identifier: string, value: RuntimeValue): RuntimeValue {
-        const env = this.resolve(identifier);
-
-        if (!env) {
-            throw new ErrorRuntime(`Variable ${identifier} does not exist`);
-        }
-
-        env.variables.set(identifier, value);
-        return value;
-    }
-
-    public lookupVariable(identifier: string): RuntimeValue | undefined {
-        const env = this.resolve(identifier);
-
-        if (!env) {
-            return undefined;
-        }
-
-        return env.variables.get(identifier) as RuntimeValue;
-    }
-
-    public resolve(identifier: string): Environment | undefined {
-        if (this.variables.has(identifier)) {
-            return this;
-        }
-
-        if (this.parent === undefined) {
-            return undefined;
-        }
-
-        return this.parent.resolve(identifier);
     }
 }

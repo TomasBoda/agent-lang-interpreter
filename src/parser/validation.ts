@@ -1,4 +1,3 @@
-import { writeFileSync } from "fs";
 import { ErrorParser } from "../utils";
 import { DefineDeclaration, NodeType, ObjectDeclaration, Program, VariableDeclaration } from "./model";
 

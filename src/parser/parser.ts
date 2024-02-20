@@ -2,7 +2,6 @@ import { Position } from "../symbolizer";
 import { Token, TokenType } from "../lexer";
 import { BinaryExpression, BooleanLiteral, CallExpression, ConditionalExpression, DefineDeclaration, Expression, Identifier, LambdaExpression, LogicalExpression, MemberExpression, NodeType, NumericLiteral, ObjectDeclaration, OtherwiseExpression, ParserValue, Program, Statement, UnaryExpression, VariableDeclaration, VariableType } from "./model";
 import { ErrorParser } from "../utils";
-import { writeFileSync } from "fs";
 
 export class Parser {
 
@@ -12,6 +11,11 @@ export class Parser {
         this.tokens = tokens;
     }
 
+    /**
+     * Parses the array of tokens into an AST structure representing the program
+     * 
+     * @returns program structure in form of AST
+     */
     public parse(): Program {
         const program = this.createEmptyProgram();
 
@@ -192,7 +196,7 @@ export class Parser {
                 left,
                 right,
                 position
-            }
+            };
 
             return otherwiseExpression;
         }
@@ -399,13 +403,7 @@ export class Parser {
 
         this.next();
 
-        let args: Expression[];
-
-        if (this.at().type === TokenType.CloseParen) {
-            args = [];
-        } else {
-            args = this.parseCallExpressionArgumentsList();
-        }
+        const args: Expression[] = this.at().type === TokenType.CloseParen ? [] : this.parseCallExpressionArgumentsList();
 
         if (this.isNotOf(TokenType.CloseParen)) {
             throw new ErrorParser("Expected a closing parenthesis after function arguments in call expression", this.position());
@@ -474,8 +472,8 @@ export class Parser {
     private parseNegativeNumericLiteral(): UnaryExpression {
         const { value, position } = this.at();
 
-        if (value !== "+" && value !== "-") {
-            throw new ErrorParser("Unary expression requires operator + or -", this.position());
+        if (value !== "-") {
+            throw new ErrorParser("Unary expression requires the - operator", this.position());
         }
 
         if (this.getNext().type !== TokenType.Number && this.getNext().type !== TokenType.Identifier) {
@@ -510,7 +508,7 @@ export class Parser {
         const { value, position } = this.at();
 
         if (value !== "!") {
-            throw new ErrorParser("Unary expression requires operator !", this.position());
+            throw new ErrorParser("Unary expression requires the ! operator", this.position());
         }
 
         if (this.getNext().type !== TokenType.Boolean && this.getNext().type !== TokenType.Identifier) {
@@ -570,6 +568,13 @@ export class Parser {
         return this.at().type !== TokenType.EOF;
     }
 
+    /**
+     * Converts the specified token type to a variable type
+     * Throws an exception if the token type is not convertible to a variable type
+     * 
+     * @param tokenType - token type to convert
+     * @returns variable type
+     */
     private getVariableType(tokenType: TokenType): VariableType {
         switch (tokenType) {
             case TokenType.Property:
@@ -581,6 +586,11 @@ export class Parser {
         }
     }
 
+    /**
+     * Creates an empty program node
+     * 
+     * @returns program with empty body
+     */
     private createEmptyProgram(): Program {
         return {
             type: NodeType.Program,
