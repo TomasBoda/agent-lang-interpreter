@@ -1,5 +1,26 @@
-agent data 1 {
-    
-    property a = 1;
-    property b = 2;
+agent person 300 {
+    const speed = 2;
+    property angle: random(0, 2 * pi()) = angle + choice(-0.1, 0.1);
+
+    property should_stay = prob(0.5);
+
+    property xNew: 0 = (x + speed * cos(angle)) % width();
+    property yNew: 0 = (y + speed * sin(angle)) % height();
+
+    property x: random(50, width() - 50) = if should_stay then x else xNew;
+    property y: random(50, height() - 50) = if should_stay then y else yNew;
+
+    const distance = 20;
+
+    property people = agents(person);
+    property close_people = filter(people => p => dist(x, y, p.x, p.y) <= distance);
+    property close_infected = filter(close_people => c => c.infected == true);
+
+    const timespan = 200;
+    property remaining: timespan = if infected then remaining - 1 else timespan;
+
+    property should_infect = prob(0.4);
+    property infected: prob(0.5) = (infected and remaining > 0) or (count(close_infected) > 0 and should_infect);
+
+    property coloured: false = infected;
 }

@@ -1,6 +1,5 @@
 import { describe, expect, test } from "bun:test";
 import { getProgram } from "./utils";
-import { ObjectDeclaration, VariableDeclaration } from "../src";
 
 describe("Parser", () => {
     

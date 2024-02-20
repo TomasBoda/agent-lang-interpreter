@@ -1,5 +1,5 @@
-import { readFileSync, writeFileSync } from "fs";
-import { Interpreter, InterpreterConfiguration, InterpreterOutput, Logger, Symbolizer, Symbol, Lexer, Token, Parser, Program } from "./src";
+import { readFileSync } from "fs";
+import { Interpreter, InterpreterConfiguration, InterpreterOutput, Logger } from "./src";
 
 const filename = "code.txt";
 const sourceCode = readFileSync(filename, "utf-8");
@@ -57,3 +57,43 @@ function run() {
 }
 
 run();
+
+/*
+function doSomething(value: number) {
+    return value * value;
+}
+
+const data: number[] = [];
+for (let i = 0; i < 10000; i++) {
+    data.push(i + 1);
+}
+const results: number[] = [];
+
+if (isMainThread) {
+    for (let i = 0; i < 100; i++) {
+        const worker = new Worker(__filename, {
+            workerData: data.slice(i * 100, (i + 1) * 100)
+        });
+
+        worker.on("message", (result: number[]) => {
+            for (const a of result) {
+                results.push(a);
+            }
+
+            if (results.length === data.length) {
+                console.log('All workers finished. Results:', results);
+            }
+        });
+    }
+} else {
+    const values = workerData as number[];
+
+    const outputs = [];
+    for (let i = 0; i < values.length; i++) {
+        const result = doSomething(values[i]);
+        outputs.push(result);
+    }
+
+    parentPort!.postMessage(outputs);
+}
+*/
