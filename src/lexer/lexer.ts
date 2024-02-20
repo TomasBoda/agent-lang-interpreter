@@ -12,8 +12,13 @@ export class Lexer {
         this.symbols = symbols;
     }
 
+    /**
+     * Produces an array of tokens from source code
+     * 
+     * @returns array of tokens
+     */
     public tokenize(): Token[] {
-        this.clearTokens();
+        this.tokens = [];
 
         while (this.hasNext()) {
             switch (this.getNext().value) {
@@ -29,6 +34,18 @@ export class Lexer {
                 case "}":
                     this.token(TokenType.CloseBrace);
                     break;
+                case ".":
+                    this.token(TokenType.Dot);
+                    break;
+                case ",":
+                    this.token(TokenType.Comma);
+                    break;
+                case ":":
+                    this.token(TokenType.Colon);
+                    break;
+                case ";":
+                    this.token(TokenType.Semicolon);
+                    break;
                 case "+":
                 case "-":
                 case "*":
@@ -36,19 +53,10 @@ export class Lexer {
                 case "%":
                     this.token(TokenType.BinaryOperator);
                     break;
-                case "<": {
-                    const operator = this.next();
-
-                    if (this.isNext("=")) {
-                        operator.value += this.next().value;
-                    }
-
-                    this.token(TokenType.RelationalOperator, operator);
-                    break;
-                }
+                case "<":
                 case ">": {
                     const operator = this.next();
-                    
+
                     if (this.isNext("=")) {
                         operator.value += this.next().value;
                     }
@@ -86,18 +94,6 @@ export class Lexer {
                     this.token(TokenType.UnaryOperator, operator);
                     break;
                 }
-                case ".":
-                    this.token(TokenType.Dot);
-                    break;
-                case ",":
-                    this.token(TokenType.Comma);
-                    break;
-                case ":":
-                    this.token(TokenType.Colon);
-                    break;
-                case ";":
-                    this.token(TokenType.Semicolon);
-                    break;
                 default: {
                     const { position } = this.getNext();
     
@@ -107,7 +103,7 @@ export class Lexer {
                     }
     
                     if (this.isAlpha()) {
-                        this.tokenizeIdentifier(position);
+                        this.tokenizeIdentifierOrKeyword(position);
                         break;
                     }
     
@@ -126,6 +122,11 @@ export class Lexer {
         return this.tokens;
     }
 
+    /**
+     * Produces a numeric literal token
+     * 
+     * @param position - position in source code
+     */
     private tokenizeNumber(position: Position): void {
         let number = "";
         let foundDecimalPoint = false;
@@ -145,7 +146,12 @@ export class Lexer {
         this.token(TokenType.Number, { value: number, position });
     }
 
-    private tokenizeIdentifier(position: Position): void {
+    /**
+     * Produces an identifier or keyword token
+     * 
+     * @param position - position in source code
+     */
+    private tokenizeIdentifierOrKeyword(position: Position): void {
         let identifier = "";
     
         while (this.hasNext() && (this.isAlpha() || this.getNext().value === "_")) {
@@ -177,25 +183,43 @@ export class Lexer {
         return symbol;
     }
 
+    /**
+     * Generates a new token with specified type, value and position
+     * 
+     * @param type - token type
+     * @param symbol - token symbol (value and position)
+     */
     private token(type: TokenType, symbol = this.next()): void {
         this.tokens.push({ type, value: symbol.value, position: symbol.position });
     }
 
+    /**
+     * Generates the end-of-file (EOF) token
+     */
     private generateEOFToken(): void {
         if (this.tokens.length === 0) {
-            this.token(TokenType.EOF, { value: "EOF", position: { line: 1, character: 1 } });
+            this.token(TokenType.EOF, {
+                value: "EOF",
+                position: { line: 1, character: 1 }
+            });
             return;
         }
 
         const lastPosition: Position = this.tokens[this.tokens.length - 1].position;
-        const eofPosition: Position = { ...lastPosition, character: lastPosition.character + 1 };
+        const eofPosition: Position = {
+            ...lastPosition,
+            character: lastPosition.character + 1
+        };
 
-        this.token(TokenType.EOF, { value: "EOF", position: eofPosition });
+        this.token(TokenType.EOF, {
+            value: "EOF",
+            position: eofPosition
+        });
     }
 
     private getKeywordOrIdentifierTokenType(identifier: string): TokenType {
         const keyword = ReservedKeywords[identifier];
-        return keyword ? keyword : TokenType.Identifier;
+        return keyword ?? TokenType.Identifier;
     }
 
     private isAlpha(): boolean {
@@ -204,16 +228,15 @@ export class Lexer {
 
     private isNumber(): boolean {
         const symbol = this.getNext().value.charCodeAt(0);
-        const bounds = { lower: "0".charCodeAt(0), upper: "9".charCodeAt(0) };
+        const bounds = {
+            lower: "0".charCodeAt(0),
+            upper: "9".charCodeAt(0)
+        };
+
         return symbol >= bounds.lower && symbol <= bounds.upper;
     }
 
     private isSkippable(): boolean {
-        const skippableCharacters = [ " ", "\n", "\t" ];
-        return skippableCharacters.includes(this.getNext().value);
-    }
-
-    private clearTokens(): void {
-        this.tokens = [];
+        return [ " ", "\n", "\t" ].includes(this.getNext().value);
     }
 }

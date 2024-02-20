@@ -8,12 +8,23 @@ export class Symbolizer {
         this.sourceCode = sourceCode;
     }
 
+    /**
+     * Produces an array of symbols from source code
+     * 
+     * @returns array of symbols
+     */
     public symbolize(): Symbol[] {
-        const position: Position = { line: 1, character: 1 };
         const symbols: Symbol[] = [];
+        const position: Position = {
+            line: 1,
+            character: 1
+        };
 
         for (const character of this.sourceCode.split("")) {
-            symbols.push({ value: character, position: { ...position } });
+            symbols.push({
+                value: character,
+                position: { ...position }
+            });
 
             position.character++;
 

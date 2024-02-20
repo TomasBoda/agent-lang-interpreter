@@ -1,3 +1,4 @@
+
 agent person 300 {
     const speed = 2;
     property angle: random(0, 2 * pi()) = angle + choice(-0.1, 0.1);
