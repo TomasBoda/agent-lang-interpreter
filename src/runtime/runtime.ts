@@ -3,7 +3,7 @@ import { BinaryExpression, BooleanLiteral, CallExpression, ConditionalExpression
 import { AgentsValue, AgentValue, BooleanValue, FunctionCall, FunctionValue, IdentifierValue, LambdaValue, NumberValue, RuntimeAgent, RuntimeOutput, RuntimeValue, ValueType } from "./model";
 import { Environment } from "./environment";
 import { ErrorRuntime } from "../utils";
-import { createGlobalFunction, normalizeNumber } from "./functions";
+import { createGlobalFunction } from "./functions";
 
 export class Runtime {
 
@@ -197,7 +197,7 @@ export class Runtime {
     private evaluateNumericLiteral(numericLiteral: NumericLiteral): RuntimeValue {
         const numberValue: NumberValue = {
             type: ValueType.Number,
-            value: normalizeNumber(numericLiteral.value)
+            value: numericLiteral.value
         };
 
         return numberValue;
@@ -350,7 +350,7 @@ export class Runtime {
             result = this.customModulo(leftHandSide.value, rightHandSide.value);
         }
     
-        return { type: ValueType.Number, value: normalizeNumber(result) } as NumberValue;
+        return { type: ValueType.Number, value: result } as NumberValue;
     }
 
     private evaluateLogicalExpression(expression: LogicalExpression, id: string): RuntimeValue {

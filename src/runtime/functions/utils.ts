@@ -1,6 +1,8 @@
 import { ErrorRuntime } from "../../utils";
 import { AgentValue, AgentsValue, BooleanValue, FunctionCall, FunctionValue, NullValue, NumberValue, RuntimeAgent, RuntimeValue, ValueType } from "../model";
 
+export const NUMERIC_LITERAL_MAX_DECIMAL_PLACES = 8;
+
 export function createGlobalFunction(call: FunctionCall): FunctionValue {
     return { type: ValueType.Function, call } as FunctionValue;
 }
@@ -18,7 +20,7 @@ export function expectArgumentType(identifier: string, argument: RuntimeValue, t
 }
 
 export function createNumberValue(value: number): NumberValue {
-    return { type: ValueType.Number, value: normalizeNumber(value) };
+    return { type: ValueType.Number, value: value };
 }
 
 export function createBooleanValue(value: boolean): BooleanValue {
@@ -37,7 +39,7 @@ export function createNullValue(): NullValue {
     return { type: ValueType.Null };
 }
 
-export function normalizeNumber(value: number, digits: number = 2): number {
+export function normalizeNumber(value: number, digits: number = NUMERIC_LITERAL_MAX_DECIMAL_PLACES): number {
     const pow = Math.pow(10, digits);
     return Math.round(value * pow) / pow;
 }

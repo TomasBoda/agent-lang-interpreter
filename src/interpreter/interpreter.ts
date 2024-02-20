@@ -2,7 +2,7 @@ import { Observable, Subject, Subscription, interval, takeWhile } from "rxjs";
 import { Symbol, Symbolizer } from "../symbolizer";
 import { Lexer, Token } from "../lexer";
 import { Parser, ParserValue, Program, Topology } from "../parser";
-import { Runtime, Environment, FunctionCall, NumberValue, RuntimeAgent, RuntimeOutput, RuntimeValue, ValueType, createGlobalFunction } from "../runtime";
+import { Runtime, Environment, FunctionCall, NumberValue, RuntimeAgent, RuntimeOutput, RuntimeValue, ValueType, createGlobalFunction, normalizeNumber } from "../runtime";
 import { Agent, InterpreterConfiguration, InterpreterOutput } from "./model";
 import { ErrorModel, ErrorRuntime } from "../utils";
 import { Validation } from "../parser/validation";
@@ -167,7 +167,13 @@ export class Interpreter {
 
     private getAgent(agent: RuntimeAgent): Agent {
         const variables: { [key: string]: RuntimeValue } = {};
-        agent.variables.forEach((value, key) => variables[key] = value);
+        agent.variables.forEach((value, key) => {
+            if (value.type === ValueType.Number) {
+                (value as NumberValue).value = normalizeNumber((value as NumberValue).value);
+            }
+
+            variables[key] = value;
+        });
     
         return { identifier: agent.identifier, variables } as Agent;
     }

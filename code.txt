@@ -1,5 +1,5 @@
 define b = 10;
 
 agent data 1 {
-
+    property value: 10 = value / 2;
 }
