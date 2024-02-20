@@ -1,52 +1,52 @@
 import { readFileSync } from "fs";
-import { Interpreter, InterpreterConfiguration, InterpreterOutput, Logger } from "./src";
+import { Interpreter, InterpreterConfiguration, InterpreterOutput } from "./src";
 
-const filename = "code.txt";
-const sourceCode = readFileSync(filename, "utf-8");
+class Runner {
 
-function run() {
-    Logger.log("Welcome to the AgentLang interpreter");
-    Logger.log("------------------------------------");
+    private static DEFAULT_INTERPRETER_CONFIGURATION: InterpreterConfiguration = { steps: 10, delay: 500, width: 500, height: 500 };
 
-    const interpreter: Interpreter = new Interpreter();
-    const config: InterpreterConfiguration = { steps: 10, delay: 500, width: 400, height: 400 };
+    public run(sourceCode: string, configuration: InterpreterConfiguration = Runner.DEFAULT_INTERPRETER_CONFIGURATION): void {
+        const interpreter: Interpreter = new Interpreter();
 
-    interpreter.get(sourceCode, config).subscribe((output: InterpreterOutput) => {
-        if (output.status.code !== 0) {
-            console.log(output.status);
-        } else {
-            console.log("---------------------------------");
-            console.log("| Step", output.output?.step);
-            console.log("---------------------------------");
+        interpreter.get(sourceCode, configuration).subscribe((output: InterpreterOutput) => {
+            if (output.status.code !== 0) {
+                console.log(output.status);
+            } else {
+                console.log("---------------------------------");
+                console.log("| Step", output.output?.step);
+                console.log("---------------------------------");
+    
+                for (const agent of output.output?.agents ?? []) {
+                    console.log("   ------------------------------");
+                    console.log("   | " + agent.identifier);
+                    console.log("   ------------------------------");
+    
+                    const maxLength = this.getMaxLength(agent.variables);
+                    const offset = 10;
+                    
+                    for (const [key, value] of Object.entries(agent.variables)) {
+                        process.stdout.write("   | " + key);
 
-            for (const agent of output.output?.agents ?? []) {
-                console.log("   ------------------------------");
-                console.log("   | " + agent.identifier);
-                console.log("   ------------------------------");
+                        for (let i = 0; i < maxLength - key.toString().length + offset; i++) {
+                            process.stdout.write(" ");
+                        }
 
-                const maxLength = getMaxLength(agent.variables);
-                const offset = 10;
-                
-                for (const [key, value] of Object.entries(agent.variables)) {
-                    process.stdout.write("   | " + key);
-                    for (let i = 0; i < maxLength - key.toString().length + offset; i++) {
-                        process.stdout.write(" ");
+                        process.stdout.write("   " + value.value.toString());
+                        process.stdout.write("   \n");
                     }
-                    process.stdout.write("   " + value.value.toString());
-                    process.stdout.write("   \n");
+    
+                    console.log("   ------------------------------");
                 }
-
-                console.log("   ------------------------------");
             }
-        }
-    });
+        });
 
-    interpreter.start();
+        interpreter.start();
+    }
 
-    function getMaxLength(variables: object) {
+    private getMaxLength(variables: object) {
         let maxLength = 0;
 
-        for (const [key, value] of Object.entries(variables)) {
+        for (const [key] of Object.entries(variables)) {
             if (key.toString().length > maxLength) {
                 maxLength = key.toString().length;
             }
@@ -56,44 +56,8 @@ function run() {
     }
 }
 
-run();
+const filename = "code.txt";
+const sourceCode = readFileSync(filename, "utf-8");
 
-/*
-function doSomething(value: number) {
-    return value * value;
-}
-
-const data: number[] = [];
-for (let i = 0; i < 10000; i++) {
-    data.push(i + 1);
-}
-const results: number[] = [];
-
-if (isMainThread) {
-    for (let i = 0; i < 100; i++) {
-        const worker = new Worker(__filename, {
-            workerData: data.slice(i * 100, (i + 1) * 100)
-        });
-
-        worker.on("message", (result: number[]) => {
-            for (const a of result) {
-                results.push(a);
-            }
-
-            if (results.length === data.length) {
-                console.log('All workers finished. Results:', results);
-            }
-        });
-    }
-} else {
-    const values = workerData as number[];
-
-    const outputs = [];
-    for (let i = 0; i < values.length; i++) {
-        const result = doSomething(values[i]);
-        outputs.push(result);
-    }
-
-    parentPort!.postMessage(outputs);
-}
-*/
+const runner = new Runner();
+runner.run(sourceCode);

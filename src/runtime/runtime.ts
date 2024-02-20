@@ -33,17 +33,17 @@ export class Runtime {
         this.output.step = step;
         this.updateStepFunction(step);
 
-        const evaluation = this.evaluateProgram(this.program);
+        const evaluation = { ...this.evaluateProgram(this.program) };
 
         if (step > 0) {
             this.previousAgents = [ ...this.output.agents ];
             this.output.agents = [];
         }
 
-        return { ...evaluation };
+        return evaluation;
     }
 
-    private evaluateProgram(program: Program): RuntimeOutput {
+    private evaluateProgram(program: Program): RuntimeValue {
         for (const statement of program.body) {
             switch (statement.type) {
                 case NodeType.DefineDeclaration:
