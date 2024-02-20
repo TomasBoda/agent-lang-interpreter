@@ -12,7 +12,7 @@ export interface Statement extends ParserValue {
 }
 
 export interface Expression extends Statement {
-    position: Position;
+    
 }
 
 export interface Program extends Statement {
