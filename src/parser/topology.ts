@@ -46,11 +46,11 @@ export class Topology {
         const variableDeclarations = this.getVariableDeclarations(objectDeclaration);
 
         variableDeclarations.forEach(variableDeclaration => {
-            const { identifier } = variableDeclaration;
+            const { identifier, position } = variableDeclaration;
             const dependencies = this.getVariableDependencies(variableDeclaration);
     
             if (dependencies.includes(identifier) && variableDeclaration.default === undefined) {
-                throw new ErrorParser("Agent variable depends on itself, but has no default value provided");
+                throw new ErrorParser(`Agent property '${identifier}' depends on itself, but has no default value provided`, position);
             }
     
             variableIdentifiers.push(identifier);
