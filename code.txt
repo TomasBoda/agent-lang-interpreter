@@ -1,6 +1,24 @@
-agent snowflake 500 {
-    const speed = random(10, 20);
+agent tree 400 {
+    const tcs = sqrt(400);
 
-    property x: random(0, width()) = x;
-    property y: random(0, height()) = (y + speed) % height();
+    const offset = 100;
+    const size = height() - 2 * offset;
+    const spacing = floor(size / tcs);
+
+    const x = floor(offset + floor(index() % tcs) * spacing);
+    const y = floor(offset + floor(index() / tcs) * spacing);
+
+    property tu = find_by_coordinates(agents(tree), x, y + spacing);
+    property td = find_by_coordinates(agents(tree), x, y - spacing);
+    property tr = find_by_coordinates(agents(tree), x + spacing, y);
+    property tl = find_by_coordinates(agents(tree), x - spacing, y);
+
+    property top_col: false = tu.coloured otherwise false;
+    property bot_col: false = td.coloured otherwise false;
+    property lef_col: false = tl.coloured otherwise false;
+    property rig_col: false = tr.coloured otherwise false;
+
+    property should_color: false = top_col or bot_col or lef_col or rig_col;
+
+    property coloured: index() == 312 = if coloured then true else should_color;
 }
