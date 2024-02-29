@@ -39,66 +39,36 @@ export class Parser {
     }
 
     private parseDefineDeclaration(): DefineDeclaration {
-        if (this.isNotOf(TokenType.Define)) {
-            throw new ErrorParser("Expected define keyword in define declaration", this.position());
-        }
+        const position = this.assert(TokenType.Define, "Expected define keyword in define declaration", this.position()).position;
+        const identifier = this.assert(TokenType.Identifier, "Expected identifier after define keyword in define declaration", this.position()).value;
 
-        const { position } = this.next();
-
-        if (this.isNotOf(TokenType.Identifier)) {
-            throw new ErrorParser("Expected identifier after define keyword in define declaration", this.position());
-        }
-
-        const identifier = this.next().value;
-
-        if (this.isNotOf(TokenType.AssignmentOperator)) {
-            throw new ErrorParser("Expected assignment symbol after identifier in define declaration", this.position());
-        }
-
-        this.next();
+        this.assert(TokenType.AssignmentOperator, "Expected assignment symbol after identifier in define declaration", this.position());
 
         const value = this.parseExpression();
 
-        if (this.isNotOf(TokenType.Semicolon)) {
-            throw new ErrorParser("Expected a semicolon after value in define declaration", this.position());
-        }
+        this.assert(
+            TokenType.Semicolon,
+            "Expected a semicolon after value in define declaration",
+            this.position()
+        );
 
-        this.next();
-
-        const defineDeclaration: DefineDeclaration = {
+        return {
             type: NodeType.DefineDeclaration,
             identifier,
             value,
             position
         };
-
-        return defineDeclaration;
     }
 
     private parseObjectDeclaration(): ObjectDeclaration {
-        if (this.isNotOf(TokenType.Agent)) {
-            throw new ErrorParser("Expected agent keyword in agent declaration", this.position());
-        }
+        const { position } = this.assert(TokenType.Agent, "Expected agent keyword in agent declaration", this.position());
+        const identifier = this.assert(TokenType.Identifier, "Expected agent identifier after agent keyword in agent declaration", this.position()).value;
 
-        const { position } = this.next();
-
-        if (this.isNotOf(TokenType.Identifier)) {
-            throw new ErrorParser("Expected agent identifier after agent keyword in agent declaration", this.position());
-        }
-
-        const identifier = this.next().value;
-
-        if (this.isNotOf(TokenType.Number) && this.isNotOf(TokenType.Identifier)) {
-            throw new ErrorParser("Expected number of agents after agent identifier in agent declaration", this.position());
-        }
+        this.assertMulti(TokenType.Number, TokenType.Identifier, "Expected number of agents after agent identifier in agent declaration", this.position(), false);
 
         const count = this.parseExpression();
 
-        if (this.isNotOf(TokenType.OpenBrace)) {
-            throw new ErrorParser("Expected an open brace after number of agents in agent declaration", this.position());
-        }
-
-        this.next();
+        this.assert(TokenType.OpenBrace, "Expected an open brace after number of agents in agent declaration", this.position());
 
         const body: VariableDeclaration[] = [];
 
@@ -114,35 +84,21 @@ export class Parser {
             }
         }
 
-        if (this.isNotOf(TokenType.CloseBrace)) {
-            throw new ErrorParser("Expected a close brace after agent body in agent declaration", this.position());
-        }
+        this.assert(TokenType.CloseBrace, "Expected a close brace after agent body in agent declaration", this.position());
 
-        this.next();
-
-        const objectDeclaration: ObjectDeclaration = {
+        return {
             type: NodeType.ObjectDeclaration,
             identifier,
             count,
             body,
             position
         };
-
-        return objectDeclaration;
     }
 
     public parseVariableDeclaration(): VariableDeclaration {
-        if (this.isNotOf(TokenType.Property) && this.isNotOf(TokenType.Const)) {
-            throw new ErrorParser("Expected property or const keyword in property declaration", this.position());
-        }
+        const { position, type } = this.assertMulti(TokenType.Property, TokenType.Const, "Expected property or const keyword in property declaration", this.position());
+        const identifier = this.assert(TokenType.Identifier, "Expected identifier after property type in property declaration", this.position()).value;
 
-        const { position, type } = this.next();
-
-        if (this.isNotOf(TokenType.Identifier)) {
-            throw new ErrorParser("Expected identifier after property type in property declaration", this.position());
-        }
-        
-        const identifier = this.next().value;
         let defaultValue: Expression | undefined;
 
         if (this.at().type === TokenType.Colon) {
@@ -154,21 +110,13 @@ export class Parser {
             defaultValue = this.parseExpression();
         }
 
-        if (this.isNotOf(TokenType.AssignmentOperator)) {
-            throw new ErrorParser("Expected assignment symbol after identifier in property declaration", this.position());
-        }
-
-        this.next();
+        this.assert(TokenType.AssignmentOperator, "Expected assignment symbol after identifier in property declaration", this.position());
 
         const value: ParserValue = this.parseExpression();
 
-        if (this.isNotOf(TokenType.Semicolon)) {
-            throw new ErrorParser("Expected a semicolon after value in property declaration", this.position());
-        }
+        this.assert(TokenType.Semicolon, "Expected a semicolon after value in property declaration", this.position());
 
-        this.next();
-
-        const variableDeclaration: VariableDeclaration = {
+        return {
             type: NodeType.VariableDeclaration,
             variableType: this.getVariableType(type),
             identifier,
@@ -176,8 +124,6 @@ export class Parser {
             default: defaultValue,
             position
         };
-
-        return variableDeclaration;
     }
 
     private parseExpression(): Expression {
@@ -211,11 +157,7 @@ export class Parser {
             this.next();
             const param = this.next().value;
 
-            if (this.isNotOf(TokenType.LambdaArrow)) {
-                throw new ErrorParser("Expected a lambda arrow after parameter in lambda expression", this.position());
-            }
-
-            const { position } = this.next();
+            const { position } = this.assert(TokenType.LambdaArrow, "Expected a lambda arrow after parameter in lambda expression", this.position());
             const value = this.parseConditionalExpression();
 
             const lambdaExpression: LambdaExpression = {
@@ -238,19 +180,11 @@ export class Parser {
 
             const condition = this.parseExpression();
 
-            if (this.isNotOf(TokenType.Then)) {
-                throw new ErrorParser("Expected then keyword after condition in conditional expression", this.position());
-            }
-
-            this.next();
+            this.assert(TokenType.Then, "Expected then keyword after condition in conditional expression", this.position());
 
             const consequent = this.parseExpression();
 
-            if (this.isNotOf(TokenType.Else)) {
-                throw new ErrorParser("Expected else keyword after consequent in conditional expression", this.position());
-            }
-
-            this.next();
+            this.assert(TokenType.Else, "Expected else keyword after consequent in conditional expression", this.position());
 
             const alternate = this.parseExpression();
 
@@ -397,19 +331,11 @@ export class Parser {
     }
 
     private parseCallExpressionArguments(): Expression[] {
-        if (this.isNotOf(TokenType.OpenParen)) {
-            throw new ErrorParser("Expected an open parenthesis before function arguments in call expression", this.position());
-        }
-
-        this.next();
+        this.assert(TokenType.OpenParen, "Expected an open parenthesis before function arguments in call expression", this.position());
 
         const args: Expression[] = this.at().type === TokenType.CloseParen ? [] : this.parseCallExpressionArgumentsList();
 
-        if (this.isNotOf(TokenType.CloseParen)) {
-            throw new ErrorParser("Expected a closing parenthesis after function arguments in call expression", this.position());
-        }
-
-        this.next();
+        this.assert(TokenType.CloseParen, "Expected a closing parenthesis after function arguments in call expression", this.position());
 
         return args;
     }
@@ -531,13 +457,25 @@ export class Parser {
         this.next();
         const value: Expression = this.parseExpression();
 
-        if (this.isNotOf(TokenType.CloseParen)) {
-            throw new ErrorParser("Expected a closing parenthesis after an opening parenthesis", this.position());
-        }
-
-        this.next();
+        this.assert(TokenType.CloseParen, "Expected a closing parenthesis after an opening parenthesis", this.position());
         
         return value;
+    }
+
+    private assert(type: TokenType, message: string, position: Position, next = true): Token {
+        if (this.isNotOf(type)) {
+            throw new ErrorParser(message, position);
+        }
+
+        return next ? this.next() : this.at();
+    }
+
+    private assertMulti(type1: TokenType, type2: TokenType, message: string, position: Position, next = true): Token {
+        if (this.isNotOf(type1) && this.isNotOf(type2)) {
+            throw new ErrorParser(message, position);
+        }
+
+        return next ? this.next() : this.at();
     }
 
     private at(): Token {
