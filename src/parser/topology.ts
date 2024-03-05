@@ -222,7 +222,7 @@ export class Topology {
             recursionStack[node.identifier] = true;
     
             for (const dependency of node.dependencies) {
-                if (!isSelfLoop(dependency)) {
+                if (dependency && !isSelfLoop(dependency)) {
                     visit(dependency);
                 }
             }

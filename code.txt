@@ -1,8 +1,52 @@
-agent snowflake 500 {
-    # this defines the falling speed of the snowflake
-    const speed = random(10, 20);
+define visual_range = 100;
+define avoid_range = 20;
+define centering_factor = 0.0005;
+define avoid_factor = 0.005;
+define matching_factor = 0.05;
 
-    # these define the x and y coordinates of the snowflake
-    property x: random(0, width()) = x;
-    property y: random(0, height()) = (y + speed) % height();
+# min and max speed #
+define s_max = 6;
+define s_min = 4;
+
+agent boid 50 {
+
+    # width and height #
+    const w = 12;
+    const h = 12;
+
+    const x_init = random(100, width() - 100);
+    const y_init = random(100, height() - 100);
+
+    property x: x_init = (x + x_vel_limit) % width();
+    property y: y_init = (y + y_vel_limit) % height();
+
+    property x_vel: choice(-2, 2) = x_vel + x_sep + x_align + x_coh;
+    property y_vel: choice(-2, 2) = y_vel + y_sep + y_align + y_coh;
+
+    # speed #
+    property s_sqrt = sqrt(x_vel * x_vel + y_vel * y_vel);
+    property s = if s_sqrt == 0 then 1 else s_sqrt;
+
+    # limit the velocity to min and max speed #
+    property x_vel_limit = if s > s_max then x_vel / s * s_max else if s < s_min then x_vel / s * s_min else x_vel;
+    property y_vel_limit = if s > s_max then y_vel / s * s_max else if s < s_min then y_vel / s * s_min else y_vel;
+
+    # boids in close proximity #
+    property boids_ar: empty() = filter(agents(boid) => b => dist(b.x, b.y, x, y) < avoid_range);
+    # boids in visual range #
+    property boids_vr: empty() = filter(agents(boid) => b => dist(b.x, b.y, x, y) < visual_range);
+    # number of boids in visual range #
+    property bvrc = count(boids_vr);
+
+    # separation #
+    property x_sep = sum(boids_ar => b => x - b.x) * avoid_factor;
+    property y_sep = sum(boids_ar => b => y - b.y) * avoid_factor;
+
+    # alignment #
+    property x_align = if bvrc > 0 then (sum(boids_vr => b => b.x_vel) / bvrc - x_vel) * matching_factor else 0;
+    property y_align = if bvrc > 0 then (sum(boids_vr => b => b.y_vel) / bvrc - y_vel) * matching_factor else 0;
+
+    # cohesion #
+    property x_coh = if bvrc > 0 then (sum(boids_vr => b => b.x) / bvrc - x) * centering_factor else 0;
+    property y_coh = if bvrc > 0 then (sum(boids_vr => b => b.y) / bvrc - y) * centering_factor else 0;
 }

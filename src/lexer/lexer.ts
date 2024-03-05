@@ -25,9 +25,11 @@ export class Lexer {
                 case "#": {
                     this.next();
 
-                    while (this.getNext().value !== '\n') {
+                    while (this.getNext().value !== '#') {
                         this.next();
                     }
+
+                    this.next();
                     
                     break;
                 }
