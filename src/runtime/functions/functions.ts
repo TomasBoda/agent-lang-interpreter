@@ -2,6 +2,47 @@ import { ErrorRuntime } from "../../utils";
 import { AgentsValue, BooleanValue, LambdaValue, NumberValue, RuntimeAgent, RuntimeValue, ValueType } from "../model";
 import { createAgentValue, createAgentsValue, createBooleanValue, createNullValue, createNumberValue, expectArgumentCount, expectArgumentType } from "./utils";
 
+export function FIND_BY_COORDINATES(args: RuntimeValue[]): RuntimeValue {
+    expectArgumentCount("find_by_coordinates", 3, args.length);
+    expectArgumentType("find_by_coordinates", args[0], ValueType.Agents);
+    expectArgumentType("find_by_coordinates", args[1], ValueType.Number);
+    expectArgumentType("find_by_coordinates", args[2], ValueType.Number);
+
+    const agents = args[0] as AgentsValue;
+    const x = args[1] as NumberValue;
+    const y = args[2] as NumberValue;
+
+    for (const agent of agents.value) {
+        const xAgent = agent.variables.get("x");
+        const yAgent = agent.variables.get("y");
+
+        if (!xAgent) {
+            throw new ErrorRuntime(`Property 'x' in agent does not exist while using the 'find_by_coordinates' function`);
+        }
+
+        if (!yAgent) {
+            throw new ErrorRuntime(`Property 'y' in agent does not exist while using the 'find_by_coordinates' function`);
+        }
+
+        if (xAgent.type !== ValueType.Number) {
+            throw new ErrorRuntime(`Property 'x' in agent is not of type number while using the 'find_by_coordinates' function`);
+        }
+
+        if (yAgent.type !== ValueType.Number) {
+            throw new ErrorRuntime(`Property 'y' in agent is not of type number while using the 'find_by_coordinates' function`);
+        }
+
+        const xValue = xAgent as NumberValue;
+        const yValue = yAgent as NumberValue;
+
+        if (x.value === xValue.value && y.value === yValue.value) {
+            return createAgentValue(agent);
+        }
+    }   
+
+    return createNullValue();
+}
+
 export function SUM(args: RuntimeValue[]): RuntimeValue {
     expectArgumentCount("sum", 1, args.length);
     expectArgumentType("sum", args[0], ValueType.Lambda);

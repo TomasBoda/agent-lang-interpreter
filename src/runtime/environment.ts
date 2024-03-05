@@ -1,6 +1,6 @@
 import { RuntimeValue } from "./model/values";
 import { ErrorRuntime } from "../utils";
-import { ABS, CEIL, CHOICE, COS, COUNT, EMPTY, FILTER, FLOOR, PI, PROB, RANDOM, ROUND, SIN, SQRT, TAN, createGlobalFunction, MIN, MAX, DIST, SUM, ATAN } from "./functions";
+import { ABS, CEIL, CHOICE, COS, COUNT, EMPTY, FILTER, FLOOR, PI, PROB, RANDOM, ROUND, SIN, SQRT, TAN, createGlobalFunction, MIN, MAX, DIST, SUM, ATAN, FIND_BY_COORDINATES } from "./functions";
 
 export class Environment {
 
@@ -110,6 +110,8 @@ export class Environment {
         environment.declareVariable("min", createGlobalFunction(MIN));
         environment.declareVariable("max", createGlobalFunction(MAX));
         environment.declareVariable("sum", createGlobalFunction(SUM));
+
+        environment.declareVariable("find_by_coordinates", createGlobalFunction(FIND_BY_COORDINATES));
 
         return environment;
     }
