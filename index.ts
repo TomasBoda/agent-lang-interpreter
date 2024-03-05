@@ -1,5 +1,5 @@
 import { readFileSync } from "fs";
-import { Interpreter, InterpreterConfiguration, InterpreterOutput } from "./src";
+import { Interpreter, InterpreterConfiguration, InterpreterOutput, Symbolizer, Symbol, Lexer, Token, Program, Parser } from "./src";
 
 class Runner {
 

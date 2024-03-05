@@ -32,5 +32,7 @@ export enum TokenType {
     Colon = "Colon",
     Semicolon = "Semicolon",
 
+    Comment = "Comment",
+
     EOF = "EOF"
 }

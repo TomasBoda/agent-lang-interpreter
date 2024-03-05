@@ -22,6 +22,15 @@ export class Lexer {
 
         while (this.hasNext()) {
             switch (this.getNext().value) {
+                case "#": {
+                    this.next();
+
+                    while (this.getNext().value !== '\n') {
+                        this.next();
+                    }
+                    
+                    break;
+                }
                 case "(":
                     this.token(TokenType.OpenParen);
                     break;

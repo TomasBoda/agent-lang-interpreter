@@ -1,6 +1,8 @@
 agent snowflake 500 {
+    # this defines the falling speed of the snowflake
     const speed = random(10, 20);
 
+    # these define the x and y coordinates of the snowflake
     property x: random(0, width()) = x;
     property y: random(0, height()) = (y + speed) % height();
 }
