@@ -58,12 +58,26 @@ export class Lexer {
                     this.token(TokenType.Semicolon);
                     break;
                 case "+":
-                case "-":
                 case "*":
                 case "/":
                 case "%":
                     this.token(TokenType.BinaryOperator);
                     break;
+                case "-": {
+                    const operator = this.next();
+
+                    if (this.isNext(">")) {
+                        operator.value += this.next().value;
+                        this.token(TokenType.LambdaArrow, operator);
+                        break;
+                    }
+
+                    this.token(TokenType.BinaryOperator, operator);
+                    break;
+                }
+                case "|":
+                    this.token(TokenType.LambdaDivider);
+                    break;   
                 case "<":
                 case ">": {
                     const operator = this.next();
@@ -77,12 +91,6 @@ export class Lexer {
                 }
                 case "=": {
                     const operator = this.next();
-    
-                    if (this.isNext(">")) {
-                        operator.value += this.next().value;
-                        this.token(TokenType.LambdaArrow, operator);
-                        break;
-                    }
     
                     if (this.isNext("=")) {
                         operator.value += this.next().value;

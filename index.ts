@@ -1,4 +1,4 @@
-import { readFileSync } from "fs";
+import { readFileSync, writeFileSync } from "fs";
 import { Interpreter, InterpreterConfiguration, InterpreterOutput, Symbolizer, Symbol, Lexer, Token, Program, Parser } from "./src";
 
 class Runner {
@@ -59,5 +59,15 @@ class Runner {
 const filename = "code.txt";
 const sourceCode = readFileSync(filename, "utf-8");
 
-const runner = new Runner();
-runner.run(sourceCode);
+//const runner = new Runner();
+//runner.run(sourceCode);
+
+const tokens: Token[] = new Lexer(new Symbolizer(sourceCode).symbolize()).tokenize();
+
+for (const token of tokens.map(token => ({ line: token.position.line, type: token.type}))) {
+    console.log(token.line + " | " + token.type);
+}
+
+const program: Program = new Parser(tokens).parse();
+
+writeFileSync("ast.json", JSON.stringify(program));

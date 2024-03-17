@@ -21,6 +21,7 @@ export enum TokenType {
     AssignmentOperator = "AssignmentOperator",
 
     LambdaArrow = "LambdaArrow",
+    LambdaDivider = "LambdaDivider",
 
     OpenParen = "OpenParen",
     CloseParen = "CloseParen",

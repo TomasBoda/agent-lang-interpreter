@@ -153,7 +153,7 @@ export class Parser {
     private parseLambdaExpression(): Expression {
         const base = this.parseConditionalExpression();
 
-        if (this.at().type === TokenType.LambdaArrow) {
+        if (this.at().type === TokenType.LambdaDivider) {
             this.next();
             const param = this.next().value;
 
@@ -167,6 +167,8 @@ export class Parser {
                 value,
                 position,
             };
+
+            console.log(lambdaExpression.position);
 
             return lambdaExpression;
         }
@@ -352,6 +354,7 @@ export class Parser {
         return args;
     }
 
+    // TODO: primitive
     private parsePrimaryExpression(): Expression {
         switch (this.at().type) {
             case TokenType.Identifier:
