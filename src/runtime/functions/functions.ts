@@ -1,6 +1,19 @@
 import { ErrorRuntime } from "../../utils";
 import { AgentsValue, BooleanValue, LambdaValue, NumberValue, RuntimeAgent, RuntimeValue, ValueType } from "../model";
-import { createAgentValue, createAgentsValue, createBooleanValue, createNullValue, createNumberValue, expectArgumentCount, expectArgumentType } from "./utils";
+import { createAgentValue, createAgentsValue, createBooleanValue, createColourValue, createNullValue, createNumberValue, expectArgumentCount, expectArgumentType } from "./utils";
+
+export function RGB(args: RuntimeValue[]): RuntimeValue {
+    expectArgumentCount("rgb", 3, args.length);
+    expectArgumentType("rgb", args[0], ValueType.Number);
+    expectArgumentType("rgb", args[1], ValueType.Number);
+    expectArgumentType("rgb", args[2], ValueType.Number);
+
+    const red = args[0] as NumberValue;
+    const green = args[1] as NumberValue;
+    const blue = args[2] as NumberValue;
+
+    return createColourValue(red.value, green.value, blue.value);
+}
 
 export function FIND_BY_COORDINATES(args: RuntimeValue[]): RuntimeValue {
     expectArgumentCount("find_by_coordinates", 3, args.length);

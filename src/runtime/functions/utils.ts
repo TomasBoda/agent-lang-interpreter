@@ -1,5 +1,5 @@
 import { ErrorRuntime } from "../../utils";
-import { AgentValue, AgentsValue, BooleanValue, FunctionCall, FunctionValue, NullValue, NumberValue, RuntimeAgent, RuntimeValue, ValueType } from "../model";
+import { AgentValue, AgentsValue, BooleanValue, ColourValue, FunctionCall, FunctionValue, NullValue, NumberValue, RuntimeAgent, RuntimeValue, ValueType } from "../model";
 
 export const NUMERIC_LITERAL_MAX_DECIMAL_PLACES = 8;
 
@@ -37,6 +37,10 @@ export function createAgentsValue(value: RuntimeAgent[]): AgentsValue {
 
 export function createNullValue(): NullValue {
     return { type: ValueType.Null };
+}
+
+export function createColourValue(red: number, green: number, blue: number): ColourValue {
+    return { type: ValueType.Colour, value: { red, green, blue } };
 }
 
 export function normalizeNumber(value: number, digits: number = NUMERIC_LITERAL_MAX_DECIMAL_PLACES): number {

@@ -46,6 +46,15 @@ export interface LambdaValue extends RuntimeValue {
     results: RuntimeValue[];
 }
 
+export interface ColourValue extends RuntimeValue {
+    type: ValueType.Colour;
+    value: {
+        red: number;
+        green: number;
+        blue: number;
+    }
+}
+
 export interface RuntimeAgent {
     id: string;
     identifier: string;

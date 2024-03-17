@@ -8,5 +8,6 @@ export enum ValueType {
     Agents = "Agents",
     Lambda = "Lambda",
     Identifier = "Identifier",
+    Colour = "Colour",
     Output = "Output",
 }
