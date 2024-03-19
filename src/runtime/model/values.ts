@@ -40,8 +40,8 @@ export interface AgentsValue extends RuntimeValue {
     value: RuntimeAgent[];
 }
 
-export interface LambdaValue extends RuntimeValue {
-    type: ValueType.Lambda;
+export interface SetComprehensionValue extends RuntimeValue {
+    type: ValueType.SetComprehension;
     agents: RuntimeAgent[];
     results: RuntimeValue[];
 }

@@ -74,8 +74,8 @@ export interface CallExpression extends Expression {
     args: Expression[];
 }
 
-export interface LambdaExpression extends Expression {
-    type: NodeType.LambdaExpression;
+export interface SetComprehensionExpression extends Expression {
+    type: NodeType.SetComprehensionExpression;
     base: Expression;
     param: string;
     value: Expression;

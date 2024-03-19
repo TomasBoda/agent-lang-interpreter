@@ -1,6 +1,6 @@
 import { Position } from "../symbolizer";
 import { Token, TokenType } from "../lexer";
-import { BinaryExpression, BooleanLiteral, CallExpression, ConditionalExpression, DefineDeclaration, Expression, Identifier, LambdaExpression, LogicalExpression, MemberExpression, NodeType, NumericLiteral, ObjectDeclaration, OtherwiseExpression, ParserValue, Program, Statement, UnaryExpression, VariableDeclaration, VariableType } from "./model";
+import { BinaryExpression, BooleanLiteral, CallExpression, ConditionalExpression, DefineDeclaration, Expression, Identifier, SetComprehensionExpression, LogicalExpression, MemberExpression, NodeType, NumericLiteral, ObjectDeclaration, OtherwiseExpression, ParserValue, Program, Statement, UnaryExpression, VariableDeclaration, VariableType } from "./model";
 import { ErrorParser } from "../utils";
 
 export class Parser {
@@ -131,11 +131,11 @@ export class Parser {
     }
 
     private parseOtherwiseExpression(): Expression {
-        const left = this.parseLambdaExpression();
+        const left = this.parseSetComprehensionExpression();
 
         if (this.at().type === TokenType.Otherwise) {
             const { position } = this.next();
-            const right = this.parseLambdaExpression();
+            const right = this.parseSetComprehensionExpression();
 
             const otherwiseExpression: OtherwiseExpression = {
                 type: NodeType.OtherwiseExpression,
@@ -150,27 +150,25 @@ export class Parser {
         return left;
     }
 
-    private parseLambdaExpression(): Expression {
+    private parseSetComprehensionExpression(): Expression {
         const base = this.parseConditionalExpression();
 
-        if (this.at().type === TokenType.LambdaDivider) {
+        if (this.at().type === TokenType.Divider) {
             this.next();
             const param = this.next().value;
 
-            const { position } = this.assert(TokenType.LambdaArrow, "Expected a lambda arrow after parameter in lambda expression", this.position());
+            const { position } = this.assert(TokenType.Arrow, "Expected an arrow after parameter in set comprehension expression", this.position());
             const value = this.parseConditionalExpression();
 
-            const lambdaExpression: LambdaExpression = {
-                type: NodeType.LambdaExpression,
+            const SetComprehensionExpression: SetComprehensionExpression = {
+                type: NodeType.SetComprehensionExpression,
                 base,
                 param,
                 value,
                 position,
             };
 
-            console.log(lambdaExpression.position);
-
-            return lambdaExpression;
+            return SetComprehensionExpression;
         }
 
         return base;

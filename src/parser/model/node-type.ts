@@ -14,7 +14,7 @@ export enum NodeType {
     LogicalExpression = "LogicalExpression",
     ConditionalExpression = "ConditionalExpression",
     CallExpression = "CallExpression",
-    LambdaExpression = "LambdaExpression",
     MemberExpression = "MemberExpression",
     OtherwiseExpression = "OtherwiseExpression",
+    SetComprehensionExpression = "SetComprehensionExpression",
 }

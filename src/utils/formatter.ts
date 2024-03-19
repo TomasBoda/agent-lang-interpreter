@@ -1,6 +1,6 @@
 import { Symbolizer, Symbol } from "../symbolizer";
 import { Lexer, Token } from "../lexer";
-import { Parser, BinaryExpression, BooleanLiteral, CallExpression, ConditionalExpression, Identifier, LambdaExpression, LogicalExpression, MemberExpression, NodeType, NumericLiteral, ObjectDeclaration, OtherwiseExpression, ParserValue, Program, UnaryExpression, VariableDeclaration, VariableType, DefineDeclaration } from "../parser";
+import { Parser, BinaryExpression, BooleanLiteral, CallExpression, ConditionalExpression, Identifier, SetComprehensionExpression, LogicalExpression, MemberExpression, NodeType, NumericLiteral, ObjectDeclaration, OtherwiseExpression, ParserValue, Program, UnaryExpression, VariableDeclaration, VariableType, DefineDeclaration } from "../parser";
 
 export class Formatter {
 
@@ -146,12 +146,12 @@ export class Formatter {
                 sourceCode += `${caller}(${args.join(", ")})`;
                 break;
             }
-            case NodeType.LambdaExpression: {
-                const lambdaExpression = ast as LambdaExpression;
+            case NodeType.SetComprehensionExpression: {
+                const setComprehensionExpression = ast as SetComprehensionExpression;
                 
-                const base = Formatter.nodeToSourceCode(lambdaExpression.base);
-                const param = lambdaExpression.param;
-                const value = Formatter.nodeToSourceCode(lambdaExpression.value);
+                const base = Formatter.nodeToSourceCode(setComprehensionExpression.base);
+                const param = setComprehensionExpression.param;
+                const value = Formatter.nodeToSourceCode(setComprehensionExpression.value);
 
                 sourceCode += `${base} => ${param} => ${value}`;
                 break;

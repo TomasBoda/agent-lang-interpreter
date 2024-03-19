@@ -68,7 +68,7 @@ export class Lexer {
 
                     if (this.isNext(">")) {
                         operator.value += this.next().value;
-                        this.token(TokenType.LambdaArrow, operator);
+                        this.token(TokenType.Arrow, operator);
                         break;
                     }
 
@@ -76,7 +76,7 @@ export class Lexer {
                     break;
                 }
                 case "|":
-                    this.token(TokenType.LambdaDivider);
+                    this.token(TokenType.Divider);
                     break;   
                 case "<":
                 case ">": {

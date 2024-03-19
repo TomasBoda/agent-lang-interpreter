@@ -1,5 +1,5 @@
 import { ErrorParser } from "../utils";
-import { BinaryExpression, CallExpression, ConditionalExpression, DefineDeclaration, DependencyGraph, Expression, Identifier, LambdaExpression, LogicalExpression, MemberExpression, Node, NodeType, ObjectDeclaration, Program, UnaryExpression, VariableDeclaration } from "./model";
+import { BinaryExpression, CallExpression, ConditionalExpression, DefineDeclaration, DependencyGraph, Expression, Identifier, LogicalExpression, MemberExpression, Node, NodeType, ObjectDeclaration, Program, SetComprehensionExpression, UnaryExpression, VariableDeclaration } from "./model";
 
 export class Topology {
 
@@ -105,7 +105,7 @@ export class Topology {
             }
         }
     
-        let lambdaKey: string | undefined = undefined;
+        let setComprehensionKey: string | undefined = undefined;
     
         function getDependencies(expression: Expression): void {
             switch (expression.type) {
@@ -135,15 +135,15 @@ export class Topology {
                     }
                     break;
                 }
-                case NodeType.LambdaExpression: {
-                    lambdaKey = (expression as LambdaExpression).param;
-                    getDependencies((expression as LambdaExpression).base);
-                    getDependencies((expression as LambdaExpression).value);
-                    lambdaKey = undefined;
+                case NodeType.SetComprehensionExpression: {
+                    setComprehensionKey = (expression as SetComprehensionExpression).param;
+                    getDependencies((expression as SetComprehensionExpression).base);
+                    getDependencies((expression as SetComprehensionExpression).value);
+                    setComprehensionKey = undefined;
                     break;
                 }
                 case NodeType.MemberExpression: {
-                    if (lambdaKey && (expression as MemberExpression).caller.type === NodeType.Identifier && ((expression as MemberExpression).caller as Identifier).identifier === lambdaKey) {
+                    if (setComprehensionKey && (expression as MemberExpression).caller.type === NodeType.Identifier && ((expression as MemberExpression).caller as Identifier).identifier === setComprehensionKey) {
                         break;
                     } else {
                         getDependencies((expression as MemberExpression).caller);

@@ -1,5 +1,5 @@
 import { ErrorRuntime } from "../../utils";
-import { AgentsValue, BooleanValue, LambdaValue, NumberValue, RuntimeAgent, RuntimeValue, ValueType } from "../model";
+import { AgentsValue, BooleanValue, SetComprehensionValue, NumberValue, RuntimeAgent, RuntimeValue, ValueType } from "../model";
 import { createAgentValue, createAgentsValue, createBooleanValue, createColourValue, createNullValue, createNumberValue, expectArgumentCount, expectArgumentType } from "./utils";
 
 export function RGB(args: RuntimeValue[]): RuntimeValue {
@@ -58,15 +58,15 @@ export function FIND_BY_COORDINATES(args: RuntimeValue[]): RuntimeValue {
 
 export function SUM(args: RuntimeValue[]): RuntimeValue {
     expectArgumentCount("sum", 1, args.length);
-    expectArgumentType("sum", args[0], ValueType.Lambda);
+    expectArgumentType("sum", args[0], ValueType.SetComprehension);
 
-    const lambda: LambdaValue = args[0] as LambdaValue;
+    const setComprehension: SetComprehensionValue = args[0] as SetComprehensionValue;
 
     let sum = 0;
 
-    for (const result of lambda.results) {
+    for (const result of setComprehension.results) {
         if (result.type !== ValueType.Number) {
-            throw new ErrorRuntime(`Function 'sum' requires a lambda expression that returns numeric values`);
+            throw new ErrorRuntime(`Function 'sum' requires a set comprehension expression that returns numeric values`);
         }
 
         const number: NumberValue = result as NumberValue;
@@ -122,28 +122,28 @@ export function EMPTY(args: RuntimeValue[]): RuntimeValue {
 
 export function MIN(args: RuntimeValue[]): RuntimeValue {
     expectArgumentCount("min", 1, args.length);
-    expectArgumentType("min", args[0], ValueType.Lambda);
+    expectArgumentType("min", args[0], ValueType.SetComprehension);
 
-    const lambda: LambdaValue = args[0] as LambdaValue;
+    const setComprehension: SetComprehensionValue = args[0] as SetComprehensionValue;
 
-    if (lambda.agents.length !== lambda.results.length) {
+    if (setComprehension.agents.length !== setComprehension.results.length) {
         throw new ErrorRuntime(`Number of agents does not equal the number of results in 'min' function.`);
     }
 
-    for (let i = 0; i < lambda.results.length; i++) {
-        const result: RuntimeValue = lambda.results[i];
+    for (let i = 0; i < setComprehension.results.length; i++) {
+        const result: RuntimeValue = setComprehension.results[i];
 
         if (result.type !== ValueType.Number) {
-            throw new ErrorRuntime(`Function 'min' requires a lambda expression that returns numeric values`);
+            throw new ErrorRuntime(`Function 'min' requires a set comprehension expression that returns numeric values`);
         }
     }
 
-    const results = lambda.results.map((result: RuntimeValue) => (result as NumberValue).value);
+    const results = setComprehension.results.map((result: RuntimeValue) => (result as NumberValue).value);
     const minValue = Math.min(...results);
 
     for (let i = 0; i < results.length; i++) {
         if (results[i] === minValue) {
-            const agent: RuntimeAgent = lambda.agents[i];
+            const agent: RuntimeAgent = setComprehension.agents[i];
             return createAgentValue(agent);
         }
     }
@@ -153,28 +153,28 @@ export function MIN(args: RuntimeValue[]): RuntimeValue {
 
 export function MAX(args: RuntimeValue[]): RuntimeValue {
     expectArgumentCount("max", 1, args.length);
-    expectArgumentType("max", args[0], ValueType.Lambda);
+    expectArgumentType("max", args[0], ValueType.SetComprehension);
 
-    const lambda: LambdaValue = args[0] as LambdaValue;
+    const setComprehension: SetComprehensionValue = args[0] as SetComprehensionValue;
 
-    if (lambda.agents.length !== lambda.results.length) {
+    if (setComprehension.agents.length !== setComprehension.results.length) {
         throw new ErrorRuntime(`Number of agents does not equal the number of results in 'max' function.`);
     }
 
-    for (let i = 0; i < lambda.results.length; i++) {
-        const result: RuntimeValue = lambda.results[i];
+    for (let i = 0; i < setComprehension.results.length; i++) {
+        const result: RuntimeValue = setComprehension.results[i];
 
         if (result.type !== ValueType.Number) {
-            throw new ErrorRuntime(`Function 'max' requires a lambda expression that returns numeric values`);
+            throw new ErrorRuntime(`Function 'max' requires a setComprehension expression that returns numeric values`);
         }
     }
 
-    const results = lambda.results.map((result: RuntimeValue) => (result as NumberValue).value);
+    const results = setComprehension.results.map((result: RuntimeValue) => (result as NumberValue).value);
     const maxValue = Math.max(...results);
 
     for (let i = 0; i < results.length; i++) {
         if (results[i] === maxValue) {
-            const agent: RuntimeAgent = lambda.agents[i];
+            const agent: RuntimeAgent = setComprehension.agents[i];
             return createAgentValue(agent);
         }
     }
@@ -184,25 +184,25 @@ export function MAX(args: RuntimeValue[]): RuntimeValue {
 
 export function FILTER(args: RuntimeValue[]): RuntimeValue {
     expectArgumentCount("filter", 1, args.length);
-    expectArgumentType("filter", args[0], ValueType.Lambda);
+    expectArgumentType("filter", args[0], ValueType.SetComprehension);
 
-    const lambda: LambdaValue = args[0] as LambdaValue;
+    const setComprehension: SetComprehensionValue = args[0] as SetComprehensionValue;
 
-    if (lambda.agents.length !== lambda.results.length) {
+    if (setComprehension.agents.length !== setComprehension.results.length) {
         throw new ErrorRuntime(`Number of agents does not equal the number of results in 'filter' function.`);
     }
 
     const agents: RuntimeAgent[] = [];
 
-    for (let i = 0; i < lambda.agents.length; i++) {
-        if (lambda.results[i].type !== ValueType.Boolean) {
-            throw new ErrorRuntime(`Function 'filter' requires lambda expression with boolean return value`);
+    for (let i = 0; i < setComprehension.agents.length; i++) {
+        if (setComprehension.results[i].type !== ValueType.Boolean) {
+            throw new ErrorRuntime(`Function 'filter' requires set comprehension expression with boolean return value`);
         }
 
-        const result: BooleanValue = lambda.results[i] as BooleanValue;
+        const result: BooleanValue = setComprehension.results[i] as BooleanValue;
 
         if (result.value) {
-            agents.push(lambda.agents[i] as RuntimeAgent);
+            agents.push(setComprehension.agents[i] as RuntimeAgent);
         }
     }
 

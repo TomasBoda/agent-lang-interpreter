@@ -1,7 +1,7 @@
 import { Symbolizer } from "../symbolizer";
 import { Lexer } from "../lexer";
 import { Parser } from "./parser";
-import { BinaryExpression, BooleanLiteral, CallExpression, ConditionalExpression, Identifier, LambdaExpression, LogicalExpression, MemberExpression, NodeType, NumericLiteral, ObjectDeclaration, OtherwiseExpression, ParserValue, Program, UnaryExpression, VariableDeclaration, VariableType } from "./model";
+import { BinaryExpression, BooleanLiteral, CallExpression, ConditionalExpression, Identifier, LogicalExpression, MemberExpression, NodeType, NumericLiteral, ObjectDeclaration, OtherwiseExpression, ParserValue, Program, SetComprehensionExpression, UnaryExpression, VariableDeclaration, VariableType } from "./model";
 
 export class ParserUtil {
 
@@ -118,12 +118,12 @@ export class ParserUtil {
                 code += `${caller}(${args.join(", ")})`;
                 break;
             }
-            case NodeType.LambdaExpression: {
-                const lambdaExpression = ast as LambdaExpression;
+            case NodeType.SetComprehensionExpression: {
+                const setComprehensionExpression = ast as SetComprehensionExpression;
                 
-                const base = ParserUtil.astToCode(lambdaExpression.base);
-                const param = lambdaExpression.param;
-                const value = ParserUtil.astToCode(lambdaExpression.value);
+                const base = ParserUtil.astToCode(setComprehensionExpression.base);
+                const param = setComprehensionExpression.param;
+                const value = ParserUtil.astToCode(setComprehensionExpression.value);
 
                 code += `${base} => ${param} => ${value}`;
                 break;

@@ -20,8 +20,8 @@ export enum TokenType {
     RelationalOperator = "RelationalOperator",
     AssignmentOperator = "AssignmentOperator",
 
-    LambdaArrow = "LambdaArrow",
-    LambdaDivider = "LambdaDivider",
+    Arrow = "Arrow",
+    Divider = "Divider",
 
     OpenParen = "OpenParen",
     CloseParen = "CloseParen",

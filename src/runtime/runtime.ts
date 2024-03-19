@@ -1,6 +1,6 @@
 import { Position } from "../symbolizer";
-import { BinaryExpression, BooleanLiteral, CallExpression, ConditionalExpression, DefineDeclaration, Identifier, LambdaExpression, LogicalExpression, MemberExpression, NodeType, NumericLiteral, ObjectDeclaration, OtherwiseExpression, ParserValue, Program, Statement, UnaryExpression, VariableDeclaration, VariableType } from "../parser";
-import { AgentsValue, AgentValue, BooleanValue, FunctionCall, FunctionValue, IdentifierValue, LambdaValue, NumberValue, RuntimeAgent, RuntimeOutput, RuntimeValue, ValueType } from "./model";
+import { BinaryExpression, BooleanLiteral, CallExpression, ConditionalExpression, DefineDeclaration, Identifier, SetComprehensionExpression, LogicalExpression, MemberExpression, NodeType, NumericLiteral, ObjectDeclaration, OtherwiseExpression, ParserValue, Program, Statement, UnaryExpression, VariableDeclaration, VariableType } from "../parser";
+import { AgentsValue, AgentValue, BooleanValue, FunctionCall, FunctionValue, IdentifierValue, SetComprehensionValue, NumberValue, RuntimeAgent, RuntimeOutput, RuntimeValue, ValueType } from "./model";
 import { Environment } from "./environment";
 import { ErrorRuntime } from "../utils";
 import { createGlobalFunction } from "./functions";
@@ -10,7 +10,7 @@ export class Runtime {
     private program: Program;
 
     private globalEnvironment: Environment;
-    private lambdaEnvironment = new Environment();
+    private setComprehensionEnvironment = new Environment();
 
     private previousAgents: RuntimeAgent[] = [];
     private output: RuntimeOutput = { type: ValueType.Output, step: 0, agents: [] };
@@ -198,8 +198,8 @@ export class Runtime {
                 return this.evaluateConditionalExpression(node as ConditionalExpression, id);
             case NodeType.CallExpression:
                 return this.evaluateCallExpression(node as CallExpression, id);
-            case NodeType.LambdaExpression:
-                return this.evaluateLambdaExpression(node as LambdaExpression, id);
+            case NodeType.SetComprehensionExpression:
+                return this.evaluateSetComprehensionExpression(node as SetComprehensionExpression, id);
             case NodeType.MemberExpression:
                 return this.evaluateMemberExpression(node as MemberExpression, id);
             case NodeType.OtherwiseExpression:
@@ -228,9 +228,9 @@ export class Runtime {
     }
 
     private evaluateIdentifier(identifier: Identifier, id: string): RuntimeValue {
-        const lambdaLookup = this.lambdaEnvironment.lookupVariable(identifier.identifier);
-        if (lambdaLookup) {
-            return lambdaLookup;
+        const setComprehensionLookup = this.setComprehensionEnvironment.lookupVariable(identifier.identifier);
+        if (setComprehensionLookup) {
+            return setComprehensionLookup;
         }
 
         const variableLookup = this.globalEnvironment.lookupVariable(identifier.identifier);
@@ -432,7 +432,7 @@ export class Runtime {
         return (func as FunctionValue).call(args);
     }
 
-    private evaluateLambdaExpression(expression: LambdaExpression, id: string): RuntimeValue {
+    private evaluateSetComprehensionExpression(expression: SetComprehensionExpression, id: string): RuntimeValue {
         const agents: RuntimeValue = this.evaluateRuntimeValue(expression.base, id);
         const param: IdentifierValue = {
             type: ValueType.Identifier,
@@ -440,24 +440,24 @@ export class Runtime {
         } as IdentifierValue;
 
         if (agents.type !== ValueType.Agents) {
-            throw new ErrorRuntime("Lambda expression requires base argument of type 'agents'", expression.position);
+            throw new ErrorRuntime("Set comprehension expression requires base argument of type 'agents'", expression.position);
         }
 
         const runtimeAgents = (agents as AgentsValue).value.filter((agent: RuntimeAgent) => agent.id !== id);
         const results: RuntimeValue[] = [];
 
         for (const agent of runtimeAgents) {
-            this.lambdaEnvironment.declareVariable(param.value, { type: ValueType.Agent, value: agent } as AgentValue);
+            this.setComprehensionEnvironment.declareVariable(param.value, { type: ValueType.Agent, value: agent } as AgentValue);
             results.push(this.evaluateRuntimeValue(expression.value, id));
         }
 
-        const lambdaValue: LambdaValue = {
-            type: ValueType.Lambda,
+        const setComprehensionValue: SetComprehensionValue = {
+            type: ValueType.SetComprehension,
             agents: runtimeAgents,
             results
         };
 
-        return lambdaValue;
+        return setComprehensionValue;
     }
 
     private evaluateMemberExpression(expression: MemberExpression, id: string): RuntimeValue {

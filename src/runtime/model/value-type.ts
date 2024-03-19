@@ -6,7 +6,7 @@ export enum ValueType {
     Null = "Null",
     Agent = "Agent",
     Agents = "Agents",
-    Lambda = "Lambda",
+    SetComprehension = "SetComprehension",
     Identifier = "Identifier",
     Colour = "Colour",
     Output = "Output",
