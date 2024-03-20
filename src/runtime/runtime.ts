@@ -63,6 +63,10 @@ export class Runtime {
     }
 
     private evaluateDefineDeclaration(declaration: DefineDeclaration): void {
+        if (this.output.step > 0) {
+            return;
+        }
+
         const { identifier, value, position } = declaration;
 
         let defineDeclarationValue: RuntimeValue;
