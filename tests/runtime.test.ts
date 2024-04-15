@@ -1,6 +1,6 @@
 import { describe, expect, test } from "bun:test";
 import { getOutput, getProgram } from "./utils";
-import { BinaryExpression, BooleanLiteral, BooleanValue, CallExpression, ConditionalExpression, DefineDeclaration, Environment, Identifier, LogicalExpression, MemberExpression, Node, NodeType, NumberValue, NumericLiteral, ObjectDeclaration, OtherwiseExpression, Runtime, SetComprehensionExpression, UnaryExpression, ValueType, VariableDeclaration, VariableType } from "../src";
+import { BooleanValue, NumberValue, ValueType } from "../src";
 
 interface ExpressionTestingData {
     expression: string;
@@ -34,8 +34,12 @@ const BINARY_EXPRESSION_TESTING_DATA: ExpressionTestingData[] = [
 const UNARY_EXPRESSION_TESTING_DATA: ExpressionTestingData[] = [
     { expression: "-3", result: -3, type: ValueType.Number },
     { expression: "-12.94", result: -12.94, type: ValueType.Number },
+    { expression: "-(-3)", result: -(-3), type: ValueType.Number },
+    { expression: "-(-(-(-3)))", result: -(-(-(-3))), type: ValueType.Number },
     { expression: "!true", result: !true, type: ValueType.Boolean },
     { expression: "!false", result: !false, type: ValueType.Boolean },
+    { expression: "!(!true)", result: !(!true), type: ValueType.Boolean },
+    { expression: "!!!true", result: !(!(!true)), type: ValueType.Boolean },
 ];
 
 const LOGICAL_EXPRESSION_TESTING_DATA: ExpressionTestingData[] = [

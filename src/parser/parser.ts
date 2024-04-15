@@ -402,10 +402,6 @@ export class Parser {
             throw new ErrorParser("Unary expression requires the - operator", this.position());
         }
 
-        if (this.getNext().type !== TokenType.Number && this.getNext().type !== TokenType.Identifier) {
-            throw new ErrorParser("Unary expression requires value of type number or identifier", this.position());
-        }
-
         this.next();
 
         const unaryExpression: UnaryExpression = {
@@ -435,10 +431,6 @@ export class Parser {
 
         if (value !== "!") {
             throw new ErrorParser("Unary expression requires the ! operator", this.position());
-        }
-
-        if (this.getNext().type !== TokenType.Boolean && this.getNext().type !== TokenType.Identifier) {
-            throw new ErrorParser("Unary expression requires value of type boolean or identifier", this.position());
         }
 
         this.next();
