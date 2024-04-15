@@ -1,4 +1,5 @@
-import { Symbolizer, Symbol, Parser, Program, Lexer, Token } from "../src";
+import { expect } from "bun:test";
+import { Symbolizer, Symbol, Parser, Program, Lexer, Token, DefineDeclaration, ParserValue, NodeType, ObjectDeclaration, VariableDeclaration, RuntimeOutput, Runtime, Environment } from "../src";
 
 export function getSymbols(sourceCode: string): Symbol[] {
     const symbolizer: Symbolizer = new Symbolizer(sourceCode);
@@ -23,4 +24,14 @@ export function getProgram(sourceCode: string): Program {
     const program: Program = parser.parse();
 
     return program;
+}
+
+export function getOutput(sourceCode: string): RuntimeOutput {
+    const program = getProgram(sourceCode);
+
+    const runtime: Runtime = new Runtime(program, new Environment());
+    runtime.run(0);
+    const output = runtime.run(1);
+
+    return output;
 }

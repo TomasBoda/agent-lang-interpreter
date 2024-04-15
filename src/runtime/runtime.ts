@@ -29,7 +29,7 @@ export class Runtime {
      * @param step - step of the simulation to be evaluated
      * @returns output of the simulation
      */
-    public run(step: number): RuntimeValue {
+    public run(step: number): RuntimeOutput {
         this.output.step = step;
         this.updateStepFunction(step);
 
@@ -38,7 +38,7 @@ export class Runtime {
         return evaluation;
     }
 
-    private evaluateProgram(program: Program): RuntimeValue {
+    private evaluateProgram(program: Program): RuntimeOutput {
         for (const statement of program.body) {
             switch (statement.type) {
                 case NodeType.DefineDeclaration:

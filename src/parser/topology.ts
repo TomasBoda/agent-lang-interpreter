@@ -12,7 +12,7 @@ export class Topology {
      * @returns topologically sorted AST
      */
     public getSortedProgram(program: Program): Program {
-        this.agentIdentifiers = this.getObjectDeclarationIdentifiers(program);
+        this.agentIdentifiers = this.getAgentDeclarationIdentifiers(program);
         return this.getSortedAgentAndDefineDeclarations(program);
     }
 
@@ -24,11 +24,11 @@ export class Topology {
      */
     private getSortedAgentAndDefineDeclarations(program: Program): Program {
         const defineDeclarations = this.getDefineDeclarations(program);
-        const objectDeclarations = this.getObjectDeclarations(program);
+        const agentDeclarations = this.getAgentDeclarations(program);
 
-        objectDeclarations.map(declaration => this.getSortedObjectDeclaration(declaration));
+        agentDeclarations.map(declaration => this.getSortedAgentDeclaration(declaration));
 
-        const declarations = [ ...defineDeclarations, ...objectDeclarations ];
+        const declarations = [ ...defineDeclarations, ...agentDeclarations ];
 
         return { ...program, body: declarations };
     }
@@ -39,28 +39,28 @@ export class Topology {
      * @param objectDeclaration - object declaration whose properties to sort topologically
      * @returns sorted object declaration
      */
-    private getSortedObjectDeclaration(objectDeclaration: ObjectDeclaration): ObjectDeclaration {
-        const variableIdentifiers: string[] = [];
-        const variableDependencies: string[][] = [];
+    private getSortedAgentDeclaration(objectDeclaration: ObjectDeclaration): ObjectDeclaration {
+        const propertyIdentifiers: string[] = [];
+        const propertyDependencies: string[][] = [];
 
-        const variableDeclarations = this.getVariableDeclarations(objectDeclaration);
+        const propertyDeclarations = this.getPropertyDeclarations(objectDeclaration);
 
-        variableDeclarations.forEach(variableDeclaration => {
-            const { identifier, position } = variableDeclaration;
-            const dependencies = this.getVariableDependencies(variableDeclaration);
+        propertyDeclarations.forEach(propertyDeclaration => {
+            const { identifier, position } = propertyDeclaration;
+            const dependencies = this.getPropertyDependencies(propertyDeclaration);
     
-            if (dependencies.includes(identifier) && variableDeclaration.default === undefined) {
+            if (dependencies.includes(identifier) && propertyDeclaration.default === undefined) {
                 throw new ErrorParser(`Agent property '${identifier}' depends on itself, but has no default value provided`, position);
             }
     
-            variableIdentifiers.push(identifier);
-            variableDependencies.push(dependencies);
+            propertyIdentifiers.push(identifier);
+            propertyDependencies.push(dependencies);
         });
     
-        const dependencyGraph: DependencyGraph = this.getVariableDependencyGraph(variableIdentifiers, variableDependencies);
+        const dependencyGraph: DependencyGraph = this.getDependencyGraph(propertyIdentifiers, propertyDependencies);
         const sortedDependencies: Node[] = this.topologicalSort(dependencyGraph);
 
-        objectDeclaration.body = this.getSortedVariableDeclarations(variableDeclarations, sortedDependencies);
+        objectDeclaration.body = this.getSortedPropertyDeclarations(propertyDeclarations, sortedDependencies);
     
         return objectDeclaration;
     }
@@ -72,7 +72,7 @@ export class Topology {
      * @param nodes - topologically sorted nodes of a dependency graph
      * @returns topologically sorted array of variable declarations
      */
-    private getSortedVariableDeclarations(declarations: VariableDeclaration[], nodes: Node[]): Expression[] {
+    private getSortedPropertyDeclarations(declarations: VariableDeclaration[], nodes: Node[]): Expression[] {
         const expressions: Expression[] = [];
 
         for (const node of nodes) {
@@ -93,7 +93,7 @@ export class Topology {
      * @param variableDeclaration - variable declaration whose variable dependencies to find
      * @returns an array of variable dependencies identifiers
      */
-    private getVariableDependencies(variableDeclaration: VariableDeclaration): string[] {
+    private getPropertyDependencies(variableDeclaration: VariableDeclaration): string[] {
         const agentIdentifiers = this.agentIdentifiers;
         const dependencies: string[] = [];
     
@@ -173,7 +173,7 @@ export class Topology {
      * @param dependencies - variable dependencies of the object's variable declarations
      * @returns dependency graph representing variable dependencies of an object
      */
-    private getVariableDependencyGraph(identifiers: string[], dependencies: string[][]): DependencyGraph {
+    private getDependencyGraph(identifiers: string[], dependencies: string[][]): DependencyGraph {
         const graph: DependencyGraph = {};
     
         for (const identifier of identifiers) {
@@ -260,7 +260,7 @@ export class Topology {
      * @param program - program to find object declarations in
      * @returns array of program's object declarations
      */
-    private getObjectDeclarations(program: Program): ObjectDeclaration[] {
+    private getAgentDeclarations(program: Program): ObjectDeclaration[] {
         return program.body
             .filter(statement => statement.type === NodeType.ObjectDeclaration)
             .map(statement => statement as ObjectDeclaration);
@@ -272,7 +272,7 @@ export class Topology {
      * @param objectDeclaration - object declaration to find variable declarations in
      * @returns array of object declaration's variable declarations
      */
-    private getVariableDeclarations(objectDeclaration: ObjectDeclaration): VariableDeclaration[] {
+    private getPropertyDeclarations(objectDeclaration: ObjectDeclaration): VariableDeclaration[] {
         return objectDeclaration.body
             .filter(declaration => declaration.type === NodeType.VariableDeclaration)
             .map(declaration => declaration as VariableDeclaration)
@@ -284,8 +284,8 @@ export class Topology {
      * @param program - program to find all object declarations' identifiers in
      * @returns array of all object declarations' identifiers
      */
-    private getObjectDeclarationIdentifiers(program: Program): string[] {
-        return this.getObjectDeclarations(program)
+    private getAgentDeclarationIdentifiers(program: Program): string[] {
+        return this.getAgentDeclarations(program)
             .map(declaration => declaration.identifier);
     }
 }

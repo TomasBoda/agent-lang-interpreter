@@ -4,21 +4,21 @@ import { DefineDeclaration, NodeType, ObjectDeclaration, Program, VariableDeclar
 export class Validation {
 
     /**
-     * Statically validates the global variable, object and variable declarations in a program
+     * Statically validates the agent, property and define declarations in a program
      * 
      * @param program - program to validate
      */
     public static validate(program: Program): void {
         Validation.validateDefineDeclarationIdentifiers(program);
-        Validation.validateObjectDeclarationIdentifiers(program);
-        Validation.validateVariableDeclarationIdentifiers(program);
+        Validation.validateAgentDeclarationIdentifiers(program);
+        Validation.validatePropertyDeclarationIdentifiers(program);
     }
 
     /**
-     * Checks for duplicate global variable declarations in a program
-     * Throws an exception if duplicate global variable declarations were found
+     * Checks for duplicate define declarations in a program
+     * Throws an exception if duplicate define declarations were found
      * 
-     * @param program - program to check duplicate global variable declarations in
+     * @param program - program to check duplicate define declarations in
      */
     private static validateDefineDeclarationIdentifiers(program: Program): void {
         const defineDeclarations = program.body
@@ -39,20 +39,20 @@ export class Validation {
     }
 
     /**
-     * Checks for duplicate object declarations in a program
-     * Throws an exception if duplicate object declarations were found
+     * Checks for duplicate agent declarations in a program
+     * Throws an exception if duplicate agent declarations were found
      * 
-     * @param program - program to check duplicate object declarations in
+     * @param program - program to check duplicate agent declarations in
      */
-    private static validateObjectDeclarationIdentifiers(program: Program): void {
-        const objectDeclarations = program.body
+    private static validateAgentDeclarationIdentifiers(program: Program): void {
+        const agentDeclarations = program.body
             .filter(statement => statement.type === NodeType.ObjectDeclaration)
             .map(statement => statement as ObjectDeclaration);
 
         const identifiers = new Set<string>();
 
-        for (const objectDeclaration of objectDeclarations) {
-            const { identifier, position } = objectDeclaration;
+        for (const agentDeclaration of agentDeclarations) {
+            const { identifier, position } = agentDeclaration;
 
             if (identifiers.has(identifier)) {
                 throw new ErrorParser(`Duplicate agent declaration identifiers detected ('${identifier}')`, position);
@@ -63,25 +63,25 @@ export class Validation {
     }
 
     /**
-     * Checks for duplicate variable declarations in a program
-     * Throws an exception if duplicate variable declarations were found
+     * Checks for duplicate property declarations in a program
+     * Throws an exception if duplicate property declarations were found
      * 
-     * @param program - program to check duplicate variable declarations in
+     * @param program - program to check duplicate property declarations in
      */
-    private static validateVariableDeclarationIdentifiers(program: Program): void {
-        const objectDeclarations = program.body
+    private static validatePropertyDeclarationIdentifiers(program: Program): void {
+        const agentDeclarations = program.body
             .filter(statement => statement.type === NodeType.ObjectDeclaration)
             .map(statement => statement as ObjectDeclaration);
 
-        for (const objectDeclaration of objectDeclarations) {
-            const variableDeclarations = objectDeclaration.body
+        for (const agentDeclaration of agentDeclarations) {
+            const propertyDeclarations = agentDeclaration.body
                 .filter(statement => statement.type === NodeType.VariableDeclaration)
                 .map(statement => statement as VariableDeclaration);
 
             const identifiers = new Set<string>();
 
-            for (const variableDeclaration of variableDeclarations) {
-                const { identifier, position } = variableDeclaration;
+            for (const propertyDeclaration of propertyDeclarations) {
+                const { identifier, position } = propertyDeclaration;
 
                 if (identifiers.has(identifier)) {
                     throw new ErrorParser(`Duplicate property declaration identifiers detected ('${identifier}')`, position);

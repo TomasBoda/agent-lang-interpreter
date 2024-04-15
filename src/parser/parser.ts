@@ -178,15 +178,15 @@ export class Parser {
         if (this.at().type === TokenType.If) {
             const { position } = this.next();
 
-            const condition = this.parseExpression();
+            const condition = this.parseConditionalExpression();
 
             this.assert(TokenType.Then, "Expected then keyword after condition in conditional expression", this.position());
 
-            const consequent = this.parseExpression();
+            const consequent = this.parseConditionalExpression();
 
             this.assert(TokenType.Else, "Expected else keyword after consequent in conditional expression", this.position());
 
-            const alternate = this.parseExpression();
+            const alternate = this.parseConditionalExpression();
 
             const conditionalExpression: ConditionalExpression = {
                 type: NodeType.ConditionalExpression,
@@ -352,7 +352,6 @@ export class Parser {
         return args;
     }
 
-    // TODO: primitive
     private parsePrimaryExpression(): Expression {
         switch (this.at().type) {
             case TokenType.Identifier:
@@ -507,13 +506,6 @@ export class Parser {
         return this.at().type !== TokenType.EOF;
     }
 
-    /**
-     * Converts the specified token type to a variable type
-     * Throws an exception if the token type is not convertible to a variable type
-     * 
-     * @param tokenType - token type to convert
-     * @returns variable type
-     */
     private getVariableType(tokenType: TokenType): VariableType {
         switch (tokenType) {
             case TokenType.Property:
@@ -525,11 +517,6 @@ export class Parser {
         }
     }
 
-    /**
-     * Creates an empty program node
-     * 
-     * @returns program with empty body
-     */
     private createEmptyProgram(): Program {
         return {
             type: NodeType.Program,

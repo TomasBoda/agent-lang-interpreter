@@ -13,7 +13,7 @@ export class Lexer {
     }
 
     /**
-     * Produces an array of tokens from source code
+     * Produces an array of tokens from array of symbols
      * 
      * @returns array of tokens
      */
@@ -137,7 +137,7 @@ export class Lexer {
         }
 
         this.generateEOFToken();
-
+        
         return this.tokens;
     }
 

@@ -11,9 +11,7 @@ export interface Statement extends ParserValue {
     position: Position;
 }
 
-export interface Expression extends Statement {
-    
-}
+export interface Expression extends Statement {}
 
 export interface Program extends Statement {
     type: NodeType.Program;
