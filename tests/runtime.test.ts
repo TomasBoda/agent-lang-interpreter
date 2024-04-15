@@ -1,6 +1,7 @@
 import { describe, expect, test } from "bun:test";
 import { getOutput, getProgram } from "./utils";
 import { BooleanValue, NumberValue, ValueType } from "../src";
+import { TestSupport } from "./test-support";
 
 interface ExpressionTestingData {
     expression: string;
@@ -14,8 +15,8 @@ const BINARY_EXPRESSION_TESTING_DATA: ExpressionTestingData[] = [
     { expression: "6 * 3", result: 6 * 3, type: ValueType.Number },
     { expression: "6 / 3", result: 6 / 3, type: ValueType.Number },
     { expression: "6 % 3", result: 6 % 3, type: ValueType.Number },
-    { expression: "6 == 3", result: 6 == 3, type: ValueType.Boolean },
-    { expression: "6 != 3", result: 6 != 3, type: ValueType.Boolean },
+    { expression: "6 == 3", result: false, type: ValueType.Boolean },
+    { expression: "6 != 3", result: true, type: ValueType.Boolean },
     { expression: "6 < 3", result: 6 < 3, type: ValueType.Boolean },
     { expression: "6 <= 3", result: 6 <= 3, type: ValueType.Boolean },
     { expression: "6 > 3", result: 6 > 3, type: ValueType.Boolean },
@@ -68,21 +69,22 @@ function testExpression(entry: ExpressionTestingData) {
 
     const code = `agent person 1 { const value = ${expression}; }`;
     const output = getOutput(code);
+
     expect(output.agents.length).toBe(1);
 
     const agent = output.agents[0];
-    expect(agent.variables.get("value")).toBeDefined();
-
-    const value = agent.variables.get("value");
-    expect(value!.type).toBe(type);
 
     switch (type) {
-        case ValueType.Number:
-            expect((value as NumberValue).value).toBe(result);
+        case ValueType.Number: {
+            const value = TestSupport.expectValue<NumberValue>(agent.variables.get("value"), ValueType.Number);
+            expect(value.value).toBe(result);
             break;
-        case ValueType.Boolean:
-            expect((value as BooleanValue).value).toBe(result);
+        }
+        case ValueType.Boolean: {
+            const value = TestSupport.expectValue<BooleanValue>(agent.variables.get("value"), ValueType.Boolean);
+            expect(value.value).toBe(result);
             break;
+        }
     }
 }
 
@@ -120,14 +122,8 @@ describe("Runtime", () => {
             expect(agent.identifier).toBe("person");
             expect(agent.id).toBe(`person-${i}`);
 
-            expect(agent.variables.get("i")).toBeDefined();
-            expect(agent.variables.get("s")).toBeDefined();
-
-            expect(agent.variables.get("i")!.type).toBe(ValueType.Number);
-            expect(agent.variables.get("s")!.type).toBe(ValueType.Number);
-
-            const index = agent.variables.get("i")! as NumberValue;
-            const step = agent.variables.get("s")! as NumberValue;
+            const index = TestSupport.expectValue<NumberValue>(agent.variables.get("i"), ValueType.Number);
+            const step = TestSupport.expectValue<NumberValue>(agent.variables.get("s"), ValueType.Number);
 
             expect(index.value).toBe(i);
             expect(step.value).toBe(1);

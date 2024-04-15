@@ -1,6 +1,7 @@
 import { describe, expect, test } from "bun:test";
 import { getProgram } from "./utils";
 import { BinaryExpression, BooleanLiteral, CallExpression, ConditionalExpression, DefineDeclaration, Identifier, LogicalExpression, MemberExpression, Node, NodeType, NumericLiteral, ObjectDeclaration, OtherwiseExpression, SetComprehensionExpression, UnaryExpression, VariableDeclaration, VariableType } from "../src";
+import { TestSupport } from "./test-support";
 
 describe("Parser", () => {
     
@@ -14,19 +15,13 @@ describe("Parser", () => {
     test("should parse agent declaration with numeric count", () => {
         const code = "agent person 10 {}";
         const program = getProgram(code);
-
         expect(program.body).toHaveLength(1);
-        expect(program.body[0].type).toBe(NodeType.ObjectDeclaration);
 
-        const objectDeclaration = program.body[0] as ObjectDeclaration;
-        const { identifier, body, count } = objectDeclaration;
-
-        expect(identifier).toBe("person");
+        const objectDeclaration = TestSupport.expectAgentDeclaration(program, "person");
+        const { body, count } = objectDeclaration;
         expect(body.length).toBe(0);
-        expect(count.type).toBe(NodeType.NumericLiteral);
         
-        const agentCount = count as NumericLiteral;
-
+        const agentCount = TestSupport.expectNode<NumericLiteral>(count, NodeType.NumericLiteral);
         expect(agentCount.value).toBe(10);
     });
 
@@ -37,55 +32,38 @@ describe("Parser", () => {
         expect(program.body).toHaveLength(2);
         expect(program.body[1].type).toBe(NodeType.ObjectDeclaration);
 
-        const objectDeclaration = program.body[1] as ObjectDeclaration;
-        const { identifier, body, count } = objectDeclaration;
-
-        expect(identifier).toBe("person");
+        const objectDeclaration = TestSupport.expectAgentDeclaration(program, "person");
+        const { body, count } = objectDeclaration;
         expect(body.length).toBe(0);
-        expect(count.type).toBe(NodeType.Identifier);
         
-        const agentCount = count as Identifier;
-
+        const agentCount = TestSupport.expectNode<Identifier>(count, NodeType.Identifier);
         expect(agentCount.identifier).toBe("person_count");
     });
 
     test("should parse multiple object declarations", () => {
         const code = "agent person 10 {} agent building 5 {}";
         const program = getProgram(code);
-
         expect(program.body).toHaveLength(2);
-        expect(program.body[0].type).toBe(NodeType.ObjectDeclaration);
-        expect(program.body[1].type).toBe(NodeType.ObjectDeclaration);
 
-        const agentDeclaration1 = program.body[0] as ObjectDeclaration;
-        
-        expect(agentDeclaration1.identifier).toBe("person");
-        expect(agentDeclaration1.count.type).toBe(NodeType.NumericLiteral);
+        const agentDeclaration1 = TestSupport.expectAgentDeclaration(program, "person");
+        TestSupport.expectNode<NumericLiteral>(agentDeclaration1.count, NodeType.NumericLiteral);
         expect(agentDeclaration1.body.length).toBe(0);
 
-        const agentDeclaration2 = program.body[1] as ObjectDeclaration;
-        
-        expect(agentDeclaration2.identifier).toBe("building");
-        expect(agentDeclaration2.count.type).toBe(NodeType.NumericLiteral);
+        const agentDeclaration2 = TestSupport.expectAgentDeclaration(program, "building");
+        TestSupport.expectNode<NumericLiteral>(agentDeclaration2.count, NodeType.NumericLiteral);
         expect(agentDeclaration2.body.length).toBe(0);
     });
 
     test("should parse property declaration with default value", () => {
         const code = "agent person 10 { property age: 0 = age + 1; }";
         const program = getProgram(code);
-
         expect(program.body).toHaveLength(1);
-        expect(program.body[0].type).toBe(NodeType.ObjectDeclaration);
         
-        const objectDeclaration = program.body[0] as ObjectDeclaration;
-
+        const objectDeclaration = TestSupport.expectAgentDeclaration(program, "person");
         expect(objectDeclaration.body.length).toBe(1);
-        expect(objectDeclaration.body[0].type).toBe(NodeType.VariableDeclaration);
 
-        const propertyDeclaration = objectDeclaration.body[0] as VariableDeclaration;
-        
+        const propertyDeclaration = TestSupport.expectPropertyDeclaration(program, "person", "age");
         expect(propertyDeclaration.variableType).toBe(VariableType.Property);
-        expect(propertyDeclaration.identifier).toBe("age");
         expect(propertyDeclaration.value.type).toBe(NodeType.BinaryExpression);
         expect(propertyDeclaration.default).toBeDefined();
         expect(propertyDeclaration.default!.type).toBe(NodeType.NumericLiteral);
@@ -94,53 +72,37 @@ describe("Parser", () => {
     test("should parse property declaration without default value", () => {
         const code = "agent person 10 { property age = 20; }";
         const program = getProgram(code);
-
         expect(program.body).toHaveLength(1);
-        expect(program.body[0].type).toBe(NodeType.ObjectDeclaration);
         
-        const objectDeclaration = program.body[0] as ObjectDeclaration;
-
+        const objectDeclaration = TestSupport.expectAgentDeclaration(program, "person");
         expect(objectDeclaration.body.length).toBe(1);
-        expect(objectDeclaration.body[0].type).toBe(NodeType.VariableDeclaration);
 
-        const propertyDeclaration = objectDeclaration.body[0] as VariableDeclaration;
-        
+        const propertyDeclaration = TestSupport.expectPropertyDeclaration(program, "person", "age");
         expect(propertyDeclaration.variableType).toBe(VariableType.Property);
-        expect(propertyDeclaration.identifier).toBe("age");
-        expect(propertyDeclaration.value.type).toBe(NodeType.NumericLiteral);
         expect(propertyDeclaration.default).toBeUndefined();
+        TestSupport.expectNode<NumericLiteral>(propertyDeclaration.value, NodeType.NumericLiteral);
     });
 
     test("should parse const declaration", () => {
         const code = "agent person 10 { const age = 20; }";
         const program = getProgram(code);
-
         expect(program.body).toHaveLength(1);
-        expect(program.body[0].type).toBe(NodeType.ObjectDeclaration);
         
-        const objectDeclaration = program.body[0] as ObjectDeclaration;
-
+        const objectDeclaration = TestSupport.expectAgentDeclaration(program, "person");
         expect(objectDeclaration.body.length).toBe(1);
-        expect(objectDeclaration.body[0].type).toBe(NodeType.VariableDeclaration);
 
-        const propertyDeclaration = objectDeclaration.body[0] as VariableDeclaration;
-        
+        const propertyDeclaration = TestSupport.expectPropertyDeclaration(program, "person", "age");
         expect(propertyDeclaration.variableType).toBe(VariableType.Const);
-        expect(propertyDeclaration.identifier).toBe("age");
-        expect(propertyDeclaration.value.type).toBe(NodeType.NumericLiteral);
+        TestSupport.expectNode<NumericLiteral>(propertyDeclaration.value, NodeType.NumericLiteral);
     });
 
     test("should parse define declaration", () => {
         const code = "define debug = false;";
         const program = getProgram(code);
-
         expect(program.body.length).toBe(1);
-        expect(program.body[0].type).toBe(NodeType.DefineDeclaration);
 
-        const defineDeclaration = program.body[0] as DefineDeclaration;
-
-        expect(defineDeclaration.identifier).toBe("debug");
-        expect(defineDeclaration.value.type).toBe(NodeType.BooleanLiteral);
+        const defineDeclaration = TestSupport.expectDefineDeclaration(program, "debug");
+        TestSupport.expectNode<BooleanLiteral>(defineDeclaration.value, NodeType.BooleanLiteral);
     });
 
     test.each([
@@ -149,19 +111,16 @@ describe("Parser", () => {
         const code = `agent person 10 { const age = 10 ${operator} 2; }`;
         const program = getProgram(code);
 
-        const constDeclaration = (program.body[0] as ObjectDeclaration).body[0] as VariableDeclaration;
-
-        expect(constDeclaration.value.type).toBe(NodeType.BinaryExpression);
-
-        const binaryExpression = constDeclaration.value as BinaryExpression;
+        const constDeclaration = TestSupport.expectPropertyDeclaration(program, "person", "age");
+        const binaryExpression = TestSupport.expectNode<BinaryExpression>(constDeclaration.value, NodeType.BinaryExpression);
 
         expect(binaryExpression.operator).toBe(operator);
 
-        expect(binaryExpression.left.type).toBe(NodeType.NumericLiteral);
-        expect((binaryExpression.left as NumericLiteral).value).toBe(10);
+        const left = TestSupport.expectNode<NumericLiteral>(binaryExpression.left, NodeType.NumericLiteral);
+        expect(left.value).toBe(10);
 
-        expect(binaryExpression.right.type).toBe(NodeType.NumericLiteral);
-        expect((binaryExpression.right as NumericLiteral).value).toBe(2);
+        const right = TestSupport.expectNode<NumericLiteral>(binaryExpression.right, NodeType.NumericLiteral);
+        expect(right.value).toBe(2);
     });
 
     test.each([
@@ -173,10 +132,9 @@ describe("Parser", () => {
         const code = `agent person 10 { const value = ${operator}${value}; }`;
         const program = getProgram(code);
 
-        const constDeclaration = (program.body[0] as ObjectDeclaration).body[0] as VariableDeclaration;
-        expect(constDeclaration.value.type).toBe(NodeType.UnaryExpression);
+        const constDeclaration = TestSupport.expectPropertyDeclaration(program, "person", "value");
+        const unaryExpression = TestSupport.expectNode<UnaryExpression>(constDeclaration.value, NodeType.UnaryExpression);
 
-        const unaryExpression = constDeclaration.value as UnaryExpression;
         expect(unaryExpression.operator).toBe(operator);
         expect(unaryExpression.value.type).toBe(type);
     });
@@ -194,11 +152,8 @@ describe("Parser", () => {
         const code = `agent person 10 { const value = ${expression}; }`;
         const program = getProgram(code);
 
-        const constDeclaration = (program.body[0] as ObjectDeclaration).body[0] as VariableDeclaration;
-
-        expect(constDeclaration.value.type).toBe(NodeType.LogicalExpression);
-
-        const logicalExpression = constDeclaration.value as LogicalExpression;
+        const constDeclaration = TestSupport.expectPropertyDeclaration(program, "person", "value");
+        const logicalExpression = TestSupport.expectNode<LogicalExpression>(constDeclaration.value, NodeType.LogicalExpression);
 
         expect(logicalExpression.operator).toBe(operator);
         expect(logicalExpression.left.type).toBe(leftType);
@@ -216,13 +171,10 @@ describe("Parser", () => {
         const code = `agent person 10 { const value = ${expression}; }`;
         const program = getProgram(code);
 
-        const constDeclaration = (program.body[0] as ObjectDeclaration).body[0] as VariableDeclaration;
+        const constDeclaration = TestSupport.expectPropertyDeclaration(program, "person", "value");
+        const conditionalExpression = TestSupport.expectNode<ConditionalExpression>(constDeclaration.value, NodeType.ConditionalExpression);
 
-        expect(constDeclaration.value.type).toBe(NodeType.ConditionalExpression);
-
-        const conditionalExpression = constDeclaration.value as ConditionalExpression;
-
-        expect(conditionalExpression.condition.type).toBe(NodeType.BooleanLiteral);
+        TestSupport.expectNode<BooleanLiteral>(conditionalExpression.condition, NodeType.BooleanLiteral);
         expect(conditionalExpression.consequent.type).toBe(consequentType);
         expect(conditionalExpression.alternate.type).toBe(alternateType);
     });
@@ -236,12 +188,10 @@ describe("Parser", () => {
         const code = `agent person 10 { const value = ${expression}; }`;
         const program = getProgram(code);
 
-        const constDeclaration = (program.body[0] as ObjectDeclaration).body[0] as VariableDeclaration;
-        expect(constDeclaration.value.type).toBe(NodeType.CallExpression);
+        const constDeclaration = TestSupport.expectPropertyDeclaration(program, "person", "value");
+        const callExpression = TestSupport.expectNode<CallExpression>(constDeclaration.value, NodeType.CallExpression);
 
-        const callExpression = constDeclaration.value as CallExpression;
         expect(callExpression.args.length).toBe(argTypes.length);
-
         for (let i = 0; i < callExpression.args.length; i++) {
             expect(callExpression.args[i].type).toBe(argTypes[i]);
         }
@@ -258,16 +208,14 @@ describe("Parser", () => {
         const code = `agent person 10 { const age = round(random(0, 30)); property value = ${expression}; }`;
         const program = getProgram(code);
 
-        const propertyDeclaration = (program.body[0] as ObjectDeclaration).body[1] as VariableDeclaration;
-        expect(propertyDeclaration.value.type).toBe(NodeType.CallExpression);
+        const propertyDeclaration = TestSupport.expectPropertyDeclaration(program, "person", "value");
+        const callExpression = TestSupport.expectNode<CallExpression>(propertyDeclaration.value, NodeType.CallExpression);
 
-        const callExpression = propertyDeclaration.value as CallExpression;
         expect(callExpression.args.length).toBe(1);
-        expect(callExpression.args[0].type).toBe(NodeType.SetComprehensionExpression);
 
-        const setComprehensionExpression = callExpression.args[0] as SetComprehensionExpression;
+        const setComprehensionExpression = TestSupport.expectNode<SetComprehensionExpression>(callExpression.args[0], NodeType.SetComprehensionExpression);
 
-        expect(setComprehensionExpression.base.type).toBe(NodeType.CallExpression);
+        TestSupport.expectNode<CallExpression>(setComprehensionExpression.base, NodeType.CallExpression);
         expect(setComprehensionExpression.param).toBe(paramName);
         expect(setComprehensionExpression.value.type).toBe(valueType);
     });
@@ -293,12 +241,11 @@ describe("Parser", () => {
         `;
         const program = getProgram(code);
 
-        const propertyDeclaration = (program.body[0] as ObjectDeclaration).body[5] as VariableDeclaration;
-        expect(propertyDeclaration.value.type).toBe(NodeType.MemberExpression);
+        const propertyDeclaration = TestSupport.expectPropertyDeclaration(program, "person", "value");
+        const memberExpression = TestSupport.expectNode<MemberExpression>(propertyDeclaration.value, NodeType.MemberExpression);
 
-        const memberExpression = propertyDeclaration.value as MemberExpression;
-        expect(memberExpression.caller.type).toBe(NodeType.Identifier);
-        expect(memberExpression.value.type).toBe(NodeType.Identifier);
+        TestSupport.expectNode<Identifier>(memberExpression.caller, NodeType.Identifier);
+        TestSupport.expectNode<Identifier>(memberExpression.value, NodeType.Identifier);
     });
 
     test.each([
@@ -318,10 +265,9 @@ describe("Parser", () => {
         `;
         const program = getProgram(code);
 
-        const propertyDeclaration = (program.body[0] as ObjectDeclaration).body[2] as VariableDeclaration;
-        expect(propertyDeclaration.value.type).toBe(NodeType.OtherwiseExpression);
+        const propertyDeclaration = TestSupport.expectPropertyDeclaration(program, "person", "value");
+        const otherwiseExpression = TestSupport.expectNode<OtherwiseExpression>(propertyDeclaration.value, NodeType.OtherwiseExpression);
 
-        const otherwiseExpression = propertyDeclaration.value as OtherwiseExpression;
         expect(otherwiseExpression.left.type).toBe(leftType);
     });
 
@@ -335,10 +281,9 @@ describe("Parser", () => {
 
         const program = getProgram(code);
 
-        const constDeclaration = (program.body[2] as ObjectDeclaration).body[0] as VariableDeclaration;
-        expect(constDeclaration.value.type).toBe(NodeType.Identifier);
+        const constDeclaration = TestSupport.expectPropertyDeclaration(program, "person", "age");
+        const identifier = TestSupport.expectNode<Identifier>(constDeclaration.value, NodeType.Identifier);
 
-        const identifier = constDeclaration.value as Identifier;
         expect(identifier.identifier).toBe(expression);
     });
 
@@ -354,10 +299,9 @@ describe("Parser", () => {
 
         const program = getProgram(code);
 
-        const constDeclaration = (program.body[0] as ObjectDeclaration).body[0] as VariableDeclaration;
-        expect(constDeclaration.value.type).toBe(NodeType.NumericLiteral);
+        const constDeclaration = TestSupport.expectPropertyDeclaration(program, "person", "age");
+        const numericLiteral = TestSupport.expectNode<NumericLiteral>(constDeclaration.value, NodeType.NumericLiteral);
 
-        const numericLiteral = constDeclaration.value as NumericLiteral;
         expect(numericLiteral.value).toBe(parseFunc(expression));
     });
 
@@ -370,10 +314,9 @@ describe("Parser", () => {
 
         const program = getProgram(code);
 
-        const constDeclaration = (program.body[0] as ObjectDeclaration).body[0] as VariableDeclaration;
-        expect(constDeclaration.value.type).toBe(NodeType.BooleanLiteral);
+        const constDeclaration = TestSupport.expectPropertyDeclaration(program, "person", "employed");
+        const booleanLiteral = TestSupport.expectNode<BooleanLiteral>(constDeclaration.value, NodeType.BooleanLiteral);
 
-        const booleanLiteral = constDeclaration.value as BooleanLiteral;
         expect(booleanLiteral.value).toBe(value);
     });
 
