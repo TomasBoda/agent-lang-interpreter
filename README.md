@@ -19,7 +19,11 @@ npm install
 ## Usage
 Below is an example usage of the AgentLang interpreter in a TypeScript project.
 ```ts
-import { Interpreter, InterpreterConfiguration, InterpreterOutput } from "@/agent-lang-interpreter";
+import {
+    Interpreter,
+    InterpreterConfiguration,
+    InterpreterOutput
+} from "@/agent-lang-interpreter";
 
 const filename = "code.txt";
 const sourceCode = readFileSync(filename, "utf-8");
