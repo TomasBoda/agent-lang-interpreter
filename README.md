@@ -8,23 +8,32 @@
 ## About
 Interpreter for the **AgentLang** programming language written in TypeScript.
 
-## Installation & Startup
-The first step to run the interpreter is to clone this repository and install all necessary packages:
+## Installation
+To use the interpreter, clone the project to your local machine and install all the necessary packages.
 ```bash
 git clone https://github.com/TomasBoda/agent-lang-interpreter.git
-
 cd agent-lang-interpreter
-
 npm install
 ```
-To run the example simulation, run the following in the command line:
-```bash
-bun start
+
+## Usage
+Below is an example usage of the AgentLang interpreter in a TypeScript project.
+```ts
+import { Interpreter, InterpreterConfiguration, InterpreterOutput } from "@/agent-lang-interpreter";
+
+const filename = "code.txt";
+const sourceCode = readFileSync(filename, "utf-8");
+
+const config: InterpreterConfiguration = { steps: 10, delay: 500, width: 500, height: 500 };
+const interpreter: Interpreter = new Interpreter();
+
+interpreter.get(sourceCode, config).subscribe((output: InterpreterOutput) => {
+    console.log(output);
+});
 ```
-The AgentLang interpreter will start running a simulation on an example code provided in the `code.txt` file. You can modify this file to model the simulation to your needs.
 
 ## Tests
-To run the interpreter's unit tests, run the following in the command line:
+To run the AgentLang interpreter's unit tests, run the following in the command line:
 ```bash
 bun test
 ```
