@@ -1,6 +1,11 @@
-import { expect } from "bun:test";
-import { Symbolizer, Symbol, Parser, Program, Lexer, Token, DefineDeclaration, ParserValue, NodeType, ObjectDeclaration, VariableDeclaration, RuntimeOutput, Runtime, Environment } from "../src";
+import { Symbolizer, Symbol, Parser, Program, Lexer, Token, RuntimeOutput, Runtime, Environment } from "../src";
 
+/**
+ * Returns array of symbols from the source code
+ * 
+ * @param sourceCode source code of the simulation
+ * @returns array of symbols
+ */
 export function getSymbols(sourceCode: string): Symbol[] {
     const symbolizer: Symbolizer = new Symbolizer(sourceCode);
     const symbols: Symbol[] = symbolizer.symbolize();
@@ -8,6 +13,12 @@ export function getSymbols(sourceCode: string): Symbol[] {
     return symbols;
 }
 
+/**
+ * Returns array of tokens from the source code
+ * 
+ * @param sourceCode source code of the simulation
+ * @returns array of tokens
+ */
 export function getTokens(sourceCode: string): Token[] {
     const symbols: Symbol[] = getSymbols(sourceCode);
 
@@ -17,6 +28,12 @@ export function getTokens(sourceCode: string): Token[] {
     return tokens;
 }
 
+/**
+ * Returns parsed abstract syntax tree from the source code
+ * 
+ * @param sourceCode source code of the simulation
+ * @returns abstract syntax tree
+ */
 export function getProgram(sourceCode: string): Program {
     const tokens: Token[] = getTokens(sourceCode);
 
@@ -26,6 +43,12 @@ export function getProgram(sourceCode: string): Program {
     return program;
 }
 
+/**
+ * Returns the evaluation of the first step of the simulation from the source code
+ * 
+ * @param sourceCode source code of the simulation
+ * @returns evaluation of the first step of the simulation
+ */
 export function getOutput(sourceCode: string): RuntimeOutput {
     const program = getProgram(sourceCode);
 
