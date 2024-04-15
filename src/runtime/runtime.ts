@@ -34,12 +34,7 @@ export class Runtime {
         this.updateStepFunction(step);
 
         const evaluation = { ...this.evaluateProgram(this.program) };
-
-        if (step > 0) {
-            this.previousAgents = [ ...this.output.agents ];
-            this.output.agents = [];
-        }
-
+        this.updateOutput();
         return evaluation;
     }
 
@@ -162,11 +157,13 @@ export class Runtime {
     }
 
     private evaluatePropertyDeclaration(declaration: VariableDeclaration, id: string): RuntimeValue {
+        let expression = declaration.value;
+
         if (declaration.default && this.output.step === 0) {
-            return this.evaluateRuntimeValue(declaration.default, id);
+            expression = declaration.default;
         }
 
-        return this.evaluateRuntimeValue(declaration.value, id);
+        return this.evaluateRuntimeValue(expression, id);
     }
 
     private evaluateConstDeclaration(declaration: VariableDeclaration, id: string): RuntimeValue {
@@ -585,6 +582,15 @@ export class Runtime {
      */
     public updateAgentValue(agentIndex: number, propertyIdentifier: string, value: number): void {
         this.previousAgents[agentIndex].variables.set(propertyIdentifier, { type: ValueType.Number, value } as NumberValue);
+    }
+
+    private updateOutput(): void {
+        if (this.output.step === 0) {
+            return;
+        }
+
+        this.previousAgents = [ ...this.output.agents ];
+        this.output.agents = [];
     }
 
     // runtime functions
