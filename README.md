@@ -9,9 +9,9 @@
 Interpreter for the **AgentLang** programming language written in TypeScript.
 
 ## Installation
-To use the interpreter, clone the project to your local machine and install all the necessary packages.
+To integrate the AgentLang interpreter into your TypeScript project, add it as a git submodule and install all the necessary packages.
 ```bash
-git clone https://github.com/TomasBoda/agent-lang-interpreter.git
+git submodule add https://github.com/TomasBoda/agent-lang-interpreter.git
 cd agent-lang-interpreter
 npm install
 ```
