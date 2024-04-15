@@ -8,6 +8,21 @@
 ## About
 Interpreter for the **AgentLang** programming language written in TypeScript.
 
+## AgentLang
+AgentLang is an interpreted programming language designed for agent-based modeling. Below is an example AgentLang source code.
+```
+agent snowflake 200 {
+
+    const speed = random(8, 15);
+
+    property x: random(0, width()) = x;
+    property y: random(0, height()) = (y + speed) % height();
+    
+    const w = 10;
+    const h = 10;
+}
+```
+
 ## Installation
 To integrate the AgentLang interpreter into your TypeScript project, add it as a git submodule and install all the necessary packages.
 ```bash
