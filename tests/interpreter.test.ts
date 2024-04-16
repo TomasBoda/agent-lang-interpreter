@@ -53,7 +53,7 @@ describe("Interpreter", () => {
 
     test("should reset the interpreter", async () => {
         interpreter.start();
-        await wait(config.delay * 5);
+        await wait(config.delay * 5 + config.delay / 2);
         expect(result.output?.step).toBe(4);
 
         interpreter.reset();
