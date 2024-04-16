@@ -1,6 +1,6 @@
 import { describe, expect, test } from "bun:test";
 import { getProgram } from "./utils";
-import { BinaryExpression, BooleanLiteral, CallExpression, ConditionalExpression, DefineDeclaration, Identifier, LogicalExpression, MemberExpression, Node, NodeType, NumericLiteral, ObjectDeclaration, OtherwiseExpression, SetComprehensionExpression, UnaryExpression, VariableDeclaration, VariableType } from "../src";
+import { BinaryExpression, BooleanLiteral, CallExpression, ConditionalExpression, DefineDeclaration, ErrorParser, Identifier, LogicalExpression, MemberExpression, Node, NodeType, NumericLiteral, ObjectDeclaration, OtherwiseExpression, SetComprehensionExpression, UnaryExpression, VariableDeclaration, VariableType } from "../src";
 import { TestSupport } from "./test-support";
 
 describe("Parser", () => {
@@ -351,5 +351,37 @@ describe("Parser", () => {
         }
 
         expect(actualPropertyCount).toBe(propertyCount);
+    });
+
+    test("should allow only define and agent declarations in program scope", () => {
+        const code = "property p = 10 + 2; define debug = false; agent person 10 {}";
+        expect(() => getProgram(code)).toThrow(ErrorParser);
+    });
+
+    test.each([
+        { code: "agent person 10 { define debug = false; }" },
+        { code: "agent person 10 { agent building 2 {} }" }
+    ])
+    ("should allow only property and const declarations in agent body", entry => {
+        const { code } = entry;
+        expect(() => getProgram(code)).toThrow(ErrorParser);
+    });
+
+    test("should not allow adding default value to const", () => {
+        const code = "agent person 10 { const c: 10 = 20; }";
+        expect(() => getProgram(code).toThrow(ErrorParser));
+    });
+
+    test.each([
+        { code: "agent person 10 2 {}" },
+        { code: "agent agent 10 2 {}" },
+        { code: "define a a = 20;" },
+        { code: "agent person 10 { property a = 20 +; };" },
+        { code: "agent person 10 { const a = true true; }" },
+        { code: "agent person 10 { const a = 1 + + 2; }" }
+    ])
+    ("should throw error when parsing unexpected token", entry => {
+        const { code } = entry;
+        expect(() => getProgram(code)).toThrow(ErrorParser);
     });
 });

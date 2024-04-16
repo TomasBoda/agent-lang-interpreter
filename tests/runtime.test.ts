@@ -1,6 +1,6 @@
 import { describe, expect, test } from "bun:test";
 import { getOutput, getProgram } from "./utils";
-import { BooleanValue, NumberValue, ValueType } from "../src";
+import { BooleanValue, ErrorRuntime, NumberValue, ValueType } from "../src";
 import { TestSupport } from "./test-support";
 
 interface ExpressionTestingData {
@@ -128,5 +128,117 @@ describe("Runtime", () => {
             expect(index.value).toBe(i);
             expect(step.value).toBe(1);
         }
+    });
+
+    test("should only allow numeric literals and boolean literals in define declaration value", () => {
+        const code = "define debug = choice(true, false);";
+        expect(() => getOutput(code)).toThrow(ErrorRuntime);
+    });
+
+    test("should throw exception when agent count is not a number", () => {
+        const code = "define count = false; agent person count {}";
+        expect(() => getOutput(code)).toThrow(ErrorRuntime);
+    });
+
+    test("should throw exception when agent count identifier does not exist", () => {
+        const code = "agent person count {}";
+        expect(() => getOutput(code)).toThrow(ErrorRuntime);
+    });
+
+    test.each([
+        { expression: "1 + true" },
+        { expression: "false + 2" },
+        { expression: "debug + 3" },
+        { expression: "false + number" }
+    ])("should throw exception when binary expression has invalid operands", entry => {
+        const { expression } = entry;
+        const code = `define debug = false; define number = 1; agent person 10 { const c = ${expression}; }`;
+        expect(() => getOutput(code)).toThrow(ErrorRuntime);
+    });
+
+    test.each([
+        { expression: "-false" },
+        { expression: "-debug" },
+        { expression: "!12" },
+        { expression: "!number" }
+    ])("should throw exception when unary expression has invalid operands", entry => {
+        const { expression } = entry;
+        const code = `define debug = false; define number = 1; agent person 10 { const c = ${expression}; }`;
+        expect(() => getOutput(code)).toThrow(ErrorRuntime);
+    });
+
+    test("should throw exception when identifier is not found", () => {
+        const code = "agent person 10 { property a = b; }";
+        expect(() => getOutput(code)).toThrow(ErrorRuntime);
+    });
+
+    test("should throw exception when dividing by zero", () => {
+        const code = "agent person 10 { const age = 5 / 0; }"
+        expect(() => getOutput(code)).toThrow(ErrorRuntime);
+    });
+
+    test("should throw exception when modulo by zero", () => {
+        const code = "agent person 10 { const age = 5 % 0; }"
+        expect(() => getOutput(code)).toThrow(ErrorRuntime);
+    });
+
+    test.each([
+        { expression: "1 and false" },
+        { expression: "true or 2" },
+        { expression: "3 and 4" },
+        { expression: "number or 5" },
+        { expression: "debug and number" }
+    ])("should throw exception when logical expression has numeric operands", entry => {
+        const { expression } = entry;
+        const code = `define debug = false; define number = 1; agent person 10 { const c = ${expression}; }`;
+        expect(() => getOutput(code)).toThrow(ErrorRuntime);
+    });
+
+    test.each([
+        { expression: "1" },
+        { expression: "2.3" },
+        { expression: "number" },
+        { expression: "3 + number" },
+        { expression: "number * number" }
+    ])("should throw exception when conditional expression has non-boolean condition", entry => {
+        const { expression } = entry;
+        const code = `define debug = false; define number = 1; agent person 10 { const c = if ${expression} then 1 else 2; }`;
+        expect(() => getOutput(code)).toThrow(ErrorRuntime);
+    });
+
+    test.each([
+        { expression: "1" },
+        { expression: "2.3" },
+        { expression: "true" },
+        { expression: "false" },
+    ])("should throw exception when function caller is not an identifier", entry => {
+        const { expression } = entry;
+        const code = `define debug = false; define number = 1; agent person 10 { const c = ${expression}(); }`;
+        expect(() => getOutput(code)).toThrow(ErrorRuntime);
+    });
+
+    test.each([
+        { expression: "1" },
+        { expression: "2.3" },
+        { expression: "true" },
+        { expression: "false" },
+        { expression: "debug" },
+        { expression: "number" },
+        { expression: "random(10, 20)" },
+        { expression: "3 + 2" }
+    ])("should throw exception when set comprehension base is not of type agents", entry => {
+        const { expression } = entry;
+        const code = `define debug = false; define number = 1; agent person 10 { property p = filter(${expression} | e -> true); }`;
+        expect(() => getOutput(code)).toThrow(ErrorRuntime);
+    });
+
+    test.each([
+        { expression: "age.age" },
+        { expression: "debug.age" },
+        { expression: "number.age" }
+    ])("should throw exception when member expression base is invalid", entry => {
+        const { expression } = entry;
+        const code = `define debug = false; define number = 1; agent person 10 { const age = random(10, 20); property p = min(agents(person) | e -> e.age); property min_age = ${expression}; }`;
+        expect(() => getOutput(code)).toThrow(ErrorRuntime);
     });
 });

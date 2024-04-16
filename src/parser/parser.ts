@@ -478,14 +478,6 @@ export class Parser {
         return this.tokens.shift() as Token;
     }
 
-    private getNext(): Token {
-        if (this.tokens.length <= 2) {
-            throw new ErrorParser("No tokens left to parse");
-        }
-
-        return this.tokens[1];
-    }
-
     private position(): Position {
         return this.at().position;
     }

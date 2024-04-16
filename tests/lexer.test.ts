@@ -1,6 +1,6 @@
 import { describe, test, expect } from "bun:test";
 import { getTokens } from "./utils";
-import { TokenType } from "../src";
+import { ErrorLexer, ErrorModel, TokenType } from "../src";
 
 describe("Lexer", () => {
     
@@ -112,15 +112,12 @@ describe("Lexer", () => {
 
     test("should throw error on unrecognized lexer token", () => {
         const code = "agent person 10 { const value = @; }";
-
-        expect(() => getTokens(code))
-            .toThrow("Unrecognized character found in source: @");
+        expect(() => getTokens(code)).toThrow(ErrorLexer);
     });
 
     test("should throw error on more than one decimal point in numeric literal", () => {
         const code = "agent person 10 { const value = 1.2.3; }";
 
-        expect(() => getTokens(code))
-            .toThrow("Number cannot contain more than one decimal point");
+        expect(() => getTokens(code)).toThrow(ErrorLexer);
     });
 });

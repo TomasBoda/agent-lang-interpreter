@@ -11,7 +11,7 @@
   "main": "src/index.ts",
   "scripts": {
     "start": "npx bun run index.ts",
-    "test": "npx bun test"
+    "test": "npx bun test --watch"
   },
   "devDependencies": {
     "typescript": "^4.9.5",
