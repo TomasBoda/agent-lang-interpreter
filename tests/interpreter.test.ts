@@ -15,7 +15,7 @@ describe("Interpreter", () => {
 
     let interpreter: Interpreter;
 
-    let config: InterpreterConfiguration = { width: 500, height: 500, steps: 10000, delay: 100 };
+    let config: InterpreterConfiguration = { width: 500, height: 500, steps: 10000, delay: 200 };
     let sourceCode = "agent person 10 { property age: random(0, 10) = age + 1; }";
 
     let result: InterpreterOutput;
