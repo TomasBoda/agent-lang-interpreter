@@ -153,7 +153,7 @@ export class Formatter {
                 const param = setComprehensionExpression.param;
                 const value = Formatter.nodeToSourceCode(setComprehensionExpression.value);
 
-                sourceCode += `${base} => ${param} => ${value}`;
+                sourceCode += `${base} | ${param} -> ${value}`;
                 break;
             }
             case NodeType.MemberExpression: {
