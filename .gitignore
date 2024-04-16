@@ -2,6 +2,3 @@ node_modules/
 .idea/
 .vscode/
 build/
-index.ts
-code.txt
-ast.json
