@@ -65,8 +65,7 @@ describe("Interpreter", () => {
         expect(result.output?.step).toBe(3);
     });
 
-    //test.each(INTERPRETER_STEP_TESTING_DATA)
-    test.each([])
+    test.each(INTERPRETER_STEP_TESTING_DATA)
     ("should emit output on every step (%#)", async entry => {
         const { steps, delay } = entry;
 
