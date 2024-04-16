@@ -1,7 +1,7 @@
 import { describe, expect, test } from "bun:test";
-import { getOutput, getProgram } from "./utils";
+import { getOutput, getProgram } from "./utils/utils";
 import { BooleanValue, ErrorRuntime, NumberValue, ValueType } from "../src";
-import { TestSupport } from "./test-support";
+import { TestSupport } from "./utils/test-support";
 
 interface ExpressionTestingData {
     expression: string;

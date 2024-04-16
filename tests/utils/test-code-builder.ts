@@ -4,20 +4,10 @@ interface TestAgent {
     count: string;
 }
 
-interface TestProperty {
+interface TestVariable {
     identifier: string;
+    value: string;
     default?: string;
-    value: string;
-}
-
-interface TestConst {
-    identifier: string;
-    value: string;
-}
-
-interface TestDefine {
-    identifier: string;
-    value: string;
 }
 
 export class TestCodeBuilder {
@@ -25,9 +15,9 @@ export class TestCodeBuilder {
     private sourceCode: string = "";
 
     private _agent: TestAgent = { identifier: "entity", count: "10" };
-    private _properties: TestProperty[] = [];
-    private _consts: TestConst[] = [];
-    private _defines: TestDefine[] = [];
+    private _properties: TestVariable[] = [];
+    private _consts: TestVariable[] = [];
+    private _defines: TestVariable[] = [];
 
     public agent(identifier: string, count: string): TestCodeBuilder {
         this._agent = { identifier, count };

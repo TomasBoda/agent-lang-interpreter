@@ -1,5 +1,5 @@
 import { expect } from "bun:test";
-import { DefineDeclaration, NodeType, ObjectDeclaration, ParserValue, Program, RuntimeValue, ValueType, VariableDeclaration } from "../src";
+import { DefineDeclaration, NodeType, ObjectDeclaration, ParserValue, Program, RuntimeValue, ValueType, VariableDeclaration } from "../../src";
 
 export class TestSupport {
 

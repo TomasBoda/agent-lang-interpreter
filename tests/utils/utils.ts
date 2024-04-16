@@ -1,4 +1,4 @@
-import { Symbolizer, Symbol, Parser, Program, Lexer, Token, RuntimeOutput, Runtime, Environment } from "../src";
+import { Symbolizer, Symbol, Parser, Program, Lexer, Token, RuntimeOutput, Runtime, Environment } from "../../src";
 
 /**
  * Returns array of symbols from the source code
