@@ -144,7 +144,7 @@ export class Lexer {
     /**
      * Produces a numeric literal token
      * 
-     * @param position - position in source code
+     * @param position position in source code
      */
     private tokenizeNumber(position: Position): void {
         let number = "";
@@ -180,18 +180,40 @@ export class Lexer {
         this.token(this.getKeywordOrIdentifierTokenType(identifier), { value: identifier, position });
     }
 
+    /**
+     * Checks if there are symbols left in the stream
+     * 
+     * @returns true if the stream has next symbols
+     */
     private hasNext(): boolean {
         return this.symbols.length > 0;
     }
 
+    /**
+     * Returns the current symbol in the stream
+     * 
+     * @returns current symbol
+     */
     private getNext(): Symbol {
         return this.symbols[0];
     }
 
+    /**
+     * Checks if the current symbol value equals the given value
+     * 
+     * @param character 
+     * @returns true if the current symbol value equals the given value, otherwise false
+     */
     private isNext(character: string): boolean {
         return character === this.getNext().value;
     }
 
+    /**
+     * Returns the current symbol and removes it from the stream
+     * 
+     * @throws lexer error if there is no symbol in the stream
+     * @returns current symbol
+     */
     private next(): Symbol {
         const symbol = this.symbols.shift();
 
@@ -205,15 +227,15 @@ export class Lexer {
     /**
      * Generates a new token with specified type, value and position
      * 
-     * @param type - token type
-     * @param symbol - token symbol (value and position)
+     * @param type token type
+     * @param symbol token symbol (value and position)
      */
     private token(type: TokenType, symbol = this.next()): void {
         this.tokens.push({ type, value: symbol.value, position: symbol.position });
     }
 
     /**
-     * Generates the end-of-file (EOF) token
+     * Generates the EOF (end-of-file) token
      */
     private generateEOFToken(): void {
         if (this.tokens.length === 0) {
@@ -236,15 +258,31 @@ export class Lexer {
         });
     }
 
+    /**
+     * Tries to retrieve a reserved keyword type by its identifier
+     * 
+     * @param identifier identifier to retrieve the reserved keyword type by
+     * @returns reserved keyword if it was found, otherwise the plain identifier type
+     */
     private getKeywordOrIdentifierTokenType(identifier: string): TokenType {
         const keyword = ReservedKeywords[identifier];
         return keyword ?? TokenType.Identifier;
     }
 
+    /**
+     * Checks whether the value of the current symbol is alpha
+     * 
+     * @returns true if the value of the current token is alpha, otherwise false
+     */
     private isAlpha(): boolean {
         return this.getNext().value.toUpperCase() != this.getNext().value.toLowerCase();
     }
 
+    /**
+     * Checks whether the value of the current symbol is numeric
+     * 
+     * @returns true if the value of the current symbol is numeric, otherwise false
+     */
     private isNumber(): boolean {
         const symbol = this.getNext().value.charCodeAt(0);
         const bounds = {
@@ -255,6 +293,11 @@ export class Lexer {
         return symbol >= bounds.lower && symbol <= bounds.upper;
     }
 
+    /**
+     * Checks whether the value of the current symbol is skippable
+     * 
+     * @returns true if the value of the current token is skippable, otherwise false
+     */
     private isSkippable(): boolean {
         return [ " ", "\n", "\t" ].includes(this.getNext().value);
     }

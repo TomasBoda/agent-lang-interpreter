@@ -24,10 +24,10 @@ export class Runtime {
     }
 
     /**
-     * Runs one step of the program evaluation and returns the program's output
+     * Evaluates one step of the simulation
      * 
-     * @param step - step of the simulation to be evaluated
-     * @returns output of the simulation
+     * @param step step of the simulation to be evaluated
+     * @returns output of the given step of the simulation
      */
     public run(step: number): RuntimeOutput {
         this.output.step = step;
@@ -38,6 +38,12 @@ export class Runtime {
         return evaluation;
     }
 
+    /**
+     * Evaluates the program AST node
+     * 
+     * @param program program AST node
+     * @returns output of the given step of the simulation
+     */
     private evaluateProgram(program: Program): RuntimeOutput {
         for (const statement of program.body) {
             switch (statement.type) {
@@ -57,6 +63,11 @@ export class Runtime {
         return this.output;
     }
 
+    /**
+     * Evaluates the define declaration AST node
+     * 
+     * @param declaration define declaration AST node
+     */
     private evaluateDefineDeclaration(declaration: DefineDeclaration): void {
         if (this.output.step > 0) {
             return;
@@ -80,6 +91,11 @@ export class Runtime {
         this.globalEnvironment.declareVariable(identifier, defineDeclarationValue);
     }
 
+    /**
+     * Evaluates the object declaration AST node
+     * 
+     * @param declaration object declaration AST node
+     */
     private evaluateObjectDeclarationList(declaration: ObjectDeclaration): void {
         const count = this.evaluateAgentCount(declaration);
 
@@ -93,6 +109,12 @@ export class Runtime {
         }
     }
 
+    /**
+     * Evaluates the agent count of the object declaration AST node
+     * 
+     * @param declaration define declaration AST node
+     * @returns numeric runtime value
+     */
     private evaluateAgentCount(declaration: ObjectDeclaration): NumberValue {
         let count: RuntimeValue;
 
@@ -114,6 +136,11 @@ export class Runtime {
         return count as NumberValue;
     }
 
+    /**
+     * Evaluates the object declaration AST node
+     * 
+     * @param declaration object declaration AST node
+     */
     private evaluateObjectDeclaration(declaration: ObjectDeclaration, id: string): void {
         const objectIdentifier = declaration.identifier;
         const objectVariables = new Map<string, RuntimeValue>();
@@ -144,6 +171,13 @@ export class Runtime {
         }
     }
 
+    /**
+     * Evaluates the variable declaration AST node
+     * 
+     * @param declaration variable declaration AST node
+     * @param id id of the current agent
+     * @returns runtime value of the variable declaration
+     */
     private evaluateVariableDeclaration(declaration: VariableDeclaration, id: string): RuntimeValue {
         switch (declaration.variableType) {
             case VariableType.Property:
@@ -156,6 +190,13 @@ export class Runtime {
         }
     }
 
+    /**
+     * Evaluates the variable declaration AST node representing a property declaration
+     * 
+     * @param declaration variable declaration AST node representing a property declaration
+     * @param id id of the current agent
+     * @returns runtime value of the variable declaration representing a property declaration
+     */
     private evaluatePropertyDeclaration(declaration: VariableDeclaration, id: string): RuntimeValue {
         let expression = declaration.value;
 
@@ -166,6 +207,13 @@ export class Runtime {
         return this.evaluateRuntimeValue(expression, id);
     }
 
+    /**
+     * Evaluates the variable declaration AST node representing a const declaration
+     * 
+     * @param declaration variable declaration AST node representing a const declaration
+     * @param id id of the current agent
+     * @returns runtime value of the variable declaration representing a const declaration
+     */
     private evaluateConstDeclaration(declaration: VariableDeclaration, id: string): RuntimeValue {
         if (this.output.step === 0) {
             return this.evaluateRuntimeValue(declaration.value, id);
@@ -181,6 +229,13 @@ export class Runtime {
         return value;
     }
 
+    /**
+     * Evaluates a generic AST node
+     * 
+     * @param node generic AST node
+     * @param id id of the current agent
+     * @returns runtime value of the given AST node
+     */
     private evaluateRuntimeValue(node: ParserValue, id: string): RuntimeValue {
         switch (node.type) {
             case NodeType.Identifier:
@@ -210,6 +265,12 @@ export class Runtime {
         }
     }
 
+    /**
+     * Evaluates a numeric literal AST node
+     * 
+     * @param numericLiteral numeric literal AST node
+     * @returns runtime value of the numeric literal AST node
+     */
     private evaluateNumericLiteral(numericLiteral: NumericLiteral): RuntimeValue {
         const numberValue: NumberValue = {
             type: ValueType.Number,
@@ -219,6 +280,12 @@ export class Runtime {
         return numberValue;
     }
 
+    /**
+     * Evaluates a boolean literal AST node
+     * 
+     * @param booleanLiteral boolean literal AST node
+     * @returns runtime value of the boolean literal AST node
+     */
     private evaluateBooleanLiteral(booleanLiteral: BooleanLiteral): RuntimeValue {
         const booleanValue: BooleanValue = {
             type: ValueType.Boolean,
@@ -228,6 +295,12 @@ export class Runtime {
         return booleanValue;
     }
 
+    /**
+     * Evaluates an identifier AST node
+     * 
+     * @param identifier identifier AST node
+     * @returns runtime value of the identifier AST node
+     */
     private evaluateIdentifier(identifier: Identifier, id: string): RuntimeValue {
         const setComprehensionLookup = this.setComprehensionEnvironment.lookupVariable(identifier.identifier);
         if (setComprehensionLookup) {
@@ -249,6 +322,12 @@ export class Runtime {
         return value;
     }
 
+    /**
+     * Evaluates an identifier AST node representing a global variable declaration
+     * 
+     * @param identifier identifier AST node
+     * @returns runtime value of the identifier AST node
+     */
     private evaluateGlobalIdentifier(identifier: Identifier): RuntimeValue {
         const variableLookup = this.globalEnvironment.lookupVariable(identifier.identifier);
 
@@ -259,6 +338,13 @@ export class Runtime {
         return variableLookup;
     }
 
+    /**
+     * Evaluates a binary expression AST node
+     * 
+     * @param expression binary expression AST node
+     * @param id id of the current agent
+     * @returns runtime value of the binary expression AST node
+     */
     private evaluateBinaryExpression(expression: BinaryExpression, id: string): RuntimeValue {
         const leftHandSide = this.evaluateRuntimeValue(expression.left, id);
         const rightHandSide = this.evaluateRuntimeValue(expression.right, id);
@@ -289,6 +375,75 @@ export class Runtime {
         return this.evaluateNumericBinaryExpression(leftHandSide as NumberValue, rightHandSide as NumberValue, expression.operator, expression.position);
     }
 
+    /**
+     * Evaluates a comparison binary expression AST node
+     * 
+     * @param expression comparison binary expression AST node
+     * @param id id of the current agent
+     * @returns runtime value of the comparison binary expression AST node
+     */
+    private evaluateComparisonBinaryExpression(leftHandSide: NumberValue, rightHandSide: NumberValue, operator: string): RuntimeValue {
+        let result: boolean = false;
+
+        if (operator === ">") {
+            result = leftHandSide.value > rightHandSide.value;
+        } else if (operator === ">=") {
+            result = leftHandSide.value >= rightHandSide.value;
+        } else if (operator === "<") {
+            result = leftHandSide.value < rightHandSide.value;
+        } else if (operator === "<=") {
+            result = leftHandSide.value <= rightHandSide.value;
+        } else if (operator === "==") {
+            result = leftHandSide.value === rightHandSide.value;
+        } else if (operator === "!=") {
+            result = leftHandSide.value !== rightHandSide.value;
+        } else {
+            throw new ErrorRuntime(`Unsupported operator '${operator}' in binary expression`);
+        }
+
+        return { type: ValueType.Boolean, value: result } as BooleanValue;
+    }
+
+    /**
+     * Evaluates a numeric binary expression AST node
+     * 
+     * @param expression numeric binary expression AST node
+     * @param id id of the current agent
+     * @returns runtime value of the numeric binary expression AST node
+     */
+    private evaluateNumericBinaryExpression(leftHandSide: NumberValue, rightHandSide: NumberValue, operator: string, position: Position): RuntimeValue {
+        let result = 0;
+    
+        if (operator === "+") {
+            result = leftHandSide.value + rightHandSide.value;
+        } else if (operator === "-") {
+            result = leftHandSide.value - rightHandSide.value;
+        } else if (operator === "*") {
+            result = leftHandSide.value * rightHandSide.value;
+        } else if (operator === "/") {
+            if (rightHandSide.value === 0) {
+                throw new ErrorRuntime("Division by zero not allowed", position);
+            }
+
+            result = leftHandSide.value / rightHandSide.value;
+        } else {
+            if (rightHandSide.value === 0) {
+                throw new ErrorRuntime("Modulo by zero not allowed", position);
+            }
+
+            result = this.modulo(leftHandSide.value, rightHandSide.value);
+        }
+    
+        return { type: ValueType.Number, value: result } as NumberValue;
+    }
+
+    /**
+     * Evaluates a unary expression AST node
+     * 
+     * @param expression unary expression AST node
+     * @param id id of the current agent
+     * @returns runtime value of the unary expression AST node
+     */
     private evaluateUnaryExpression(expression: UnaryExpression, id: string): RuntimeValue {
         const { operator } = expression;
         const value = this.evaluateRuntimeValue(expression.value, id);
@@ -316,54 +471,13 @@ export class Runtime {
         throw new ErrorRuntime("Unary expression requires operator '-' or '!', but '${operator}' was provided", expression.position);
     }
 
-    private evaluateComparisonBinaryExpression(leftHandSide: NumberValue, rightHandSide: NumberValue, operator: string): RuntimeValue {
-        let result: boolean = false;
-
-        if (operator === ">") {
-            result = leftHandSide.value > rightHandSide.value;
-        } else if (operator === ">=") {
-            result = leftHandSide.value >= rightHandSide.value;
-        } else if (operator === "<") {
-            result = leftHandSide.value < rightHandSide.value;
-        } else if (operator === "<=") {
-            result = leftHandSide.value <= rightHandSide.value;
-        } else if (operator === "==") {
-            result = leftHandSide.value === rightHandSide.value;
-        } else if (operator === "!=") {
-            result = leftHandSide.value !== rightHandSide.value;
-        } else {
-            throw new ErrorRuntime(`Unsupported operator '${operator}' in binary expression`);
-        }
-
-        return { type: ValueType.Boolean, value: result } as BooleanValue;
-    }
-
-    private evaluateNumericBinaryExpression(leftHandSide: NumberValue, rightHandSide: NumberValue, operator: string, position: Position): RuntimeValue {
-        let result = 0;
-    
-        if (operator === "+") {
-            result = leftHandSide.value + rightHandSide.value;
-        } else if (operator === "-") {
-            result = leftHandSide.value - rightHandSide.value;
-        } else if (operator === "*") {
-            result = leftHandSide.value * rightHandSide.value;
-        } else if (operator === "/") {
-            if (rightHandSide.value === 0) {
-                throw new ErrorRuntime("Division by zero not allowed", position);
-            }
-
-            result = leftHandSide.value / rightHandSide.value;
-        } else {
-            if (rightHandSide.value === 0) {
-                throw new ErrorRuntime("Modulo by zero not allowed", position);
-            }
-
-            result = this.customModulo(leftHandSide.value, rightHandSide.value);
-        }
-    
-        return { type: ValueType.Number, value: result } as NumberValue;
-    }
-
+    /**
+     * Evaluates a logical expression AST node
+     * 
+     * @param expression logical expression AST node
+     * @param id id of the current agent
+     * @returns runtime value of the logical expression AST node
+     */
     private evaluateLogicalExpression(expression: LogicalExpression, id: string): RuntimeValue {
         const leftHandSide = this.evaluateRuntimeValue(expression.left, id);
         const rightHandSide = this.evaluateRuntimeValue(expression.right, id);
@@ -396,6 +510,13 @@ export class Runtime {
         return { type: ValueType.Boolean, value: result } as BooleanValue;
     }
 
+    /**
+     * Evaluates a conditional expression AST node
+     * 
+     * @param expression conditional expression AST node
+     * @param id id of the current agent
+     * @returns runtime value of the conditional expression AST node
+     */
     private evaluateConditionalExpression(expression: ConditionalExpression, id: string): RuntimeValue {
         const condition = this.evaluateRuntimeValue(expression.condition, id);
 
@@ -412,6 +533,13 @@ export class Runtime {
         return this.evaluateRuntimeValue(result, id);
     }
 
+    /**
+     * Evaluates a call expression AST node
+     * 
+     * @param expression call expression AST node
+     * @param id id of the current agent
+     * @returns runtime value of the call expression AST node
+     */
     private evaluateCallExpression(expression: CallExpression, id: string): RuntimeValue {
         if (expression.caller.type !== NodeType.Identifier) {
             throw new ErrorRuntime("Function caller must be an identifier", expression.position);
@@ -433,6 +561,13 @@ export class Runtime {
         return (func as FunctionValue).call(args);
     }
 
+    /**
+     * Evaluates a set comprehension expression AST node
+     * 
+     * @param expression set comprehension expression AST node
+     * @param id id of the current agent
+     * @returns runtime value of the set comprehension expression AST node
+     */
     private evaluateSetComprehensionExpression(expression: SetComprehensionExpression, id: string): RuntimeValue {
         const agents: RuntimeValue = this.evaluateRuntimeValue(expression.base, id);
         const param: IdentifierValue = {
@@ -461,6 +596,13 @@ export class Runtime {
         return setComprehensionValue;
     }
 
+    /**
+     * Evaluates a member expression AST node
+     * 
+     * @param expression member expression AST node
+     * @param id id of the current agent
+     * @returns runtime value of the member expression AST node
+     */
     private evaluateMemberExpression(expression: MemberExpression, id: string): RuntimeValue {
         const caller = this.evaluateRuntimeValue(expression.caller, id);
 
@@ -488,6 +630,13 @@ export class Runtime {
         return value;
     }
 
+    /**
+     * Evaluates an otherwise expression AST node
+     * 
+     * @param expression otherwise expression AST node
+     * @param id id of the current agent
+     * @returns runtime value of the otherwise expression AST node
+     */
     private evaluateOtherwiseExpression(expression: OtherwiseExpression, id: string): RuntimeValue {
         this.inOtherwiseExpression = true;
         const left = this.evaluateRuntimeValue(expression.left, id);
@@ -500,8 +649,12 @@ export class Runtime {
         return left;
     }
 
-    // utility functions
-
+    /**
+     * Asserts a statement AST node to be a define declaration AST node
+     * 
+     * @param statement statement AST node to assert
+     * @returns define declaration AST node
+     */
     private getDefineDeclaration(statement: Statement): DefineDeclaration {
         if (statement.type !== NodeType.DefineDeclaration) {
             throw new ErrorRuntime("Only object or define declarations are allowed in program body", statement.position);
@@ -510,6 +663,12 @@ export class Runtime {
         return statement as DefineDeclaration;
     }
 
+    /**
+     * Asserts a statement AST node to be an object declaration AST node
+     * 
+     * @param statement statement AST node to assert
+     * @returns object declaration AST node
+     */
     private getObjectDeclaration(statement: Statement): ObjectDeclaration {
         if (statement.type !== NodeType.ObjectDeclaration) {
             throw new ErrorRuntime("Only object or define declarations are allowed in program body", statement.position);
@@ -518,6 +677,12 @@ export class Runtime {
         return statement as ObjectDeclaration;
     }
 
+    /**
+     * Asserts a statement AST node to be a variable declaration AST node
+     * 
+     * @param statement statement AST node to assert
+     * @returns variable declaration AST node
+     */
     private getVariableDeclaration(statement: Statement): VariableDeclaration {
         if (statement.type !== NodeType.VariableDeclaration) {
             throw new ErrorRuntime("Only variable declarations are allowed in object declaration body", statement.position);
@@ -526,14 +691,22 @@ export class Runtime {
         return statement as VariableDeclaration;
     }
 
-    private customModulo(a: number, b: number): number {
+    /**
+     * Custom modulo used in modulo binary expression evaluation
+     * 
+     * @param a left numeric operand
+     * @param b right numeric operand
+     * @returns result of the modulo arithmetic operation
+     */
+    private modulo(a: number, b: number): number {
         return ((a % b) + b) % b;
     }
 
     /**
      * Finds an agent in the array of agents from the previous step
      * 
-     * @param id - id of the agent that is searched
+     * @param id id of the agent
+     * @throws runtime error if the agent with the given id was not found
      * @returns agent with the specified id
      */
     private findAgent(id: string): RuntimeAgent {
@@ -547,10 +720,10 @@ export class Runtime {
     }
 
     /**
-     * Generates a unique agent identifier
+     * Generates a unique agent identifier (id)
      * 
-     * @param identifier - object declaration identifier key
-     * @param id - numeric identifier key
+     * @param identifier object declaration identifier
+     * @param id numeric identifier (index)
      * @returns unique agent identifier
      */
     private generateAgentId(identifier: string, id: number): string {
@@ -558,9 +731,9 @@ export class Runtime {
     }
 
     /**
-     * Replaces the current AST with the specified AST
+     * Replaces the current program AST node with the given program AST node
      * 
-     * @param program - program to use as replacement
+     * @param program program AST node to use as replacement
      */
     public setProgram(program: Program): void {
         this.program = program;
@@ -574,16 +747,19 @@ export class Runtime {
     }
     
     /**
-     * Updates a specific property value in a specific agent
+     * Updates a specific property value in a specific agent instance
      * 
-     * @param agentIndex - index of the agent
-     * @param propertyIdentifier - identifier of the property
-     * @param value - new value to be used for the agent's property value
+     * @param agentIndex index of the agent
+     * @param propertyIdentifier identifier of the property
+     * @param value new value to be used for the agent's property value
      */
     public updateAgentValue(agentIndex: number, propertyIdentifier: string, value: number): void {
         this.previousAgents[agentIndex].variables.set(propertyIdentifier, { type: ValueType.Number, value } as NumberValue);
     }
 
+    /**
+     * Updates the previous and current output at the end of a step
+     */
     private updateOutput(): void {
         if (this.output.step === 0) {
             return;
@@ -593,26 +769,49 @@ export class Runtime {
         this.output.agents = [];
     }
 
-    // runtime functions
-
+    /**
+     * Initializes runtime functions (step, index, agents)
+     */
     private initializeRuntimeFunctions(): void {
         this.globalEnvironment.declareVariable("step", createGlobalFunction(this.createStepFunction(0)));
         this.globalEnvironment.declareVariable("agents", createGlobalFunction(this.createAgentsFunction([], "")));
         this.globalEnvironment.declareVariable("index", createGlobalFunction(this.createIndexFunction(0)));
     }
 
+    /**
+     * Provides new data to the index function
+     * 
+     * @param index index value to provide
+     */
     private updateIndexFunction(index: number): void {
         this.globalEnvironment.assignVariable("index", createGlobalFunction(this.createIndexFunction(index)));
     }
 
+    /**
+     * Provides new data to the agents function
+     * 
+     * @param agents agents value to provide
+     * @param id id of the current agent
+     */
     private updateAgentsFunction(agents: RuntimeAgent[], id: string): void {
         this.globalEnvironment.assignVariable("agents", createGlobalFunction(this.createAgentsFunction(agents, id)));
     }
 
+    /**
+     * Provides new data to the step function
+     * 
+     * @param step step value to provide
+     */
     private updateStepFunction(step: number): void {
         this.globalEnvironment.assignVariable("step", createGlobalFunction(this.createStepFunction(step)));
     }
 
+    /**
+     * Creates the global index function
+     * 
+     * @param index initial index value
+     * @returns reference to the index function
+     */
     private createIndexFunction(index: number): FunctionCall {
         function indexFunction(args: RuntimeValue[]): RuntimeValue {
             if (args.length !== 0) {
@@ -625,6 +824,13 @@ export class Runtime {
         return indexFunction;
     }
 
+    /**
+     * Creates the global agents function
+     * 
+     * @param index initial agents value
+     * @param id id of the current agent
+     * @returns reference to the agents function
+     */
     private createAgentsFunction(agents: RuntimeAgent[], id: string): FunctionCall {
         function agentsFunction(args: RuntimeValue[]): RuntimeValue {
             if (args.length !== 1) {
@@ -646,6 +852,12 @@ export class Runtime {
         return agentsFunction;
     }
 
+    /**
+     * Creates the global step function
+     * 
+     * @param index initial step value
+     * @returns reference to the step function
+     */
     private createStepFunction(step: number): FunctionCall {
         function stepFunction(args: RuntimeValue[]): RuntimeValue {
             if (args.length !== 0) {

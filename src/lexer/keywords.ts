@@ -1,5 +1,8 @@
 import { TokenType } from "./model/index.ts";
 
+/**
+ * Map of the reserved keywords and their types
+ */
 export const ReservedKeywords: Record<string, TokenType> = {
     "agent": TokenType.Agent,
 

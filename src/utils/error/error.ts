@@ -16,6 +16,11 @@ export class ErrorModel extends Error {
         this.position = position;
     }
 
+    /**
+     * Converts the error to a string representation suitable for presenting to the user
+     * 
+     * @returns string representation of the error
+     */
     public toString(): string {
         if (!this.position) {
             return `${this.type} Error: ${this.about}`;

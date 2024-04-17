@@ -15,8 +15,8 @@ export class Environment {
     /**
      * Declares a new variable in the current environment
      * 
-     * @param identifier - identifier of the new variable
-     * @param value - value of the new variable
+     * @param identifier identifier of the new variable
+     * @param value value of the new variable
      * @returns value that has been declared
      */
     public declareVariable(identifier: string, value: RuntimeValue): RuntimeValue {
@@ -32,8 +32,8 @@ export class Environment {
     /**
      * Assing an existing variable in the current environment a new value
      * 
-     * @param identifier - identifier of the existing variable
-     * @param value - value to be reassigned to the existing variable
+     * @param identifier identifier of the existing variable
+     * @param value value to be reassigned to the existing variable
      * @returns value that has been reassigned
      */
     public assignVariable(identifier: string, value: RuntimeValue): RuntimeValue {
@@ -50,7 +50,7 @@ export class Environment {
     /**
      * Retrieves the value of a variable from the current or any of the parent environments by its identifier
      * 
-     * @param identifier - identifier of the variable
+     * @param identifier identifier of the variable
      * @returns variable value or undefined if not found
      */
     public lookupVariable(identifier: string): RuntimeValue | undefined {
@@ -66,7 +66,7 @@ export class Environment {
     /**
      * Searches the current and all parent environments for a variable by its identifier and returns this environment if found
      * 
-     * @param identifier - identifier of the searched variable
+     * @param identifier identifier of the searched variable
      * @returns environment where the variable has been declared
      */
     public resolve(identifier: string): Environment | undefined {

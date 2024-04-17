@@ -8,7 +8,7 @@ export class Topology {
     /**
      * Sorts the objects' variable declarations topologically in order to minimize runtime errors
      * 
-     * @param program - parsed program in AST form
+     * @param program parsed program in AST form
      * @returns topologically sorted AST
      */
     public getSortedProgram(program: Program): Program {
@@ -19,7 +19,7 @@ export class Topology {
     /**
      * Sorts the top-level declarations (objects, global variables) in order to optimize program runtime
      * 
-     * @param program - parsed program in AST form
+     * @param program parsed program in AST form
      * @returns sorted AST
      */
     private getSortedAgentAndDefineDeclarations(program: Program): Program {
@@ -36,7 +36,7 @@ export class Topology {
     /**
      * Sorts variable declarations of an object topologically
      * 
-     * @param objectDeclaration - object declaration whose properties to sort topologically
+     * @param objectDeclaration object declaration whose properties to sort topologically
      * @returns sorted object declaration
      */
     private getSortedAgentDeclaration(objectDeclaration: ObjectDeclaration): ObjectDeclaration {
@@ -68,8 +68,8 @@ export class Topology {
     /**
      * Sorts variable declarations based on nodes of an already topologically sorted dependency graph
      * 
-     * @param declarations - an array of variable declarations to sort
-     * @param nodes - topologically sorted nodes of a dependency graph
+     * @param declarations an array of variable declarations to sort
+     * @param nodes topologically sorted nodes of a dependency graph
      * @returns topologically sorted array of variable declarations
      */
     private getSortedPropertyDeclarations(declarations: VariableDeclaration[], nodes: Node[]): Expression[] {
@@ -90,7 +90,7 @@ export class Topology {
     /**
      * Finds all variable dependencies of the current variable declaration
      * 
-     * @param variableDeclaration - variable declaration whose variable dependencies to find
+     * @param variableDeclaration variable declaration whose variable dependencies to find
      * @returns an array of variable dependencies identifiers
      */
     private getPropertyDependencies(variableDeclaration: VariableDeclaration): string[] {
@@ -169,8 +169,8 @@ export class Topology {
     /**
      * Produces a dependency graph of all variable dependencies of an object
      * 
-     * @param identifiers - identifiers of the object's variable declarations
-     * @param dependencies - variable dependencies of the object's variable declarations
+     * @param identifiers identifiers of the object's variable declarations
+     * @param dependencies variable dependencies of the object's variable declarations
      * @returns dependency graph representing variable dependencies of an object
      */
     private getDependencyGraph(identifiers: string[], dependencies: string[][]): DependencyGraph {
@@ -194,7 +194,7 @@ export class Topology {
     /**
      * Sorts a dependency graph topologically
      * 
-     * @param graph - dependency graph to sort topologically
+     * @param graph dependency graph to sort topologically
      * @returns array of topologically sorted nodes of the dependency graph
      */
     private topologicalSort(graph: DependencyGraph): Node[] {
@@ -245,7 +245,7 @@ export class Topology {
     /**
      * Finds all global variable declarations in a program
      * 
-     * @param program - program to find global variable declarations in
+     * @param program program to find global variable declarations in
      * @returns array of program's global variable declarations
      */
     private getDefineDeclarations(program: Program): DefineDeclaration[] {
@@ -257,7 +257,7 @@ export class Topology {
     /**
      * Finds all object declarations in a program
      * 
-     * @param program - program to find object declarations in
+     * @param program program to find object declarations in
      * @returns array of program's object declarations
      */
     private getAgentDeclarations(program: Program): ObjectDeclaration[] {
@@ -269,7 +269,7 @@ export class Topology {
     /**
      * Finds all variable declarations in an object declaration
      * 
-     * @param objectDeclaration - object declaration to find variable declarations in
+     * @param objectDeclaration object declaration to find variable declarations in
      * @returns array of object declaration's variable declarations
      */
     private getPropertyDeclarations(objectDeclaration: ObjectDeclaration): VariableDeclaration[] {
@@ -281,7 +281,7 @@ export class Topology {
     /**
      * Finds all identifiers of all object declarations in a program
      * 
-     * @param program - program to find all object declarations' identifiers in
+     * @param program program to find all object declarations' identifiers in
      * @returns array of all object declarations' identifiers
      */
     private getAgentDeclarationIdentifiers(program: Program): string[] {

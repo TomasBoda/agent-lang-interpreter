@@ -8,6 +8,12 @@ export class Formatter {
     private static binaryOperatorPrecedence: { [key: string]: number } = { "+": 1, "-": 1, "*": 2, "/": 2, "%": 2 };
     private static logicalOperatorPrecedence: { [key: string]: number } = { "and": 1, "or": 2 };
 
+    /**
+     * Formats the source code based on pre-defined AgentLang formatting guidelines
+     * 
+     * @param sourceCode source code to format
+     * @returns formatted source code
+     */
     public static getFormatted(sourceCode: string): string {
         Formatter.line = 1;
 
@@ -15,6 +21,11 @@ export class Formatter {
         return Formatter.nodeToSourceCode(program)
     }
 
+    /**
+     * 
+     * @param ast AST node to convert to source code
+     * @returns source code of the formatted AST node
+     */
     public static nodeToSourceCode(ast: ParserValue): string {
         let sourceCode = "";
 
@@ -75,13 +86,11 @@ export class Formatter {
                 let left = Formatter.nodeToSourceCode(binaryExpression.left);
                 let right = Formatter.nodeToSourceCode(binaryExpression.right);
 
-                // handle left parentheses
                 if (binaryExpression.left.type === NodeType.BinaryExpression) {
                     const needsLeftParentheses = Formatter.binaryOperatorPrecedence[operator] > Formatter.binaryOperatorPrecedence[(binaryExpression.left as BinaryExpression).operator];
                     left = needsLeftParentheses ? `(${left})` : left;
                 }
 
-                // handle right parentheses
                 if (binaryExpression.right.type === NodeType.BinaryExpression) {
                     const needsLeftParentheses = Formatter.binaryOperatorPrecedence[operator] > Formatter.binaryOperatorPrecedence[(binaryExpression.right as BinaryExpression).operator];
                     right = needsLeftParentheses ? `(${right})` : right;
@@ -111,13 +120,11 @@ export class Formatter {
                 } else if (logicalExpression.left.type === NodeType.LogicalExpression && logicalExpression.right.type !== NodeType.LogicalExpression) {
                     // Do nothing
                 } else {
-                    // handle left parentheses
                     if (logicalExpression.left.type === NodeType.LogicalExpression) {
                         const needsLeftParentheses = Formatter.logicalOperatorPrecedence[operator] > Formatter.logicalOperatorPrecedence[(logicalExpression.left as LogicalExpression).operator];
                         left = needsLeftParentheses ? `(${left})` : left;
                     }
 
-                    // handle right parentheses
                     if (logicalExpression.right.type === NodeType.LogicalExpression) {
                         const needsLeftParentheses = Formatter.logicalOperatorPrecedence[operator] > Formatter.logicalOperatorPrecedence[(logicalExpression.right as LogicalExpression).operator];
                         right = needsLeftParentheses ? `(${right})` : right;
@@ -208,6 +215,12 @@ export class Formatter {
         return offset;
     }
 
+    /**
+     * Converts source code to program AST node
+     * 
+     * @param sourceCode source code to converts
+     * @returns program AST node
+     */
     private static getProgram(sourceCode: string): Program {
         const symbolizer: Symbolizer = new Symbolizer(sourceCode);
         const symbols: Symbol[] = symbolizer.symbolize();

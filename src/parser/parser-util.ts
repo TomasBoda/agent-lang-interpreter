@@ -5,6 +5,12 @@ import { BinaryExpression, BooleanLiteral, CallExpression, ConditionalExpression
 
 export class ParserUtil {
 
+    /**
+     * Converts a generic AST node to source code
+     * 
+     * @param ast generic AST node to convert
+     * @returns source code of the generic AST node
+     */
     public static astToCode(ast: ParserValue): string {
         let code = "";
 
@@ -159,13 +165,27 @@ export class ParserUtil {
         return code;
     }
 
-    public static codeToAst(code: string): VariableDeclaration {
-        const symbols = new Symbolizer(code).symbolize();
+    /**
+     * Converts the source code to a variable declaration AST node
+     * 
+     * @param sourceCode source code to convert
+     * @returns variable declaration AST node
+     */
+    public static codeToAst(sourceCode: string): VariableDeclaration {
+        const symbols = new Symbolizer(sourceCode).symbolize();
         const tokens = new Lexer(symbols).tokenize();
         const result = new Parser(tokens).parseVariableDeclaration() as VariableDeclaration;
         return result;
     }
 
+    /**
+     * Finds a variable declaration AST node in a program AST node and converts it to source code
+     * 
+     * @param program program AST node to search in
+     * @param agentIdentifier identifier of the object declaration
+     * @param variableIdentifier identifier of the variable declaration
+     * @returns source code of the variable declaration AST node if found, otherwise undefined
+     */
     public static getVariableCode(program: Program, agentIdentifier: string, variableIdentifier: string): string | undefined {
         const objectDeclarationStatement = program.body.find(object => (object as ObjectDeclaration).identifier === agentIdentifier);
         
@@ -182,6 +202,15 @@ export class ParserUtil {
         return ParserUtil.astToCode(variableDeclarationStatement as VariableDeclaration);
     }
 
+    /**
+     * Finds a variable declaration AST node in a program AST node and replaces it with a new variable declaration AST node
+     * 
+     * @param program program AST node to search in
+     * @param newVariableDeclaration variable declaration AST node to use as a replacement
+     * @param agentIdentifier identifier of the object declaration
+     * @param variableIdentifier identifier of the variable declaration
+     * @returns new program AST node with the replaced variable declaration AST node
+     */
     public static updateVariableInProgram(program: Program, newVariableDeclaration: VariableDeclaration, agentIdentifier: string, variableIdentifier: string): Program {
         program.body = program.body.map(objectStatement => {
             const objectDeclaration = objectStatement as ObjectDeclaration;
@@ -204,6 +233,13 @@ export class ParserUtil {
         return program;
     }
 
+    /**
+     * Asserts whether a generic AST node is of any of the given types
+     * 
+     * @param node generic AST node to assert
+     * @param types list of types to assert against
+     * @returns true of the given generic AST node is of any of the given types, otherwise false
+     */
     private static isOfType(node: ParserValue, ...types: NodeType[]): boolean {
         for (const type of types) {
             if (node.type === type) {

@@ -12,9 +12,9 @@ export class Parser {
     }
 
     /**
-     * Parses the array of tokens into an AST structure representing the program
+     * Parses the array of tokens into a program AST node
      * 
-     * @returns program structure in form of AST
+     * @returns program AST node
      */
     public parse(): Program {
         const program = this.createEmptyProgram();
@@ -27,6 +27,11 @@ export class Parser {
         return program;
     }
 
+    /**
+     * Parser a generic statement AST node
+     * 
+     * @returns statement AST node
+     */
     private parseStatement(): Statement {
         switch (this.at().type) {
             case TokenType.Define:
@@ -38,6 +43,11 @@ export class Parser {
         }
     }
 
+    /**
+     * Parses a define declaration AST node
+     * 
+     * @returns define declaration AST node
+     */
     private parseDefineDeclaration(): DefineDeclaration {
         const position = this.assert(TokenType.Define, "Expected define keyword in define declaration", this.position()).position;
         const identifier = this.assert(TokenType.Identifier, "Expected identifier after define keyword in define declaration", this.position()).value;
@@ -60,6 +70,11 @@ export class Parser {
         };
     }
 
+    /**
+     * Parses an object declaration AST node
+     * 
+     * @returns object declaration AST node
+     */
     private parseObjectDeclaration(): ObjectDeclaration {
         const { position } = this.assert(TokenType.Agent, "Expected agent keyword in agent declaration", this.position());
         const identifier = this.assert(TokenType.Identifier, "Expected agent identifier after agent keyword in agent declaration", this.position()).value;
@@ -95,6 +110,11 @@ export class Parser {
         };
     }
 
+    /**
+     * Parses a variable declaration AST node
+     * 
+     * @returns variable declaration AST node
+     */
     public parseVariableDeclaration(): VariableDeclaration {
         const { position, type } = this.assertMulti(TokenType.Property, TokenType.Const, "Expected property or const keyword in property declaration", this.position());
         const identifier = this.assert(TokenType.Identifier, "Expected identifier after property type in property declaration", this.position()).value;
@@ -126,10 +146,20 @@ export class Parser {
         };
     }
 
+    /**
+     * Parses a generic expression AST node
+     * 
+     * @returns expression AST node
+     */
     private parseExpression(): Expression {
         return this.parseOtherwiseExpression();
     }
 
+    /**
+     * Parses an otherwise expression AST node
+     * 
+     * @returns expression AST node
+     */
     private parseOtherwiseExpression(): Expression {
         const left = this.parseSetComprehensionExpression();
 
@@ -150,6 +180,11 @@ export class Parser {
         return left;
     }
 
+    /**
+     * Parses a set comprehension expression AST node
+     * 
+     * @returns expression AST node
+     */
     private parseSetComprehensionExpression(): Expression {
         const base = this.parseConditionalExpression();
 
@@ -174,6 +209,11 @@ export class Parser {
         return base;
     }
 
+    /**
+     * Parses a conditional expression AST node
+     * 
+     * @returns expression AST node
+     */
     private parseConditionalExpression(): Expression {
         if (this.at().type === TokenType.If) {
             const { position } = this.next();
@@ -202,6 +242,11 @@ export class Parser {
         return this.parseLogicalExpression();
     }
 
+    /**
+     * Parses a logical expression AST node
+     * 
+     * @returns expression AST node
+     */
     private parseLogicalExpression(): Expression {
         let left = this.parseComparisonExpression();
 
@@ -224,6 +269,11 @@ export class Parser {
         return left;
     }
 
+    /**
+     * Parses a comparison binary expression AST node
+     * 
+     * @returns expression AST node
+     */
     private parseComparisonExpression(): Expression {
         let left = this.parseAdditiveExpression();
 
@@ -246,6 +296,11 @@ export class Parser {
         return left;
     }
 
+    /**
+     * Parses an additive binary expression AST node
+     * 
+     * @returns expression AST node
+     */
     private parseAdditiveExpression(): Expression {
         let left = this.parseMultiplicativeExpression();
 
@@ -268,6 +323,11 @@ export class Parser {
         return left;
     }
 
+    /**
+     * Parses a multiplicative expression AST node
+     * 
+     * @returns expression AST node
+     */
     private parseMultiplicativeExpression(): Expression {
         let left = this.parseMemberExpression();
 
@@ -290,6 +350,11 @@ export class Parser {
         return left;
     }
 
+    /**
+     * Parses a member expression AST node
+     * 
+     * @returns expression AST node
+     */
     private parseMemberExpression(): Expression {
         const caller = this.parseCallExpression();
 
@@ -311,6 +376,11 @@ export class Parser {
         return caller;
     }
 
+    /**
+     * Parses a call expression AST node
+     * 
+     * @returns expression AST node
+     */
     private parseCallExpression(): Expression {
         const caller = this.parsePrimaryExpression();
 
@@ -330,6 +400,11 @@ export class Parser {
         return caller;
     }
 
+    /**
+     * Parses a call expression AST node's arguments
+     * 
+     * @returns arguments of the call expression
+     */
     private parseCallExpressionArguments(): Expression[] {
         this.assert(TokenType.OpenParen, "Expected an open parenthesis before function arguments in call expression", this.position());
 
@@ -340,6 +415,11 @@ export class Parser {
         return args;
     }
 
+    /**
+     * Parses a list of arguments of a call expression AST node
+     * 
+     * @returns arguments of the call expression
+     */
     private parseCallExpressionArgumentsList(): Expression[] {
         const firstArg = this.parseExpression();
         const args = [firstArg];
@@ -352,6 +432,11 @@ export class Parser {
         return args;
     }
 
+    /**
+     * Parses a generic primary expression AST node
+     * 
+     * @returns expression AST node
+     */
     private parsePrimaryExpression(): Expression {
         switch (this.at().type) {
             case TokenType.Identifier:
@@ -371,6 +456,11 @@ export class Parser {
         }
     }
 
+    /**
+     * Parses an identifier AST node
+     * 
+     * @returns identifier AST node
+     */
     private parseIdentifier(): Identifier {
         const { value, position } = this.next();
 
@@ -383,6 +473,11 @@ export class Parser {
         return identifier;
     }
 
+    /**
+     * Parses a numeric literal AST node
+     * 
+     * @returns numeric literal AST node
+     */
     private parseNumericLiteral(): NumericLiteral {
         const { value, position } = this.next();
 
@@ -395,6 +490,11 @@ export class Parser {
         return numericLiteral;
     }
 
+    /**
+     * Parses a unary expression AST node representing a negative numeric literal
+     * 
+     * @returns unary expression AST node
+     */
     private parseNegativeNumericLiteral(): UnaryExpression {
         const { value, position } = this.at();
 
@@ -414,6 +514,11 @@ export class Parser {
         return unaryExpression;
     }
 
+    /**
+     * Parses a boolean literal AST node
+     * 
+     * @returns boolean literal AST node
+     */
     private parseBooleanLiteral(): BooleanLiteral {
         const { value, position } = this.next();
 
@@ -426,6 +531,11 @@ export class Parser {
         return booleanLiteral;
     }
 
+    /**
+     * Parses a unary expression AST node representing a negative boolean literal
+     * 
+     * @returns unary expression AST node
+     */
     private parseNegativeBooleanLiteral(): UnaryExpression {
         const { value, position } = this.at();
 
@@ -445,6 +555,11 @@ export class Parser {
         return unaryExpression;
     }
 
+    /**
+     * Parses a parenthesised generic expression AST node
+     * 
+     * @returns expression AST node
+     */
     private parseParenthesisedExpression(): Expression {
         this.next();
         const value: Expression = this.parseExpression();
@@ -454,6 +569,15 @@ export class Parser {
         return value;
     }
 
+    /**
+     * Asserts the current token to be of a given type
+     * 
+     * @param type expected type of the current token
+     * @param message error message in case of incorrect type
+     * @param position position of the current token in the source code
+     * @param next whether to move to the next token after successful assertion
+     * @returns the current or next token
+     */
     private assert(type: TokenType, message: string, position: Position, next = true): Token {
         if (this.isNotOf(type)) {
             throw new ErrorParser(message, position);
@@ -462,6 +586,16 @@ export class Parser {
         return next ? this.next() : this.at();
     }
 
+    /**
+     * Asserts the current token type to be of either of the given types
+     * 
+     * @param type1 first expected type of the current token
+     * @param type2 second expected type of the current token
+     * @param message error message in case of incorrect type
+     * @param position position of the current token in the source code
+     * @param next whether to move to the next token after successful assertion
+     * @returns the current or next token
+     */
     private assertMulti(type1: TokenType, type2: TokenType, message: string, position: Position, next = true): Token {
         if (this.isNotOf(type1) && this.isNotOf(type2)) {
             throw new ErrorParser(message, position);
@@ -470,26 +604,58 @@ export class Parser {
         return next ? this.next() : this.at();
     }
 
+    /**
+     * Returns the current token
+     * 
+     * @returns current token
+     */
     private at(): Token {
         return this.tokens[0];
     }
 
+    /**
+     * Returns the current token and removes it from the stack
+     * 
+     * @returns current token
+     */
     private next(): Token {
         return this.tokens.shift() as Token;
     }
 
+    /**
+     * Returns the position of the current token in the source code
+     * 
+     * @returns position of the current token
+     */
     private position(): Position {
         return this.at().position;
     }
 
+    /**
+     * Asserts the current token's type to not be of the given type
+     * 
+     * @param type type to assert
+     * @returns true if the types do not match, otherwise false
+     */
     private isNotOf(type: TokenType): boolean {
         return this.at().type !== type;
     }
 
-    private notEndOfFile() {
+    /**
+     * Checks whether the current token is not the EOF (end-of-file) token
+     * 
+     * @returns true if the current token is not the EOF token, otherwise false
+     */
+    private notEndOfFile(): boolean {
         return this.at().type !== TokenType.EOF;
     }
 
+    /**
+     * Converts the token type to variable type (property, const)
+     * 
+     * @param tokenType type of the token to convert
+     * @returns variable type
+     */
     private getVariableType(tokenType: TokenType): VariableType {
         switch (tokenType) {
             case TokenType.Property:
@@ -501,6 +667,11 @@ export class Parser {
         }
     }
 
+    /**
+     * Creates an empty program AST node
+     * 
+     * @returns empty program AST node
+     */
     private createEmptyProgram(): Program {
         return {
             type: NodeType.Program,

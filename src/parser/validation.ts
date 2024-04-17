@@ -6,7 +6,7 @@ export class Validation {
     /**
      * Statically validates the agent, property and define declarations in a program
      * 
-     * @param program - program to validate
+     * @param program program to validate
      */
     public static validate(program: Program): void {
         Validation.validateDefineDeclarationIdentifiers(program);
@@ -18,7 +18,7 @@ export class Validation {
      * Checks for duplicate define declarations in a program
      * Throws an exception if duplicate define declarations were found
      * 
-     * @param program - program to check duplicate define declarations in
+     * @param program program to check duplicate define declarations in
      */
     private static validateDefineDeclarationIdentifiers(program: Program): void {
         const defineDeclarations = program.body
@@ -42,7 +42,7 @@ export class Validation {
      * Checks for duplicate agent declarations in a program
      * Throws an exception if duplicate agent declarations were found
      * 
-     * @param program - program to check duplicate agent declarations in
+     * @param program program to check duplicate agent declarations in
      */
     private static validateAgentDeclarationIdentifiers(program: Program): void {
         const agentDeclarations = program.body
@@ -66,7 +66,7 @@ export class Validation {
      * Checks for duplicate property declarations in a program
      * Throws an exception if duplicate property declarations were found
      * 
-     * @param program - program to check duplicate property declarations in
+     * @param program program to check duplicate property declarations in
      */
     private static validatePropertyDeclarationIdentifiers(program: Program): void {
         const agentDeclarations = program.body
