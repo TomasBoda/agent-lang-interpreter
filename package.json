@@ -12,17 +12,16 @@
   "scripts": {
     "start": "npx bun run index.ts",
     "test": "npx bun test",
-
-    "build-current-platform": "/Users/tomasboda/.deno/bin/deno compile -A --unstable-sloppy-imports --output ./prod/current-platform/agent-lang ./agent-lang.ts",
-    "build-x86_64-unknown-linux-gnu": "/Users/tomasboda/.deno/bin/deno compile -A --unstable-sloppy-imports --output ./prod/x86_64-unknown-linux-gnu/agent-lang --target x86_64-unknown-linux-gnu ./agent-lang.ts",
-    "build-aarch64-unknown-linux-gnu": "/Users/tomasboda/.deno/bin/deno compile -A --unstable-sloppy-imports --output ./prod/aarch64-unknown-linux-gnu/agent-lang --target aarch64-unknown-linux-gnu ./agent-lang.ts",
-    "build-x86_64-pc-windows-msvc": "/Users/tomasboda/.deno/bin/deno compile -A --unstable-sloppy-imports --output ./prod/x86_64-pc-windows-msvc/agent-lang --target x86_64-pc-windows-msvc ./agent-lang.ts",
-    "build-x86_64-apple-darwin": "/Users/tomasboda/.deno/bin/deno compile -A --unstable-sloppy-imports --output ./prod/x86_64-apple-darwin/agent-lang --target x86_64-apple-darwin ./agent-lang.ts",
-    "build-aarch64-apple-darwin": "/Users/tomasboda/.deno/bin/deno compile -A --unstable-sloppy-imports --output ./prod/aarch64-apple-darwin/agent-lang --target aarch64-apple-darwin ./agent-lang.ts",
-    
+    "build-current-platform": "/Users/tomasboda/.deno/bin/deno compile -A --unstable-sloppy-imports --output ./prod/current-platform/agent-lang ./exec/agent-lang.ts",
+    "build-x86_64-unknown-linux-gnu": "/Users/tomasboda/.deno/bin/deno compile -A --unstable-sloppy-imports --output ./prod/x86_64-unknown-linux-gnu/agent-lang --target x86_64-unknown-linux-gnu ./exec/agent-lang.ts",
+    "build-aarch64-unknown-linux-gnu": "/Users/tomasboda/.deno/bin/deno compile -A --unstable-sloppy-imports --output ./prod/aarch64-unknown-linux-gnu/agent-lang --target aarch64-unknown-linux-gnu ./exec/agent-lang.ts",
+    "build-x86_64-pc-windows-msvc": "/Users/tomasboda/.deno/bin/deno compile -A --unstable-sloppy-imports --output ./prod/x86_64-pc-windows-msvc/agent-lang --target x86_64-pc-windows-msvc ./exec/agent-lang.ts",
+    "build-x86_64-apple-darwin": "/Users/tomasboda/.deno/bin/deno compile -A --unstable-sloppy-imports --output ./prod/x86_64-apple-darwin/agent-lang --target x86_64-apple-darwin ./exec/agent-lang.ts",
+    "build-aarch64-apple-darwin": "/Users/tomasboda/.deno/bin/deno compile -A --unstable-sloppy-imports --output ./prod/aarch64-apple-darwin/agent-lang --target aarch64-apple-darwin ./exec/agent-lang.ts",
     "build-all": "npm run build-current-platform && npm run build-x86_64-unknown-linux-gnu && npm run build-aarch64-unknown-linux-gnu && npm run build-x86_64-pc-windows-msvc && npm run build-x86_64-apple-darwin && npm run build-aarch64-apple-darwin"
   },
   "devDependencies": {
+    "@types/command-line-args": "^5.2.3",
     "bun-types": "latest",
     "typescript": "^4.9.5"
   },

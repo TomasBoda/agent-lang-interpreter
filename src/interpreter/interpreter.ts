@@ -1,4 +1,4 @@
-import { Observable, Subject, Subscription, interval, takeWhile } from "rxjs";
+import { Observable, Subject, Subscription, interval, of, takeWhile } from "rxjs";
 import { Symbol, Symbolizer } from "../symbolizer/index.ts";
 import { Lexer, Token } from "../lexer/index.ts";
 import { Parser, Program, Topology } from "../parser/index.ts";
@@ -32,7 +32,17 @@ export class Interpreter {
      * @returns observable holding the interpreter's output
      */
     public get(sourceCode: string, config: InterpreterConfiguration): Observable<InterpreterOutput> {
-        this.build(sourceCode, config);
+        try {
+            this.build(sourceCode, config);
+        } catch (error) {
+            return of({
+                status: {
+                    code: 1,
+                    message: (error as ErrorModel).toString()
+                }
+            })
+        }
+
         return this.dataSubject.asObservable();
     }
 
