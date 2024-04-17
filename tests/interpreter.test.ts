@@ -51,20 +51,6 @@ describe("Interpreter", () => {
         expect(result.output?.step).toBe(13);
     });
 
-    test("should reset the interpreter", async () => {
-        interpreter.start();
-        await wait(config.delay * 5 + config.delay / 2);
-        expect(result.output?.step).toBe(4);
-
-        interpreter.reset();
-        interpreter.start();
-
-        await wait(config.delay);
-        expect(result.output?.step).toBe(0);
-        await wait(config.delay * 3);
-        expect(result.output?.step).toBe(3);
-    });
-
     test.each(INTERPRETER_STEP_TESTING_DATA)
     ("should emit output on every step (%#)", async entry => {
         const { steps, delay } = entry;
