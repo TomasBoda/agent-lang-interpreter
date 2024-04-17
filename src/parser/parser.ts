@@ -1,7 +1,7 @@
-import { Position } from "../symbolizer";
-import { Token, TokenType } from "../lexer";
-import { BinaryExpression, BooleanLiteral, CallExpression, ConditionalExpression, DefineDeclaration, Expression, Identifier, SetComprehensionExpression, LogicalExpression, MemberExpression, NodeType, NumericLiteral, ObjectDeclaration, OtherwiseExpression, ParserValue, Program, Statement, UnaryExpression, VariableDeclaration, VariableType } from "./model";
-import { ErrorParser } from "../utils";
+import { Position } from "../symbolizer/index.ts";
+import { Token, TokenType } from "../lexer/index.ts";
+import { BinaryExpression, BooleanLiteral, CallExpression, ConditionalExpression, DefineDeclaration, Expression, Identifier, SetComprehensionExpression, LogicalExpression, MemberExpression, NodeType, NumericLiteral, ObjectDeclaration, OtherwiseExpression, ParserValue, Program, Statement, UnaryExpression, VariableDeclaration, VariableType } from "./model/index.ts";
+import { ErrorParser } from "../utils/index.ts";
 
 export class Parser {
 

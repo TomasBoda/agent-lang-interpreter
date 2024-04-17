@@ -1,3 +1,3 @@
-export * from "./lexer";
-export * from "./model";
-export * from "./keywords";
+export * from "./lexer.ts";
+export * from "./model/index.ts";
+export * from "./keywords.ts";

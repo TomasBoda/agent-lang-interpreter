@@ -1,4 +1,4 @@
-import { TokenType } from "./model";
+import { TokenType } from "./model/index.ts";
 
 export const ReservedKeywords: Record<string, TokenType> = {
     "agent": TokenType.Agent,

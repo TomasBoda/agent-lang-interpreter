@@ -1,6 +1,6 @@
-import { Symbolizer, Symbol } from "../symbolizer";
-import { Lexer, Token } from "../lexer";
-import { Parser, BinaryExpression, BooleanLiteral, CallExpression, ConditionalExpression, Identifier, SetComprehensionExpression, LogicalExpression, MemberExpression, NodeType, NumericLiteral, ObjectDeclaration, OtherwiseExpression, ParserValue, Program, UnaryExpression, VariableDeclaration, VariableType, DefineDeclaration } from "../parser";
+import { Symbolizer, Symbol } from "../symbolizer/index.ts";
+import { Lexer, Token } from "../lexer/index.ts";
+import { Parser, BinaryExpression, BooleanLiteral, CallExpression, ConditionalExpression, Identifier, SetComprehensionExpression, LogicalExpression, MemberExpression, NodeType, NumericLiteral, ObjectDeclaration, OtherwiseExpression, ParserValue, Program, UnaryExpression, VariableDeclaration, DefineDeclaration } from "../parser/index.ts";
 
 export class Formatter {
 

@@ -1,2 +1,2 @@
-export * from "./token";
-export * from "./token-type";
+export * from "./token.ts";
+export * from "./token-type.ts";

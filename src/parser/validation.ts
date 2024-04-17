@@ -1,5 +1,5 @@
-import { ErrorParser } from "../utils";
-import { DefineDeclaration, NodeType, ObjectDeclaration, Program, VariableDeclaration } from "./model";
+import { ErrorParser } from "../utils/index.ts";
+import { DefineDeclaration, NodeType, ObjectDeclaration, Program, VariableDeclaration } from "./model/index.ts";
 
 export class Validation {
 

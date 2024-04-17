@@ -1,4 +1,4 @@
-import { ValueType } from "./value-type";
+import { ValueType } from "./value-type.ts";
 
 export interface RuntimeValue {
     type: ValueType;

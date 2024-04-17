@@ -1,7 +1,7 @@
-import { Token, TokenType } from "./model";
-import { Symbol, Position } from "../symbolizer";
-import { ReservedKeywords } from "./keywords";
-import { ErrorLexer } from "../utils";
+import { Token, TokenType } from "./model/index.ts";
+import { Symbol, Position } from "../symbolizer/index.ts";
+import { ReservedKeywords } from "./keywords.ts";
+import { ErrorLexer } from "../utils/index.ts";
 
 export class Lexer {
 

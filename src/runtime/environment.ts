@@ -1,6 +1,6 @@
-import { RuntimeValue } from "./model/values";
-import { ErrorRuntime } from "../utils";
-import { ABS, CEIL, CHOICE, COS, COUNT, EMPTY, FILTER, FLOOR, PI, PROB, RANDOM, ROUND, SIN, SQRT, TAN, createGlobalFunction, MIN, MAX, DIST, SUM, ATAN, FIND_BY_COORDINATES, RGB } from "./functions";
+import { RuntimeValue } from "./model/values.ts";
+import { ErrorRuntime } from "../utils/index.ts";
+import { ABS, CEIL, CHOICE, COS, COUNT, EMPTY, FILTER, FLOOR, PI, PROB, RANDOM, ROUND, SIN, SQRT, TAN, createGlobalFunction, MIN, MAX, DIST, SUM, ATAN, FIND_BY_COORDINATES, RGB } from "./functions/index.ts";
 
 export class Environment {
 

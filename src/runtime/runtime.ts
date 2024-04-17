@@ -1,9 +1,9 @@
-import { Position } from "../symbolizer";
-import { BinaryExpression, BooleanLiteral, CallExpression, ConditionalExpression, DefineDeclaration, Identifier, SetComprehensionExpression, LogicalExpression, MemberExpression, NodeType, NumericLiteral, ObjectDeclaration, OtherwiseExpression, ParserValue, Program, Statement, UnaryExpression, VariableDeclaration, VariableType } from "../parser";
-import { AgentsValue, AgentValue, BooleanValue, FunctionCall, FunctionValue, IdentifierValue, SetComprehensionValue, NumberValue, RuntimeAgent, RuntimeOutput, RuntimeValue, ValueType } from "./model";
-import { Environment } from "./environment";
-import { ErrorRuntime } from "../utils";
-import { createGlobalFunction } from "./functions";
+import { Position } from "../symbolizer/index.ts";
+import { BinaryExpression, BooleanLiteral, CallExpression, ConditionalExpression, DefineDeclaration, Identifier, SetComprehensionExpression, LogicalExpression, MemberExpression, NodeType, NumericLiteral, ObjectDeclaration, OtherwiseExpression, ParserValue, Program, Statement, UnaryExpression, VariableDeclaration, VariableType } from "../parser/index.ts";
+import { AgentsValue, AgentValue, BooleanValue, FunctionCall, FunctionValue, IdentifierValue, SetComprehensionValue, NumberValue, RuntimeAgent, RuntimeOutput, RuntimeValue, ValueType } from "./model/index.ts";
+import { Environment } from "./environment.ts";
+import { ErrorRuntime } from "../utils/index.ts";
+import { createGlobalFunction } from "./functions/index.ts";
 
 export class Runtime {
 

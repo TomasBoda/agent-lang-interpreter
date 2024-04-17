@@ -1,5 +1,5 @@
-import { ErrorParser } from "../utils";
-import { BinaryExpression, CallExpression, ConditionalExpression, DefineDeclaration, DependencyGraph, Expression, Identifier, LogicalExpression, MemberExpression, Node, NodeType, ObjectDeclaration, Program, SetComprehensionExpression, UnaryExpression, VariableDeclaration } from "./model";
+import { ErrorParser } from "../utils/index.ts";
+import { BinaryExpression, CallExpression, ConditionalExpression, DefineDeclaration, DependencyGraph, Expression, Identifier, LogicalExpression, MemberExpression, Node, NodeType, ObjectDeclaration, Program, SetComprehensionExpression, UnaryExpression, VariableDeclaration } from "./model/index.ts";
 
 export class Topology {
 

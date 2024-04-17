@@ -1,7 +1,7 @@
 import { describe, expect, test } from "bun:test";
-import { getProgram } from "./utils/utils";
-import { BinaryExpression, BooleanLiteral, CallExpression, ConditionalExpression, DefineDeclaration, ErrorParser, Identifier, LogicalExpression, MemberExpression, Node, NodeType, NumericLiteral, ObjectDeclaration, OtherwiseExpression, SetComprehensionExpression, UnaryExpression, VariableDeclaration, VariableType } from "../src";
-import { TestSupport } from "./utils/test-support.test";
+import { getProgram } from "./utils/utils.ts";
+import { BinaryExpression, BooleanLiteral, CallExpression, ConditionalExpression, ErrorParser, Identifier, LogicalExpression, MemberExpression, Node, NodeType, NumericLiteral, ObjectDeclaration, OtherwiseExpression, SetComprehensionExpression, UnaryExpression, VariableType } from "../src/index.ts";
+import { TestSupport } from "./utils/test-support.ts";
 
 describe("Parser", () => {
     

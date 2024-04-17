@@ -1,2 +1,2 @@
-export * from "./symbolizer";
-export * from "./model";
+export * from "./symbolizer.ts";
+export * from "./model/index.ts";

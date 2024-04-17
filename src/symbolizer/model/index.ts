@@ -1,2 +1,2 @@
-export * from "./position";
-export * from "./symbol";
+export * from "./position.ts";
+export * from "./symbol.ts";

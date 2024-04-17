@@ -1,5 +1,5 @@
-import { Agent } from "./agent";
-import { ExitStatus } from "./exit-status";
+import { Agent } from "./agent.ts";
+import { ExitStatus } from "./exit-status.ts";
 
 export interface Output {
     step: number;

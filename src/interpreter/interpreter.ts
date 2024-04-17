@@ -1,11 +1,11 @@
 import { Observable, Subject, Subscription, interval, takeWhile } from "rxjs";
-import { Symbol, Symbolizer } from "../symbolizer";
-import { Lexer, Token } from "../lexer";
-import { Parser, Program, Topology } from "../parser";
-import { Runtime, Environment, FunctionCall, NumberValue, RuntimeAgent, RuntimeOutput, RuntimeValue, ValueType, createGlobalFunction, normalizeNumber } from "../runtime";
-import { Agent, InterpreterConfiguration, InterpreterOutput } from "./model";
-import { ErrorModel, ErrorRuntime } from "../utils";
-import { Validation } from "../parser/validation";
+import { Symbol, Symbolizer } from "../symbolizer/index.ts";
+import { Lexer, Token } from "../lexer/index.ts";
+import { Parser, Program, Topology } from "../parser/index.ts";
+import { Runtime, Environment, FunctionCall, NumberValue, RuntimeAgent, RuntimeOutput, RuntimeValue, ValueType, createGlobalFunction, normalizeNumber } from "../runtime/index.ts";
+import { Agent, InterpreterConfiguration, InterpreterOutput } from "./model/index.ts";
+import { ErrorModel, ErrorRuntime } from "../utils/index.ts";
+import { Validation } from "../parser/validation.ts";
 
 export class Interpreter {
 

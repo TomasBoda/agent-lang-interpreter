@@ -1,4 +1,4 @@
-import { Position } from "./position";
+import { Position } from "./position.ts";
 
 export interface Symbol {
     value: string;

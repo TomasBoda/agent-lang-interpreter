@@ -1,5 +1,5 @@
-import { ErrorModel } from "./error";
-import { Position } from "../../symbolizer";
+import { ErrorModel } from "./error.ts";
+import { Position } from "../../symbolizer/index.ts";
 
 export class ErrorParser extends ErrorModel {
 

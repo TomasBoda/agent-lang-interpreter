@@ -1,6 +1,6 @@
-import { Position } from "../../symbolizer";
-import { NodeType } from "./node-type";
-import { VariableType } from "./variable-type";
+import { Position } from "../../symbolizer/index.ts";
+import { NodeType } from "./node-type.ts";
+import { VariableType } from "./variable-type.ts";
 
 export interface ParserValue {
     type: NodeType;

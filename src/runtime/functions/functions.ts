@@ -1,6 +1,6 @@
-import { ErrorRuntime } from "../../utils";
-import { AgentsValue, BooleanValue, SetComprehensionValue, NumberValue, RuntimeAgent, RuntimeValue, ValueType } from "../model";
-import { createAgentValue, createAgentsValue, createBooleanValue, createColourValue, createNullValue, createNumberValue, expectArgumentCount, expectArgumentType } from "./utils";
+import { ErrorRuntime } from "../../utils/index.ts";
+import { AgentsValue, BooleanValue, SetComprehensionValue, NumberValue, RuntimeAgent, RuntimeValue, ValueType } from "../model/index.ts";
+import { createAgentValue, createAgentsValue, createBooleanValue, createColourValue, createNullValue, createNumberValue, expectArgumentCount, expectArgumentType } from "./utils.ts";
 
 export function RGB(args: RuntimeValue[]): RuntimeValue {
     expectArgumentCount("rgb", 3, args.length);

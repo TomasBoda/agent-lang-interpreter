@@ -1,2 +1,2 @@
-export * from "./value-type";
-export * from "./values";
+export * from "./value-type.ts";
+export * from "./values.ts";

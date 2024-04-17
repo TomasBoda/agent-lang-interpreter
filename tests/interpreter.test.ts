@@ -1,6 +1,6 @@
 import { describe, test, expect, beforeEach, afterEach } from "bun:test";
 import { Subscription } from "rxjs";
-import { Interpreter, InterpreterConfiguration, InterpreterOutput } from "../src";
+import { Interpreter, InterpreterConfiguration, InterpreterOutput } from "../src/index.ts";
 
 const INTERPRETER_STEP_TESTING_DATA = [
     { steps: 10, delay: 50 },

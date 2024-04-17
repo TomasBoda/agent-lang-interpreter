@@ -1,5 +1,5 @@
-import { Position } from "../../symbolizer";
-import { TokenType } from "./token-type";
+import { Position } from "../../symbolizer/index.ts";
+import { TokenType } from "./token-type.ts";
 
 export interface Token {
     value: string;

@@ -1,4 +1,4 @@
-import { Position } from "../../symbolizer";
+import { Position } from "../../symbolizer/index.ts";
 
 type ErrorType = "Lexer" | "Parser" | "Runtime";
 

@@ -1,5 +1,5 @@
-import { ErrorRuntime } from "../../utils";
-import { AgentValue, AgentsValue, BooleanValue, ColourValue, FunctionCall, FunctionValue, NullValue, NumberValue, RuntimeAgent, RuntimeValue, ValueType } from "../model";
+import { ErrorRuntime } from "../../utils/index.ts";
+import { AgentValue, AgentsValue, BooleanValue, ColourValue, FunctionCall, FunctionValue, NullValue, NumberValue, RuntimeAgent, RuntimeValue, ValueType } from "../model/index.ts";
 
 export const NUMERIC_LITERAL_MAX_DECIMAL_PLACES = 8;
 
