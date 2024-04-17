@@ -56,6 +56,10 @@ AgentLang interpreter can also be built as a binary executable runnable on vario
 ```bash
 npm run build-all
 ```
+
+> [!WARNING]
+> The build script uses [Deno](https://deno.com/) for compiling the TypeScript files into an executable binary. Before running the script, be sure to have Deno installed on your system and change the Deno installation path in the `package.json` file in the project root.
+
 The script will build executable binaries for supported platforms into the `./prod` folder. To run the binary file, run the following.
 ```bash
 ./prod/current-platform/agent-lang --input sourceCode.txt --output output.json
