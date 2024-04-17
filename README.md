@@ -51,7 +51,7 @@ interpreter.get(sourceCode, config).subscribe((output: InterpreterOutput) => {
 });
 ```
 
-## Binary Build
+## Building Binary Executables
 AgentLang interpreter can also be built as a binary executable runnable on various platforms. To build the binary executables of the interpreter, run the following in the project root.
 ```bash
 npm run build-all
