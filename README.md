@@ -51,6 +51,17 @@ interpreter.get(sourceCode, config).subscribe((output: InterpreterOutput) => {
 });
 ```
 
+## Binary Build
+AgentLang interpreter can also be built as a binary executable runnable on various platforms. To build the binary executables of the interpreter, run the following in the project root.
+```bash
+npm run build-all
+```
+The script will build executable binaries for supported platforms into the `./prod` folder. To run the binary file, run the following.
+```bash
+./prod/current-platform/agent-lang --input sourceCode.txt --output output.json
+```
+The interpreter will run the AgentLang code from the `sourceCode.txt` file and store the output of each step into the `output.json` file.
+
 ## Tests
 To run the AgentLang interpreter's unit tests, run the following in the command line:
 ```bash
