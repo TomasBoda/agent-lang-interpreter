@@ -1,4 +1,0 @@
-
-agent person 10 {
-    const age = random(0, 85);
-}
