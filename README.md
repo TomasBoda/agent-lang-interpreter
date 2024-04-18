@@ -66,10 +66,17 @@ The script will build executable binaries for supported platforms into the `./pr
 ```
 The interpreter will run the AgentLang code from the `sourceCode.txt` file and store the output of each step into the `output.json` file.
 
+## Run Example Program
+To run an example program of the AgentLang interpreter, run the following command in your terminal.
+```bash
+npm run start
+```
+The example program with the example source code from the `./example` folder will compile and run.
+
 ## Tests
 To run the AgentLang interpreter's unit tests, run the following in the command line:
 ```bash
-bun test
+npm run test
 ```
 
 ## Contributing
