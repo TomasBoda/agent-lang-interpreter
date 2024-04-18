@@ -4,16 +4,14 @@ import { Logger } from "./logger.ts";
 import { Parser } from "./parser.ts";
 import { Process } from "./process.ts";
 import { performance } from "node:perf_hooks";
+import { Performance } from "./performance.ts";
 
 interface ProgramOutput {
     steps: Output[];
 }
 
-let startTime = 0;
-let endTime = 0;
-
 // @ts-ignore
-const { sourceCode, outputFile, config, debug } = await Parser.initialize();
+const { sourceCode, outputFile, config, debug, compact } = await Parser.initialize();
 
 const interpreter: Interpreter = new Interpreter();
 const programOtput: ProgramOutput = { steps: [] };
@@ -25,19 +23,34 @@ interpreter.get(sourceCode, config).subscribe((output: InterpreterOutput) => {
     }
 
     if (debug) {
-        Logger.info(`Evaluating step ${output.output!.step}`);
+        Performance.now();
+        const elapsed = Performance.lastElapsed();
+        const delay = config.delay;
+
+        const step = output.output!.step;
+        const steps = config.steps;
+
+        Logger.info(`Evaluating step ${step}/${steps} (${elapsed}ms) (${Performance.slowdown(delay, elapsed)}x slowdown)`);
     }
 
     programOtput.steps.push(output.output!);
-    writeFileSync(outputFile, JSON.stringify(programOtput));
 
     if (output.output!.step === config.steps) {
-        endTime = performance.now();
-        const seconds = (endTime - startTime) / 1000;
-        const elapsedTime = Math.round(seconds * 100) / 100;
+        Performance.now();
+        const elapsed = Performance.allElapsed();
+
+        const actualTime = Performance.allElapsed(Performance.milliseconds);
+        const expectedTime = config.steps * config.delay;
         
-        Logger.info(`Finished running (${elapsedTime}s)`);
+        Logger.info(`Finished running (${elapsed}s) (${Performance.slowdown(expectedTime, actualTime)}x slowdown)`);
+
+        if (compact) {
+            writeFileSync(outputFile, JSON.stringify(programOtput));
+        } else {
+            writeFileSync(outputFile, JSON.stringify(programOtput, null, 2));
+        }
         Logger.done(`Output has been written to ${outputFile}`);
+
         Process.exit(0);
     }
 });
@@ -50,5 +63,5 @@ Logger.info("-----------------");
 Logger.info("Running AgentLang");
 Logger.info("-----------------");
 
-startTime = performance.now();
+Performance.now();
 interpreter.start();
