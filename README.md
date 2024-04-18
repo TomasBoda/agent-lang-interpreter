@@ -40,7 +40,7 @@ import {
     InterpreterOutput
 } from "@/agent-lang-interpreter";
 
-const filename = "code.txt";
+const filename = "source-code.txt";
 const sourceCode = readFileSync(filename, "utf-8");
 
 const config: InterpreterConfiguration = { steps: 10, delay: 500, width: 500, height: 500 };
