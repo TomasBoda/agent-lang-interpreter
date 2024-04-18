@@ -1,0 +1,9 @@
+agent snowflake 10 {
+    const speed = random(8, 15);
+
+    property x: random(0, width()) = x;
+    property y: random(0, height()) = (y + speed) % height();
+    
+    const w = 10;
+    const h = 10;
+}

@@ -10,7 +10,7 @@
   ],
   "main": "index.ts",
   "scripts": {
-    "start": "npx bun run index.ts",
+    "start": "npx bun run ./example/index.ts",
     "test": "npx bun test",
     "build-current-platform": "deno compile -A --unstable-sloppy-imports --output ./prod/current-platform/agent-lang ./exec/agent-lang.ts",
     "build-x86_64-unknown-linux-gnu": "deno compile -A --unstable-sloppy-imports --output ./prod/x86_64-unknown-linux-gnu/agent-lang --target x86_64-unknown-linux-gnu ./exec/agent-lang.ts",

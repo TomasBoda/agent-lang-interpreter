@@ -3,7 +3,6 @@ import { Interpreter, InterpreterOutput, Output } from "../index.ts";
 import { Logger } from "./logger.ts";
 import { Parser } from "./parser.ts";
 import { Process } from "./process.ts";
-import { performance } from "node:perf_hooks";
 import { Performance } from "./performance.ts";
 
 interface ProgramOutput {
@@ -14,7 +13,7 @@ interface ProgramOutput {
 const { sourceCode, outputFile, config, debug, compact } = await Parser.initialize();
 
 const interpreter: Interpreter = new Interpreter();
-const programOtput: ProgramOutput = { steps: [] };
+const programOutput: ProgramOutput = { steps: [] };
 
 interpreter.get(sourceCode, config).subscribe((output: InterpreterOutput) => {
     if (output.status.code !== 0 || !output.output) {
@@ -33,7 +32,7 @@ interpreter.get(sourceCode, config).subscribe((output: InterpreterOutput) => {
         Logger.info(`Evaluating step ${step}/${steps} (${elapsed}ms) (${Performance.slowdown(delay, elapsed)}x slowdown)`);
     }
 
-    programOtput.steps.push(output.output!);
+    programOutput.steps.push(output.output!);
 
     if (output.output!.step === config.steps) {
         Performance.now();
@@ -45,9 +44,9 @@ interpreter.get(sourceCode, config).subscribe((output: InterpreterOutput) => {
         Logger.info(`Finished running (${elapsed}s) (${Performance.slowdown(expectedTime, actualTime)}x slowdown)`);
 
         if (compact) {
-            writeFileSync(outputFile, JSON.stringify(programOtput));
+            writeFileSync(outputFile, JSON.stringify(programOutput));
         } else {
-            writeFileSync(outputFile, JSON.stringify(programOtput, null, 2));
+            writeFileSync(outputFile, JSON.stringify(programOutput, null, 2));
         }
         Logger.done(`Output has been written to ${outputFile}`);
 
