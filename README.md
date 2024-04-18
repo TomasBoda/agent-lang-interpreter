@@ -65,13 +65,8 @@ npm run start
 The example program with the example source code from the `./example` folder will compile and run.
 
 ## Run Using Docker
-To run AgentLang interpreter using Docker, run the following commands in your terminal.
+To run AgentLang interpreter using Docker, run the following commands the project root in your terminal.
 ```bash
-# clone the interpreter
-git clone https://github.com/TomasBoda/agent-lang-interpreter.git
-# checkout the interpreter
-cd agent-lang-interpreter
-# build the image
 docker build -t agent-lang-interpreter-image
 # run the image
 docker run -it agent-lang-interpreter-image
@@ -80,26 +75,17 @@ docker run -it agent-lang-interpreter-image
 ## Integrate into TypeScript Project
 To integrate the AgentLang interpreter into your TypeScript project, add it as a git submodule and install all the necessary packages.
 ```bash
-# checkout your project
-cd your-project
 # add the submodule to your project
 git submodule add https://github.com/TomasBoda/agent-lang-interpreter.git
 # checkout the submodule
 cd agent-lang-interpreter
-# install necessary packages
+# install the necessary packages
 npm install
 ```
 
 ## Build Binary Executable
-AgentLang interpreter can also be built as a binary executable runnable on various platforms. To build the binary executables of the interpreter, run the following in the project root.
+AgentLang interpreter can also be built as a binary executable runnable on various platforms. To build the binary executables of the interpreter, run the following command in the project root in your terminal.
 ```bash
-# clone the interpreter
-git clone https://github.com/TomasBoda/agent-lang-interpreter.git
-# checkout the interpreter
-cd agent-lang-interpreter
-# install necessary packages
-npm install
-# build binary executables
 npm run build-all
 ```
 
@@ -113,7 +99,7 @@ The script will build executable binaries for supported platforms into the `./pr
 The interpreter will run the AgentLang code from the `source-code.txt` file and store the output of each step into the `output.json` file.
 
 ## Tests
-To run the AgentLang interpreter's unit tests, run the following in the command line:
+To run the AgentLang interpreter's unit tests, run the following in the project root in your terminal.
 ```bash
 npm run test
 ```
