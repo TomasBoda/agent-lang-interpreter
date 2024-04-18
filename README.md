@@ -23,25 +23,6 @@ agent snowflake 200 {
 }
 ```
 
-## Run Using Docker
-To run AgentLang interpreter using Docker, run the following commands in your terminal.
-```bash
-# build the image
-docker build -t agent-lang-interpreter-image
-# run the image
-docker run -it agent-lang-interpreter-image
-```
-
-## Installation
-To integrate the AgentLang interpreter into your TypeScript project, add it as a git submodule and install all the necessary packages.
-```bash
-# add the submodule to your project
-git submodule add https://github.com/TomasBoda/agent-lang-interpreter.git
-# install necessary packages
-cd agent-lang-interpreter
-npm install
-```
-
 ## Usage
 Below is an example usage of the AgentLang interpreter in a TypeScript project.
 ```ts
@@ -62,7 +43,34 @@ interpreter.get(sourceCode, config).subscribe((output: InterpreterOutput) => {
 });
 ```
 
-## Building Binary Executables
+## Run Locally
+To run an example program of the AgentLang interpreter, run the following command in your terminal.
+```bash
+npm run start
+```
+The example program with the example source code from the `./example` folder will compile and run.
+
+## Run Using Docker
+To run AgentLang interpreter using Docker, run the following commands in your terminal.
+```bash
+# build the image
+docker build -t agent-lang-interpreter-image
+# run the image
+docker run -it agent-lang-interpreter-image
+```
+
+## Integrate into TypeScript Project
+To integrate the AgentLang interpreter into your TypeScript project, add it as a git submodule and install all the necessary packages.
+```bash
+# add the submodule to your project
+git submodule add https://github.com/TomasBoda/agent-lang-interpreter.git
+# checkout the submodule
+cd agent-lang-interpreter
+# install necessary packages
+npm install
+```
+
+## Build Binary Executables
 AgentLang interpreter can also be built as a binary executable runnable on various platforms. To build the binary executables of the interpreter, run the following in the project root.
 ```bash
 npm run build-all
@@ -76,13 +84,6 @@ The script will build executable binaries for supported platforms into the `./pr
 ./prod/current-platform/agent-lang --input source-code.txt --output output.json
 ```
 The interpreter will run the AgentLang code from the `source-code.txt` file and store the output of each step into the `output.json` file.
-
-## Running Example Program
-To run an example program of the AgentLang interpreter, run the following command in your terminal.
-```bash
-npm run start
-```
-The example program with the example source code from the `./example` folder will compile and run.
 
 ## Tests
 To run the AgentLang interpreter's unit tests, run the following in the command line:
