@@ -43,7 +43,7 @@ interpreter.get(sourceCode, config).subscribe((output: InterpreterOutput) => {
 });
 ```
 
-## Running AgentLang
+## Running
 There are four ways to run the AgentLang interpreter:
 - [Locally](#run-locally)
 - [Using Docker](#run-using-docker)
