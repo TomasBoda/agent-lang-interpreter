@@ -43,6 +43,13 @@ interpreter.get(sourceCode, config).subscribe((output: InterpreterOutput) => {
 });
 ```
 
+## Run
+There are four ways to run the AgentLang interpreter:
+- [Locally](#run-locally)
+- [Using Docker](#run-using-docker)
+- [Inside TypeScript project](#integrate-into-typescript-project)
+- [Using binary executable](#build-binary-executable)
+
 ## Run Locally
 To run an example program of the AgentLang interpreter, run the following command in your terminal.
 ```bash
@@ -70,7 +77,7 @@ cd agent-lang-interpreter
 npm install
 ```
 
-## Build Binary Executables
+## Build Binary Executable
 AgentLang interpreter can also be built as a binary executable runnable on various platforms. To build the binary executables of the interpreter, run the following in the project root.
 ```bash
 npm run build-all
