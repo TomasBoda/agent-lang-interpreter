@@ -62,9 +62,9 @@ npm run build-all
 
 The script will build executable binaries for supported platforms into the `./prod` folder. To run the binary file, run the following.
 ```bash
-./prod/current-platform/agent-lang --input sourceCode.txt --output output.json
+./prod/current-platform/agent-lang --input source-code.txt --output output.json
 ```
-The interpreter will run the AgentLang code from the `sourceCode.txt` file and store the output of each step into the `output.json` file.
+The interpreter will run the AgentLang code from the `source-code.txt` file and store the output of each step into the `output.json` file.
 
 ## Running Example Program
 To run an example program of the AgentLang interpreter, run the following command in your terminal.
