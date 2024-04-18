@@ -6,7 +6,7 @@
 ![License Badge](https://img.shields.io/badge/license-MIT-red?style=flat)
 
 ## About
-Interpreter for the **AgentLang** programming language written in TypeScript.
+Interpreter for the **AgentLang** programming language written in [TypeScript](https://www.typescriptlang.org/) and uses the [Bun](https://bun.sh/) runtime framework.
 
 ## AgentLang
 AgentLang is an interpreted programming language designed for agent-based modeling. Below is an example AgentLang source code.
