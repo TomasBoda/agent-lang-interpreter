@@ -53,6 +53,13 @@ There are four ways to run the AgentLang interpreter:
 ## Run Locally
 To run an example program of the AgentLang interpreter, run the following command in your terminal.
 ```bash
+# clone the interpreter
+git clone https://github.com/TomasBoda/agent-lang-interpreter.git
+# checkout the interpreter
+cd agent-lang-interpreter
+# install necessary packages
+npm install
+# run the example program
 npm run start
 ```
 The example program with the example source code from the `./example` folder will compile and run.
@@ -60,6 +67,10 @@ The example program with the example source code from the `./example` folder wil
 ## Run Using Docker
 To run AgentLang interpreter using Docker, run the following commands in your terminal.
 ```bash
+# clone the interpreter
+git clone https://github.com/TomasBoda/agent-lang-interpreter.git
+# checkout the interpreter
+cd agent-lang-interpreter
 # build the image
 docker build -t agent-lang-interpreter-image
 # run the image
@@ -69,6 +80,8 @@ docker run -it agent-lang-interpreter-image
 ## Integrate into TypeScript Project
 To integrate the AgentLang interpreter into your TypeScript project, add it as a git submodule and install all the necessary packages.
 ```bash
+# checkout your project
+cd your-project
 # add the submodule to your project
 git submodule add https://github.com/TomasBoda/agent-lang-interpreter.git
 # checkout the submodule
@@ -80,6 +93,13 @@ npm install
 ## Build Binary Executable
 AgentLang interpreter can also be built as a binary executable runnable on various platforms. To build the binary executables of the interpreter, run the following in the project root.
 ```bash
+# clone the interpreter
+git clone https://github.com/TomasBoda/agent-lang-interpreter.git
+# checkout the interpreter
+cd agent-lang-interpreter
+# install necessary packages
+npm install
+# build binary executables
 npm run build-all
 ```
 
