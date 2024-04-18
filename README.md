@@ -23,10 +23,21 @@ agent snowflake 200 {
 }
 ```
 
+## Run Using Docker
+To run AgentLang interpreter using Docker, run the following commands in your terminal.
+```bash
+# build the image
+docker build -t agent-lang-interpreter-image
+# run the image
+docker run -it agent-lang-interpreter-image
+```
+
 ## Installation
 To integrate the AgentLang interpreter into your TypeScript project, add it as a git submodule and install all the necessary packages.
 ```bash
+# add the submodule to your project
 git submodule add https://github.com/TomasBoda/agent-lang-interpreter.git
+# install necessary packages
 cd agent-lang-interpreter
 npm install
 ```
