@@ -67,7 +67,7 @@ The example program with the example source code from the `./example` folder wil
 ## Run Using Docker
 To run AgentLang interpreter using Docker, run the following commands the project root in your terminal.
 ```bash
-docker build -t agent-lang-interpreter-image
+docker build -t agent-lang-interpreter-image .
 # run the image
 docker run -it agent-lang-interpreter-image
 ```
