@@ -77,12 +77,12 @@ function testExpression(entry: ExpressionTestingData) {
     switch (type) {
         case ValueType.Number: {
             const value = TestSupport.expectValue<NumberValue>(agent.variables.get("value"), ValueType.Number);
-            expect(value.value).toBe(result);
+            expect(value.value).toBe(result as number);
             break;
         }
         case ValueType.Boolean: {
             const value = TestSupport.expectValue<BooleanValue>(agent.variables.get("value"), ValueType.Boolean);
-            expect(value.value).toBe(result);
+            expect(value.value).toBe(result as boolean);
             break;
         }
     }

@@ -48,8 +48,8 @@ interpreter.get(sourceCode, config).subscribe((output: InterpreterOutput) => {
         } else {
             writeFileSync(outputFile, JSON.stringify(programOutput, null, 2));
         }
+        
         Logger.done(`Output has been written to ${outputFile}`);
-
         Process.exit(0);
     }
 });

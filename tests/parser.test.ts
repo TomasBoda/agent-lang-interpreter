@@ -369,6 +369,7 @@ describe("Parser", () => {
 
     test("should not allow adding default value to const", () => {
         const code = "agent person 10 { const c: 10 = 20; }";
+        // @ts-ignore
         expect(() => getProgram(code).toThrow(ErrorParser));
     });
 

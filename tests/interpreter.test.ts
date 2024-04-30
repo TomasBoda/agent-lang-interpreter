@@ -12,7 +12,6 @@ const INTERPRETER_STEP_TESTING_DATA = [
 describe("Interpreter", () => {
 
     let subscription: Subscription;
-
     let interpreter: Interpreter;
 
     let config: InterpreterConfiguration = { width: 500, height: 500, steps: 10000, delay: 200 };
